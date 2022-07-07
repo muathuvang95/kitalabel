@@ -1,0 +1,14 @@
+.kitalabel-has-pdf {
+	text-align: center;
+	color: #00a305;
+}
+.kitalabel-no-pdf {
+	color: #f00;
+	text-align: center;
+}
+.kitalabel-loading {
+	display: none;
+}
+.kitalabel-loading loading {
+	display: block;
+}
