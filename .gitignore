@@ -33,9 +33,14 @@ plugins/sitepress-multilingual-cms/
 plugins/wpml-string-translation/
 plugins/wpml-translation-management/
 plugins/tawkto-live-chat/
+plugins/elementor-pro/
+plugins/elementor-beta/
+plugins/really-simple-ssl/
+plugins/wp-letsencrypt-ssl/
+plugins/extendify/
 
 
-
+fonts/
 languages/
 debug.log
 themes/twentytwentyone/
