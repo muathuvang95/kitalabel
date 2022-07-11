@@ -1,14 +1,22 @@
 .kitalabel-has-pdf {
 	text-align: center;
 	color: #00a305;
+	display: none;
 }
 .kitalabel-no-pdf {
 	color: #f00;
 	text-align: center;
-}
-.kitalabel-loading {
 	display: none;
 }
-.kitalabel-loading loading {
+.kitalabel-has-pdf.active {
 	display: block;
+}
+.kitalabel-no-pdf.active {
+	display: block;
+}
+.kitalabel-load, .kitalabel-create  {
+    display: none!important;
+}
+.kitalabel-load.active, .kitalabel-create.active {
+    display: block!important;
 }

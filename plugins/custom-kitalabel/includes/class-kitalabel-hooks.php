@@ -26,9 +26,45 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
              $this->kitalabel_ajax();
         }
 
+        public function kitalabel_download_all($order_id) {
+            if( isset( $_GET['download-all'] ) && ( $_GET['download-all'] == 'true' ) ){
+                $products = $order->get_items();
+                foreach( $products AS $order_item_id => $product ){
+                    if( wc_get_order_item_meta( $order_item_id, '_nbd' ) || wc_get_order_item_meta( $order_item_id, '_nbu' ) ){
+                        $nbd_item_key = wc_get_order_item_meta( $order_item_id, '_nbd' );
+                        $nbu_item_key = wc_get_order_item_meta( $order_item_id, '_nbu' );
+                        if( $nbd_item_key ){
+                            $list_images = Nbdesigner_IO::get_list_images( NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key, 1 );
+                            if( count( $list_images ) > 0 ){
+                                foreach( $list_images as $key => $image ){
+                                    $zip_files[] = $image;
+                                }
+                            }
+                        }
+                        if( $nbu_item_key ){
+                            $files = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR .'/'. $nbu_item_key );
+                            $files = apply_filters( 'nbu_download_upload_files', $files, $product );
+                            if( count( $files ) > 0 ){
+                                foreach( $files as $key => $file ){
+                                    $zip_files[] = $file;
+                                }
+                            }
+                        }
+                    }
+                }
+                if( !count( $zip_files ) ){
+                    exit();
+                }else{
+                    $pathZip = NBDESIGNER_DATA_DIR . '/download/' . $order_id . '.zip';
+                    $nameZip =  $order_id . '.zip';
+                    nbd_zip_files_and_download( $zip_files, $pathZip, $nameZip );
+                }
+            }
+        }
+
         public function kitalabel_ajax() {
             $ajax_events = array(
-                'kitalbel_convert_pdf_all' => true
+                'kitalbel_convert_pdf_item' => true
             );
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -40,16 +76,19 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             }
         }
 
-        public function kitalbel_convert_pdf_all() {
-            $items_key = isset($_POST['items_key']) ? $_POST['items_key'] : array();
-            if(is_array($items_key)) {
-                foreach ($items_key as $key => $nbd_item_key) {
-                    $result = nbd_export_pdfs( $nbd_item_key, false, false, 'no' );
-                    var_dump($result);
-                }
+        public function kitalbel_convert_pdf_item() {
+            $nbd_item_key = isset($_POST['item_key']) ? $_POST['item_key'] : array();
+            $files = array();
+
+            if($nbd_item_key) {
+                $files = nbd_export_pdfs( $nbd_item_key, false, false, 'no' );
             }
 
-            wp_send_json_success($items_key);
+            $result = array(
+                'created' => count($files) == 0 ? true : false,
+            );
+            
+            wp_send_json_success($result);
             die();
         }
 
@@ -82,11 +121,6 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             <div class="modal fade" id="kitalabelModal" tabindex="-1" aria-labelledby="kitalabelModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
-                        <div class="kitalabel-loading loading">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
                         <div class="modal-header">
                             <h5 class="modal-title" id="kitalabelModalLabel">Create PDF</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -105,12 +139,25 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                             <tbody>
                                 <?php
                                 $index = 1;
+                                $can_download_all = true;
                                 if($order) {
                                     foreach ( $order->get_items() as $item_id => $item ) {
                                         $nbd_item_key = wc_get_order_item_meta( $item_id, '_nbd' );
+                                        $nbu_item_key = wc_get_order_item_meta( $item_id, '_nbu' );
+
+                                        $list_upload = array();
+                                        if( $nbu_item_key ){
+                                            $list_upload = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR .'/'. $nbu_item_key );
+                                        }
+
                                         $path = NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key;
                                         $pdf_path = $path . '/customer-pdfs';
                                         $list_pdf = Nbdesigner_IO::get_list_files_by_type($pdf_path, 1, 'pdf');
+
+                                        if(count($list_pdf) == 0) {
+                                            $can_download_all = false;
+                                        }
+
                                         $list_images = Nbdesigner_IO::get_list_images(NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key .'/preview', 1);
                                         asort( $list_images );
                                         ?>
@@ -125,15 +172,12 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                                 <?php } ?>
                                             </td>
                                             <td>
-                                                <?php if(count($list_pdf) > 0) {
-                                                    echo '<div class="kitalabel-has-pdf"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg></div>';
-                                                } else {
-                                                    echo '<div class="kitalabel-no-pdf"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg></div>';
-                                                } ?>   
+                                                    <div class="kitalabel-has-pdf<?php echo count($list_pdf) > 0 ? ' active': ''; ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg></div>
+                                                    <div class="kitalabel-no-pdf<?php echo count($list_pdf) > 0 ? '': ' active'; ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg></div>
                                             </td>
                                             <td>
-                                                <button class="btn btn-primary kitalabel-order-item" data-item-id="<?php echo esc_attr($item_id);  ?>" data-item-key="<?php echo esc_attr($nbd_item_key);  ?>">Create</button>
+                                                <button class="btn btn-primary kitalabel-order-item" data-item-id="<?php echo esc_attr($item_id);  ?>" data-has-pdf="<?php echo esc_attr(count($list_pdf) > 0 ? '1' : '0');  ?>" <?php echo esc_attr(count($list_pdf) > 0 ? 'disabled' : '');  ?> data-item-key="<?php echo esc_attr($nbd_item_key);  ?>"><div class="kitalabel-create active">Create</div><div class="kitalabel-load spinner-border spinner-border-sm text-light" role="status"></div></button>
                                             </td>
                                         </tr>
                                         <?php
@@ -145,7 +189,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary kitalabel-convert-pdf-all">Convert all</button>
-                            <button type="button" class="btn btn-primary kitalabel-download-pdf-all">Download all</button>
+                            <button type="button" class="btn btn-primary kitalabel-download-pdf-all" <?php echo esc_attr(!$can_download_all ? 'disabled': ''); ?>>Download all</button>
                         </div>
                     </div>
                 </div>
