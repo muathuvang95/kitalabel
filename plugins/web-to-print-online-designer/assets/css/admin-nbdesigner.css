@@ -1768,3 +1768,10 @@ table.faqs th {
 .nbd_max_file_uploads_warning_content {
     padding: 12px;
 }
+
+.nbd-download-all-actions {
+    display: inline-block;
+    clear: both;
+    margin: 10px 0;
+    width: 100%;
+}

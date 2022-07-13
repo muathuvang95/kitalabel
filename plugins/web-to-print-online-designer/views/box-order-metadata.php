@@ -98,13 +98,17 @@
     </div>
     <input type="hidden" name="nbdesigner_design_order_id" value="<?php echo( $order_id ); ?>" />
     <?php wp_nonce_field( 'approve-designs', '_nbdesigner_approve_nonce' ); ?>
-    <div class="nbdesigner-clearfix"></div><br />
-    <div class="nbdesigner-right nbd-admin-setting-padding-5" >
-        <?php if( $count_img_design > 0 ): ?>
-            <a href="<?php echo add_query_arg(array('download-all' => 'true', 'order_id' => $order_id), admin_url('admin.php?page=nbdesigner_detail_order')); ?>" class="button button-small button-secondary"><?php esc_html_e('Download all', 'web-to-print-online-designer'); ?></a>
-        <?php else: ?>
-            <span class="button button-small button-disabled nbd-admin-setting-order-download-all" ><?php esc_html_e('Download all', 'web-to-print-online-designer'); ?></span>
-        <?php endif; ?>
+    <div class="nbd-download-all-actions">
+        <div class="nbdesigner-left nbd-admin-setting-padding-5" >
+            <?php do_action('kitalabel_download_pdf_all' , $order, $order_id); ?>
+        </div>
+        <div class="nbdesigner-right nbd-admin-setting-padding-5" >
+            <?php if( $count_img_design > 0 ): ?>
+                <a href="<?php echo add_query_arg(array('download-all' => 'true', 'order_id' => $order_id), admin_url('admin.php?page=nbdesigner_detail_order')); ?>" class="button button-small button-secondary"><?php esc_html_e('Download PNG all', 'web-to-print-online-designer'); ?></a>
+            <?php else: ?>
+                <span class="button button-small button-disabled nbd-admin-setting-order-download-all" ><?php esc_html_e('Download PNG all', 'web-to-print-online-designer'); ?></span>
+            <?php endif; ?>
+        </div>
     </div>
     <div class="nbdesigner-clearfix"></div>
 </div>

@@ -885,8 +885,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 //custom kitalabel
                 $groups1 = array();
                 $groups2 = array();
-                $groups = $option_fields['groups'];
-                if( isset($option_fields['groups'][0] ) ) {
+                if( isset($option_fields['groups']) && isset($option_fields['groups'][0] ) ) {
                     $groups1 = $option_fields['groups'][0]['fields'];
                 }
                 if( isset($option_fields['groups'][1] ) ) {
@@ -1498,7 +1497,6 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
             // custom kitalabel
             $groups1 = array();
             $groups2 = array();
-            $groups = $option_fields['groups'];
             if( isset($option_fields['groups'][0] ) ) {
                 $groups1 = $option_fields['groups'][0]['fields'];
             }
