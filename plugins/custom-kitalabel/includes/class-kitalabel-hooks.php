@@ -101,10 +101,10 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
         public function kitalabel_frontend_enqueue_scripts() {
 
-            wp_enqueue_style('kitalabel-scripts', CUSTOM_KITALABEL_URL . '/assets/css/style.css', array(), '1.0.0');
+            wp_enqueue_style('kitalabel-scripts', CUSTOM_KITALABEL_URL . 'assets/css/style.css', array(), '1.0.0');
 
 
-            wp_register_script('kitalabel-scripts', CUSTOM_KITALABEL_URL . '/assets/js/script.js', array(), '1.0.0');
+            wp_register_script('kitalabel-scripts', CUSTOM_KITALABEL_URL . 'assets/js/script.js', array(), '1.0.0');
 
             $args = array(
                 'url'   => admin_url('admin-ajax.php'),
@@ -116,9 +116,9 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
         }
 
         public function kitalabel_custom_enqueue_scripts() {
-            wp_enqueue_style('custom-kitalabel-css' , CUSTOM_KITALABEL_URL . '/assets/css/custom.css');
+            wp_enqueue_style('custom-kitalabel-css' , CUSTOM_KITALABEL_URL . 'assets/css/custom.css');
 
-            wp_register_script( 'custom-kitalabel-js',  CUSTOM_KITALABEL_URL . '/assets/js/custom.js', '', '' );
+            wp_register_script( 'custom-kitalabel-js',  CUSTOM_KITALABEL_URL . 'assets/js/custom.js', '', '' );
 
             $args = array(
                 'url' => admin_url( 'admin-ajax.php' ),

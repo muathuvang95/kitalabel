@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 do_action( 'woocommerce_before_cart' ); ?>
 
 <div class="row">
-	<div class="col-md-7"> 
+	<div class="col-md-8"> 
 
 		<form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
 
@@ -37,6 +37,14 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
 						$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
+						?>
+						<?php
+						if( isset( $cart_item['nbo_meta'] ) ) {
+					        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
+					        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+								echo apply_filters( 'nb_custom_after_cart_item_name', '' , $cart_item, $cart_item_key ); //cutom kitalabel
+					        }
+					    }
 						?>
 						<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 
@@ -205,7 +213,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 	<?php do_action( 'woocommerce_before_cart_collaterals' ); ?>
 
-	<div class="col-md-5 cart-order-details">
+	<div class="col-md-4 cart-order-details">
 		<div class="cart-collaterals">
 			<?php do_action( 'woocommerce_cart_collaterals' ); ?>
 		</div>

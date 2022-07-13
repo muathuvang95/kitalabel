@@ -8,7 +8,6 @@ jQuery(document).ready(function ($) {
                 can_download_all = false;
             }
         });
-        console.log(can_download_all);
         $('.kitalabel-download-pdf-all').prop('disabled', !can_download_all);
     }
     $('.kitalabel-convert-pdf-all').on('click', function(e) {

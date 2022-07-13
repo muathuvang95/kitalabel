@@ -1,11 +1,9 @@
 <?php
 
 get_header();
-$sidebar_configs = aora_tbay_get_page_layout_configs();
 
 $class_row = ( get_post_meta( $post->ID, 'tbay_page_layout', true ) === 'main-right' ) ? 'flex-row-reverse' : '';
 
-aora_tbay_render_breadcrumbs();
 $product_id = isset( $_GET['product_id'] ) ? $_GET['product_id'] : 0;
 if( $product_id == 0) {
 	get_template_part( 404 ); exit();
@@ -152,30 +150,14 @@ if($option_id) {
 }
 
 ?>
-<section id="main-container" class="<?php echo esc_attr( apply_filters('aora_tbay_page_content_class', 'container') );?>">
+<section id="main-container" class="nb-main-container">
 	<div class="row <?php echo esc_attr($class_row); ?>">
-		<?php if ( isset($sidebar_configs['sidebar']) && is_active_sidebar($sidebar_configs['sidebar']['id']) ) : ?>
-		<div class="<?php echo esc_attr($sidebar_configs['sidebar']['class']) ;?>">
-		  	<aside class="sidebar" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
-		   		<?php dynamic_sidebar( $sidebar_configs['sidebar']['id'] ); ?>
-		  	</aside>
-		</div>
-		<?php endif; ?>
-		<div id="main-content" class="main-page <?php echo esc_attr($sidebar_configs['main']['class']); ?>">
+		<div id="main-content" class="main-page">
 			<div id="main" class="site-main">
 				<?php
 				while ( have_posts() ) : the_post();
 					the_content();
 				?>
-					<?php if ( count($areas) > 0 ): ?>
-						<ul class="list-options-area">
-							<?php foreach( $areas as $area) {
-									$activate_class = $area == $area_name ? ' activate' : '';
-									echo '<li class="option-area'.$activate_class.' " >'.$area.'</li>';
-								}
-							?>	
-						</ul>
-					<?php endif; ?>
 					<div class="kita-uf-nbo-option-container kita-custom-page-upload">
 						<i class="fas fa-spinner fa-spin"></i>
 						<?php if ( $the_query->have_posts() ): ?>
@@ -184,6 +166,18 @@ if($option_id) {
 							?>
 								<div class="kita-uf-nbo-option-wrapper-<?php echo $id;?><?php echo $activate_class;?>">
 									<form class="upload-form" action="<?php echo site_url();?>/upload-file/" method="post" enctype="multipart/form-data">
+										<div class="kita-content">
+											<?php the_content(); ?>
+										</div>
+										<?php if ( count($areas) > 0 ): ?>
+											<ul class="list-options-area">
+												<?php foreach( $areas as $area) {
+														$activate_class = $area == $area_name ? ' activate' : '';
+														echo '<li class="option-area'.$activate_class.' " >'.$area.'</li>';
+													}
+												?>	
+											</ul>
+										<?php endif; ?>
 										<div class="kita-options-selected">
 											<div class="row">
 												<div class="kita-col-options col-md-6">
@@ -224,7 +218,7 @@ if($option_id) {
 														?>
 														<li>
 															<a href="<?php echo $link_ai; ?>" class="nbd-option-selected" download>
-																<img src="<?php echo get_stylesheet_directory_uri().'/images/guideline_ai.png'; ?>" alt="guideline_ai">
+																<img src="<?php echo CUSTOM_KITALABEL_URL.'assets/images/guideline_ai.png'; ?>" alt="guideline_ai">
 																<span class="name">Guideline .Ai</span>
 															</a>
 																
@@ -235,7 +229,7 @@ if($option_id) {
 														?>
 														<li>
 															<a href="<?php echo $link_pdf; ?>" class="nbd-option-selected" download>
-																<img src="<?php echo get_stylesheet_directory_uri().'/images/guideline_pdf.png'; ?>" alt="guideline_pdf">
+																<img src="<?php echo CUSTOM_KITALABEL_URL.'assets/images/guideline_pdf.png'; ?>" alt="guideline_pdf">
 																<span class="name">Guideline .Pdf</span>
 															</a>
 														</li>
@@ -258,9 +252,6 @@ if($option_id) {
 											<?php if( count( $comments) > 0 ) {
 												echo '<textarea name="nbd-field['.$comments["id"].']" rows="3" maxlength="'.$comments["max"].'" placeholder="'.$comments["placeholder"].'"></textarea>';
 											}?>
-										</div>
-										<div class="kita-content">
-											<?php the_content(); ?>
 										</div>
 										<div class="kita-tac-wrapper">
 											<label class="cs-checkbox-agree" for="cs-argee-condition"><?php esc_html_e('I agree with terms and condition and privacy policy', 'aora');?>

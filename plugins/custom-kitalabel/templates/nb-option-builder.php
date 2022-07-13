@@ -1664,7 +1664,7 @@ $currentDir = ABSPATH . 'wp-content/plugins/web-to-print-online-designer/templat
         pointer-events: none;
     }
     .nbo_group_panel_wrap {
-        overflow: hidden;
+        overflow-x: hidden;
     }
     .nbo_group_panel_wrap_inner {
         -webkit-transition: all 0.4s;
@@ -1885,13 +1885,6 @@ $currentDir = ABSPATH . 'wp-content/plugins/web-to-print-online-designer/templat
     }
 </style>
 <div class="nbd-option-wrapper nb-custom-option-wrapper" <?php //if(!$in_quick_view) echo 'ng-app="nboApp"'; ?> id="<?php echo $appid; ?>">
-    <div class="title-page">
-        <div class="heading">
-            <div class="heading-kita-title">
-                <span class="title">Ayo</span><span class="title bold"> mulai mendesain</span>
-            </div>
-        </div>
-    </div>
     <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo $appid; ?>" ng-cloak>
         <div class="nbo-fields-wrapper" id="nbd-custom-design">
             <!-- Custom kitalabel : form start -->
@@ -1992,7 +1985,26 @@ foreach( $options["fields"] as $key => $field ){
         if( count($field['general']['attributes']["options"]) == 0){
             $need_show = false;
         }
-        $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/label.php'; // MTV
+        switch( $field['appearance']['display_type'] ){
+            case 's':
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/swatch.php'; // MTV
+                break;
+            case 'l':
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/label.php'; // MTV
+                break;
+            case 'r':
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/label.php'; // MTV
+                break;
+            case 'ad':
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/advanced-dropdown.php'; // MTV
+                break;
+            case 'xl':
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/xlabel.php'; // MTV
+                break;
+            default:
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/advanced-dropdown.php'; // MTV
+                break;
+        }
     }
     $options["fields"][$key]['template']    = $tempalte;
     $options["fields"][$key]['need_show']   = $need_show;
@@ -6665,6 +6677,14 @@ if( $cart_item_key != ''){ ?>
         $scope.toggle_group = function( $event ){
             jQuery($event.target).parents( '.nbo-group-body' ).toggleClass('nbo-collapse');
             jQuery($event.target).parents( '.nbo-group-type2-wrap' ).toggleClass('nbo-collapse');
+
+            var wrapper = jQuery( '#' + nbOption.crtlId ).find('.nbo-fields-wrapper');
+            var height = wrapper.find('.nbo-group-wrap:nth(1)').outerHeight();
+            if( wrapper.find('.nbo-group-type2-wrap').length ){
+                height = wrapper.find('.nbo-group-type2-wrap:nth(1)').outerHeight();
+            }
+            console.log(wrapper.find('.nbo-group-wrap:nth(1)'));
+            wrapper.find('.nbo_group_panel_wrap').css('height', ( height + 15 ) + 'px');
         };
         $scope.toggle_float_summary = function(){
             jQuery( '.nbo-float-summary' ).toggleClass('nbo-collapse');
