@@ -38,6 +38,18 @@ do_action( 'woocommerce_before_cart' ); ?>
 					if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
 						$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
 						?>
+						<tr>
+							<td colspan="4">
+						<?php
+						if( isset( $cart_item['nbo_meta'] ) ) {
+					        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
+					        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+								echo apply_filters( 'nb_custom_after_cart_item_name', '' , $cart_item, $cart_item_key ); //cutom kitalabel
+					        }
+					    }
+						?>
+							</td>
+						</tr>
 						<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 
 
