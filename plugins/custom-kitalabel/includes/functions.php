@@ -700,7 +700,7 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                 $quantity = '';
                 $product_config = nbd_get_data_from_json( NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_session . '/config.json' )->product;
                 if( isset($side) ) {
-                    $html .= '<tr><td colspan="4"><div class="nb-cart_item"><table>';
+                    // $html .= '<tr><td colspan="4"><div class="nb-cart_item"><table>';
                     foreach ( $side as $key => $qty ) {
                         if( is_cart() && isset($side ) && isset($qty_min) ) {
                             $quantity = '<span class="box"><input type="number" data-min-qty="'.$qty_min.'" data-item-key="'.$cart_item_key.'" class="nb-custom-qty-side input-text qty text" step="1" min="1" max="" name="qty_side['.$cart_item_key.']['.$key.']" value="'.$qty.'" title="Qty"></span>';
@@ -713,15 +713,11 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                             $design_name = $product_config[$key]->orientation_name;
                         }
                         if(isset( $list[$key] ) ) {
-                           $src    = Nbdesigner_IO::convert_path_to_url( $list[$key] ) . '?&t=' . round( microtime( true ) * 1000 );
-                            if( $key == 0 && is_cart() ) {
-                                $html  .= '<tr class="nb-cart_item_design"><td><img class="nbd_cart_item_design_preview" src="' . $src . '"/></td><td>'.$design_name.'</td><td></td><td>'.$quantity.'</td></tr>';
-                            } else {
-                                $html  .= '<tr class="nb-cart_item_design"><td><img class="nbd_cart_item_design_preview" src="' . $src . '"/></td><td>'.$design_name.'</td><td></td><td>'.$quantity.'</td></tr>';
-                            } 
+                            $src    = Nbdesigner_IO::convert_path_to_url( $list[$key] ) . '?&t=' . round( microtime( true ) * 1000 );
+                            $html  .= '<tr class="nb-cart_item_design"><td></td><td class="nb-has-border-bottom"><div class="nb-image"><img class="nbd_cart_item_design_preview" src="' . $src . '"/></div></td><td class="nb-has-border-bottom nb-name">'.$design_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden"></td></tr>';
                         }                      
                     }
-                    $html .= '</div></table></td></tr>';
+                    // $html .= '</div></table></td></tr>';
                 }
             }
             else if( $is_nbdesign && !$_enable_upload_without_design && $show_edit_link ){
@@ -1021,22 +1017,6 @@ function nb_custom_wcpdf_after_item_meta( $type, $item, $order ){
         }
         echo $html;
     }
-}
-
-// enqueue the custom file css & js
-add_action( 'admin_enqueue_scripts', 'nb_custom_enqueue_scripts' );
-add_action( 'wp_enqueue_scripts', 'nb_custom_enqueue_scripts' );
-function nb_custom_enqueue_scripts() {
-    wp_enqueue_style('custom-kitalabel-css' , CUSTOM_KITALABEL_URL .'assets/css/custom.css');
-    wp_register_script( 'custom-kitalabel-js',  CUSTOM_KITALABEL_URL .'assets/js/custom.js', '', '' );
-    // wp_register_script( 'custom-woocommerce-js',  CUSTOM_KITALABEL_URL .'assets/js/woocommerce.js', '', '' );
-    $args = array(
-        'url' => admin_url( 'admin-ajax.php' ),
-        'homepage' => home_url(),
-    ) ;
-    wp_localize_script( 'custom-kitalabel-js', 'nb_custom', $args );
-    wp_enqueue_script( 'custom-kitalabel-js' );
-    wp_enqueue_script( 'custom-woocommerce-js' );
 }
 
 // Update cart when change number side

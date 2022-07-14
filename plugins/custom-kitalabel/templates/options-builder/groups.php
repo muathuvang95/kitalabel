@@ -12,41 +12,15 @@
 ?>
 <div class="row">
     <div class="col-md-6">
-        <div class="nbo-thumbnail nbo-thumbnail-<?php echo $cols; ?>">
-            <?php
-                $_thumbnail = NBDESIGNER_ASSETS_URL . 'images/placeholder.png';
-                $_thumbnail_full = NBDESIGNER_ASSETS_URL . 'images/placeholder.png';
-                $size = '';
-                $descs = array();
-                foreach( $group['fields'] as $k => $f1 ){
-                    $f1_index    = get_field_index_by_id( $f1, $options["fields"] );
-                    $_field      = $options["fields"][$f1_index];
-                    $_options_first = $_field['general']['attributes']['options'][0];
-                    if( isset($_field['nbd_type']) && ( $_field['nbd_type'] == 'area' || $_field['nbd_type'] == 'shape' || $_field['nbd_type'] ==  'color' ) && isset( $_options_first['image_link'] ) ) {
-                        $_thumbnail      = $_options_first['image_link'];
-                        $_thumbnail_full = $_options_first['full_src'];
-                    }
-                } 
-            $product_image = wp_get_attachment_image_src( get_post_thumbnail_id( $product_id ), 'single-post-thumbnail' );
-            if(isset($product_image[0]) && $product_image[0]) {
-                $_thumbnail = $product_image[0];
-                $_thumbnail_full = $product_image[0];
-            }
-            ?>
-                                        
-            <div class="wrap-image nb-custom-box" data-thumb="<?php echo $_thumbnail; ?>">
-                <img width="648" height="648" src="<?php echo $_thumbnail; ?>" class="wp-post-image" alt="" loading="lazy" title="32" data-caption="" data-src="<?php echo $_thumbnail_full; ?>" data-large_image="<?php echo $_thumbnail_full; ?>" data-large_image_width="514" data-large_image_height="514" draggable="false" sizes="(max-width: 648px) 100vw, 648px">
-            </div>
-        </div>
-        <div class="nbo-desc nbo-desc-<?php echo $cols; ?>">
-            
+        <div class="nb-product-thumbnail">
+            <?php woocommerce_show_product_images(); ?>
         </div>
     </div>
     <div class="col-md-6">
         <div class="title-page">
             <div class="heading">
                 <div class="heading-kita-title">
-                    <span class="title">Product Labels</span>
+                    <span class="title"><?php the_title(); ?></span>
                 </div>
             </div>
         </div>

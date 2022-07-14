@@ -18,13 +18,15 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 		<?php do_action( 'woocommerce_before_cart_table' ); ?>
 		<div class="table-responsive">
-		<table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents" cellspacing="0">
+		<table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents nb-custom-shop_table" cellspacing="0">
 			<thead>
 				<tr>
-					<th class="product-details" colspan="2"><?php esc_html_e( 'Product', 'xstore' ); ?></th>
-					<th class="product-price"><?php esc_html_e( 'Price', 'xstore' ); ?></th>
+					<th></th>
+					<th class="product-details"><?php esc_html_e( 'Product', 'xstore' ); ?></th>
+					<th class="product-price"><?php esc_html_e( 'Name', 'xstore' ); ?></th>
+					<th class="nb-col-modile-hiden"></th>
 					<th class="product-quantity"><?php esc_html_e( 'Quantity', 'xstore' ); ?></th>
-					<th class="product-subtotal" colspan="2"><?php esc_html_e( 'Subtotal', 'xstore' ); ?></th>
+					<th class="nb-col-modile-hiden"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -48,7 +50,18 @@ do_action( 'woocommerce_before_cart' ); ?>
 						?>
 						<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 
-
+							<td>
+								<?php
+                            	echo apply_filters( 'woocommerce_cart_item_remove_link',
+                            		sprintf(
+		                            	'<a href="%s" class="remove-item text-underline" title="%s">%s</a>',
+		                            	esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
+		                            	esc_html__( 'Remove this item', 'xstore' ),
+		                            	'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>'
+	                            	),
+	                            $cart_item_key );
+	                            ?>
+                            </td>
 							<td class="product-name" data-title="<?php esc_attr_e( 'Product', 'xstore' ); ?>">
 		                        <div class="product-thumbnail">
 		                            <?php
@@ -84,16 +97,6 @@ do_action( 'woocommerce_before_cart' ); ?>
 		                    // Backorder notification
 		                    if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) )
 		                         	echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'xstore' ) . '</p>', $product_id ) );
-		                            ?>
-		                            <?php
-		                            	echo apply_filters( 'woocommerce_cart_item_remove_link',
-		                            		sprintf(
-				                            	'<a href="%s" class="remove-item text-underline" title="%s">%s</a>',
-				                            	esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-				                            	esc_html__( 'Remove this item', 'xstore' ),
-				                            	esc_html__('Remove', 'xstore')
-			                            	),
-			                            $cart_item_key );
 		                            ?>
 		                            <span class="mobile-price">
 		                            	<?php

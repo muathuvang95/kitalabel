@@ -1664,7 +1664,7 @@ $currentDir = ABSPATH . 'wp-content/plugins/web-to-print-online-designer/templat
         pointer-events: none;
     }
     .nbo_group_panel_wrap {
-        overflow-x: hidden;
+        overflow: hidden;
     }
     .nbo_group_panel_wrap_inner {
         -webkit-transition: all 0.4s;
@@ -2044,7 +2044,20 @@ if( $display_type == 2 ): ?>
 <?php endif;
     do_action( 'nbo_after_fields' );
 if( $group_mode ){
-    include( CUSTOM_KITALABEL_PATH .'templates/options-builder/groups.php' );
+
+    $query_args = array(
+        'post_type' => 'product',
+        'p'         => 9550,
+    );
+
+    $query_product = new WP_Query( $query_args );
+    
+
+    while ( $query_product->have_posts() ) {
+        $query_product->the_post();
+        include( CUSTOM_KITALABEL_PATH .'templates/options-builder/groups.php' );
+    }
+
 }
 // foreach( $options["fields"] as $key => $field ){
 //     $tempalte = $options["fields"][$key]['template'];
