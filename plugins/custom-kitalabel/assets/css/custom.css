@@ -1339,6 +1339,12 @@ body.woocommerce-checkout table.order_details td.product-total {
 .woocommerce-cart-form__cart-item.cart_item.st-item-meta {
 	border-bottom: 2px solid #000000;
 }
+.woocommerce-checkout .cart_item.st-item-meta {
+	border-top: 1px solid #000000;
+}
+.woocommerce-checkout .cart_item.st-item-meta:nth-child(1) {
+  border-top: none;
+}
 .woocommerce-cart-form__cart-item.cart_item.st-item-meta:nth-last-child(1) {
 	border-bottom: none;
 }
@@ -1447,6 +1453,12 @@ body.woocommerce-checkout table.order_details td.product-total {
 	display: block;
 	text-align: center;
 	margin-bottom: 5px;
+}
+.woocommerce-checkout .nb-col-modile-hiden {
+	display: none!important;
+}
+.woocommerce-checkout .nb-col-hiden {
+	display: none!important;
 }
 @media only screen and (max-width: 768px) {
 	.page-template-default .nbd-sidebar-con-inner ul {

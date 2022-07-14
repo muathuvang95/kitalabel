@@ -714,7 +714,7 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                         }
                         if(isset( $list[$key] ) ) {
                             $src    = Nbdesigner_IO::convert_path_to_url( $list[$key] ) . '?&t=' . round( microtime( true ) * 1000 );
-                            $html  .= '<tr class="nb-cart_item_design"><td></td><td class="nb-has-border-bottom"><div class="nb-image"><img class="nbd_cart_item_design_preview" src="' . $src . '"/></div></td><td class="nb-has-border-bottom nb-name">'.$design_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden"></td></tr>';
+                            $html  .= '<tr class="nb-cart_item_design"><td class="nb-col-hiden"></td><td class="nb-has-border-bottom"><div class="nb-image"><img class="nbd_cart_item_design_preview" src="' . $src . '"/></div></td><td class="nb-has-border-bottom nb-name">'.$design_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden"></td></tr>';
                         }                      
                     }
                     // $html .= '</div></table></td></tr>';
