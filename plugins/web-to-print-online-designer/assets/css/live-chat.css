@@ -11,7 +11,8 @@
     cursor: pointer;
 }
 .nbc-button.enable_fb {
-    bottom: 90px;
+    /* fix panel block button */
+    bottom: 20px;
 }
 .nbc-inside-editor .nbc-button {
     bottom: 55px;

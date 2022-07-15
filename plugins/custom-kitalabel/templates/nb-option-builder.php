@@ -2052,10 +2052,11 @@ if( $group_mode ){
 
     $query_product = new WP_Query( $query_args );
     
-
-    while ( $query_product->have_posts() ) {
-        $query_product->the_post();
-        include( CUSTOM_KITALABEL_PATH .'templates/options-builder/groups.php' );
+    if($query_product->have_posts()) {
+        while ( $query_product->have_posts() ) {
+            $query_product->the_post();
+            include( CUSTOM_KITALABEL_PATH .'templates/options-builder/groups.php' );
+        }
     }
 
 }
