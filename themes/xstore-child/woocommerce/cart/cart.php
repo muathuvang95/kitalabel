@@ -37,13 +37,26 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
 						$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
-						?>
-						<?php
+
+						$kita_hook_variant = false;
+						$custom_upload = array();
 						if( isset( $cart_item['nbo_meta'] ) ) {
 					        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
 					        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-								echo apply_filters( 'nb_custom_after_cart_item_name', '' , $cart_item, $cart_item_key ); //cutom kitalabel
+					        	$kita_hook_variant = true;
 					        }
+					        if(isset($cart_item['nbo_meta']['option_price']) && $cart_item['nbo_meta']['option_price']['fields'] && is_array($cart_item['nbo_meta']['option_price']['fields'])) {
+
+					        	foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
+					        		if(isset($field['is_custom_upload'])) {
+					        			$custom_upload = $field;
+					        			$kita_hook_variant = true;
+					        		}
+					        	}
+					        }
+					    }
+					    if($kita_hook_variant) {
+					    	echo apply_filters( 'nb_custom_after_cart_item_name', '' , $cart_item, $cart_item_key, $custom_upload); //cutom kitalabel
 					    }
 						?>
 						<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
