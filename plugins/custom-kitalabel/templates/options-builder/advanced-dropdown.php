@@ -1,9 +1,9 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div nbo-adv-dropdown style="width: 50%; display: inline-block; padding: 20px 10px; margin: 0" class="nbd-option-field nbd-field-ad-dropdown-wrap <?php echo $class; ?>" data-id="<?php echo $field['id']; ?>" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable">
+<div class="nbd-option-field nbd-field-dropdown-wrap <?php echo $class; ?>" data-id="<?php echo $field['id']; ?>" style="width: 50%; display: inline-block; padding: 10px 10px; margin: 0" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable">
     <?php include( CUSTOM_KITALABEL_PATH.'templates/options-builder/field-header.php' ); ?>
     <div class="nbd-field-content">
-        <div>
-            <select ng-change="check_valid()" name="nbd-field[<?php echo $field['id']; ?>]{{nbd_fields['<?php echo $field['id']; ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value">
+        <div class="__nbd-dropdown-wrap">
+            <select ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>');updateMapOptions('<?php echo $field['id']; ?>')" style="width: 100%" name="nbd-field[<?php echo $field['id']; ?>]{{nbd_fields['<?php echo $field['id']; ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value">
             <?php 
                 foreach ($field['general']['attributes']["options"] as $key => $attr): 
             ?>

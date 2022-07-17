@@ -557,17 +557,17 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         if( isset($field['is_upload']) ){
                             // kita upload file
                             if(is_array($field['val'])) {
-                                $filename = '';
-                                foreach($field['val'] as $k => $file) {
+                                // $filename = '';
+                                // foreach($field['val'] as $k => $file) {
                                     
-                                     if (strpos($file, 'http') !== false) {
-                                        $file_url = $file;
-                                    }else{
-                                        $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
-                                    }
-                                    $filename .= '<a href="' . $file_url . '">' . $field['value_name'][$k] . '</a><br>';
-                                }
-                                $field['value_name'] = $filename;
+                                //      if (strpos($file, 'http') !== false) {
+                                //         $file_url = $file;
+                                //     }else{
+                                //         $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
+                                //     }
+                                //     $filename .= '<a href="' . $file_url . '">' . $field['value_name'][$k] . '</a><br>';
+                                // }
+                                // $field['value_name'] = $filename;
                             } else {
                                 if (strpos($field['val'], 'http') !== false) {
                                     $file_url = $field['val'];
@@ -784,20 +784,22 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         if( !isset( $field['published'] ) || $field['published'] == 'y' ){
                             $price = floatval($field['price']) >= 0 ? '+' . wc_price( $field['price'], array( 'decimals' =>  $decimals ) ) : wc_price($field['price'], array( 'decimals' => $decimals ));
                             if( $hide_zero_price == 'yes' && round($field['price'], $num_decimals) == 0 ) $price = '';
-                            if( isset($field['is_upload']) ){
+                            if( isset($field['is_custom_upload']) ){
                                 // kita upload file
                                 if(is_array($field['val'])) {
-                                    $filename = '';
-                                    foreach($field['val'] as $k => $file) {
-                                        
-                                         if (strpos($file, 'http') !== false) {
-                                            $file_url = $file;
-                                        }else{
-                                            $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
-                                        }
-                                        $filename .= '<a href="' . $file_url . '">' . $field['value_name'][$k] . '</a><br>';
-                                    }
-                                    $field['value_name'] = $filename;
+                                    // $filename = '';
+                                    // if(isset($field['val']['files']) && isset($field['val']['variants'])) {
+                                    //     foreach($field['val']['files'] as $k => $file) {
+                                    //         $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
+                                    //         if (strpos($file, 'http') !== false) {
+                                    //             $file_url = $file;
+                                    //         }
+                                    //         $variation_index = $k + 1;
+                                    //         $variant_name = isset($field['val']['variants'][$k]) ? $field['val']['variants'][$k] : 'Variant '.$variation_index;
+                                    //         $filename .= '<a href="' . $file_url . '">' . $variant_name . '</a><br>';
+                                    //     }
+                                    //     $field['value_name'] = $filename;
+                                    // }
                                 } else {
                                     if (strpos($field['val'], 'http') !== false) {
                                         $file_url = $field['val'];
@@ -806,19 +808,20 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                     }
                                     $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                                 }
+                            } else {
+                                $post_fix = '';
+                                if( isset($field['ind_qty']) ){
+                                    $post_fix = '<small>'. __('( cart fee )', 'web-to-print-online-designer') .'</small>';
+                                }
+                                if( isset( $field['fixed_amount'] ) ){
+                                    $post_fix = '<small>'. __('( for all items )', 'web-to-print-online-designer') .'</small>';
+                                }
+                                $item_data[] = array(
+                                    'name'      => $field['name'],
+                                    'display'   => ( $hide_option_price == 'yes' || floatval($field['price']) == 0 ) ? $field['value_name'].'&nbsp;' : $field['value_name']. '&nbsp;&nbsp;' . $price .$post_fix, // custom kitalabel hide the price when the price =0
+                                    'hidden'    => false
+                                );
                             }
-                            $post_fix = '';
-                            if( isset($field['ind_qty']) ){
-                                $post_fix = '<small>'. __('( cart fee )', 'web-to-print-online-designer') .'</small>';
-                            }
-                            if( isset( $field['fixed_amount'] ) ){
-                                $post_fix = '<small>'. __('( for all items )', 'web-to-print-online-designer') .'</small>';
-                            }
-                            $item_data[] = array(
-                                'name'      => $field['name'],
-                                'display'   => ( $hide_option_price == 'yes' || floatval($field['price']) == 0 ) ? $field['value_name'].'&nbsp;' : $field['value_name']. '&nbsp;&nbsp;' . $price .$post_fix, // custom kitalabel hide the price when the price =0
-                                'hidden'    => false
-                            );
                         }
                     }
                     if( floatval( $cart_item['nbo_meta']['option_price']['discount_price'] ) > 0 ){
@@ -858,10 +861,16 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 }else{
                     if( !empty($_FILES) && isset($_FILES["nbd-field"]) ) {
                         foreach( $_FILES["nbd-field"]['name'] as $field_id => $file ){
-                            if( !isset($nbd_field[$field_id]) ){
+
+                            // kita upload file
+                            if( !isset($nbd_field[$field_id]) || (isset($nbd_field[$field_id]) && isset($nbd_field[$field_id]['variant']) ) ){
                                 $nbd_upload_field = $this->upload_file( $_FILES["nbd-field"], $field_id );
                                 if( !empty($nbd_upload_field) ){
-                                    $nbd_field[$field_id] = $nbd_upload_field[$field_id];
+                                    $nbd_field[$field_id] = array(
+                                        'files' => $nbd_upload_field[$field_id],
+                                        'variants' => $nbd_field[$field_id]['variant'],
+                                        'qtys' => $nbd_field[$field_id]['qty'],
+                                    );
                                 }
                             }
                         }
@@ -892,6 +901,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     $groups2 = $option_fields['groups'][1]['fields'];
                 }
                 foreach($nbd_field as $key => $val) {
+                    if(is_array($val) && isset($val['value']) ) {
+                        $val = $val['value'];
+                    }
                     $_origin_field   = $this->get_field_by_id( $option_fields, $key );
                     if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' && in_array( $_origin_field['id'] , $groups1 ) ) {
                         $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
@@ -1155,8 +1167,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 }
 
                 $manual_pm  = true;
-            }
-
+            }            
             foreach( $fields as $key => $val ){
                 if( $manual_pm ){
                     if( in_array( $key, $pm_hoz ) || in_array( $key, $pm_ver ) ){
@@ -1227,11 +1238,18 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     // kita upload file
                     if( $origin_field['general']['input_type'] == 'u' ){
                         if(is_array($val)) {
-                            foreach($val as $k => $name) {
-                                $file_name = explode('/', $name);
-                                $_fields[$key]['value_name'][$k]    = $file_name[ count($file_name) - 1 ];
-                                $_fields[$key]['is_upload']     = 1;
-                            } 
+                            if(isset($val['files']) && isset($val['variants']) ) {
+                                $_fields[$key]['is_custom_upload']     = 1;
+                                $_fields[$key]['min_qty']     = $quantity;
+                                // foreach($val['files'] as $k => $name) {
+                                //     $variant_index = $k + 1;
+                                //     $file_name = explode('/', $name);
+                                //     $_fields[$key]['value_name'][$k]    = $file_name[ count($file_name) - 1 ];
+                                //     $_fields[$key]['variant_name'][$k]    = isset($val['variants'][$k]) ? $val['variants'][$k] : 'Variant '.$variant_index;
+                                //     $_fields[$key]['variant_qty'][$k]    = isset($val['qtys'][$k]) ? $val['qtys'][$k] : 1;
+                                //     $_fields[$key]['is_upload']     = 1;
+                                // } 
+                            }   
                         } else {
                             $file_name = explode('/', $val);
                             $_fields[$key]['value_name']    = $file_name[ count($file_name) - 1 ];
@@ -1505,6 +1523,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
             }
             foreach($fields as $key => $val) {
                 $_origin_field   = $this->get_field_by_id( $option_fields, $key );
+                if(is_array($val) && isset($val['value']) ) {
+                    $val = $val['value'];
+                }
                 if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' && in_array( $_origin_field['id'] , $groups1 ) ) {
                     $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
                     $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];

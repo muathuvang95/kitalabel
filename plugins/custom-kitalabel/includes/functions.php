@@ -620,8 +620,8 @@ function nbo_show_edit_option_link_in_cart( $result , $cart_item ) {
 
 
 // change custom edit design in the cart
-add_filter( 'nb_custom_after_cart_item_name', 'nb_custom_render_cart_1' , 1, 3 );
-function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_key = null ) {
+add_filter( 'nb_custom_after_cart_item_name', 'nb_custom_render_cart_1' , 1, 4 );
+function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_key = null, $custom_upload = array() ) {
     $product_custom_design = 9550;
     if (  $cart_item_key && ( is_cart() || is_checkout() )) {
         $nbd_session = WC()->session->get($cart_item_key . '_nbd');
@@ -811,7 +811,32 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
             // $html .= '</div>';
             return $html;
         } 
-    } 
+    }
+    if(count($custom_upload) > 0) {
+        $html = '';
+        if(isset($custom_upload['val']['files']) && isset($custom_upload['val']['files']) && isset($custom_upload['val']['variants']) && isset($custom_upload['val']['qtys'])) {
+            if(is_array($custom_upload['val']['files']) && count($custom_upload['val']['files']) > 0) {
+                foreach ( $custom_upload['val']['files'] as $key => $file ) {
+                    $_file = explode('/', $file);
+                    $file_name = isset($_file[1]) ? $_file[1]: $file;
+                    $index = $key + 1;
+                    $qty = isset($custom_upload['val']['qtys'][$key]) ? $custom_upload['val']['qtys'][$key] : 1;
+                    $variant_name = isset($custom_upload['val']['variants'][$key]) ? $custom_upload['val']['variants'][$key] : 'Variant '.$index;
+                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
+                    $qty_min = $custom_upload['min_qty'];
+                    if( is_cart() && isset($qty_min) ) {
+                        $quantity = '<span class="box"><input type="number" data-min-qty="'.$qty_min.'" data-item-key="'.$cart_item_key.'" class="nb-custom-qty-side input-text qty text" step="1" min="1" max="" name="qty_side['.$cart_item_key.']['.$key.']" value="'.$qty.'" title="Qty"></span>';
+                    } else {
+                       $quantity = $qty; 
+                    }
+
+                    
+                    $html  .= '<tr class="nb-cart_item_design"><td class="nb-col-hiden"></td><td class="nb-has-border-bottom"><div class="nb-image"><a class="nbd_cart_item_design_preview" href="' . $file_url . '">'.$file_name.'</a></div></td><td class="nb-has-border-bottom nb-name">'.$variant_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden"></td></tr>';                     
+                }
+            }
+        }
+        return $html;
+    }
 }
 
 // remove edit design old in the cart
@@ -833,8 +858,7 @@ function nb_custom_order_item_meta_end_1( $item_id, $item ){
     if( $nbd_item_key || $nbu_item_key ){
         $show_design_in_order = nbdesigner_get_option( 'nbdesigner_show_in_order', 'yes' );
         if( ( isset( $item["item_meta"]["_nbd"] ) || isset( $item["item_meta"]["_nbu"] ) ) && $show_design_in_order == 'yes' ){
-            $html = '';
-            $html .= '<div class="custom-side-quantity">';
+            
             $product_id     = $item['product_id'];
             $layout         = nbd_get_product_layout( $product_id );
             if( isset( $item["item_meta"]["_nbd"]  ) ){
@@ -904,6 +928,41 @@ function nb_custom_order_item_meta_end_1( $item_id, $item ){
                             } 
                         }                      
                     } 
+                }
+                $html .= '</div></div></div>';
+            }
+        }
+        echo $html;
+    }
+    if( isset($item["item_meta"]) && isset($item["item_meta"]['_nbo_option_price']) && isset($item["item_meta"]['_nbo_option_price']['fields']) ) {
+        $html = '';
+        foreach($item["item_meta"]['_nbo_option_price']['fields'] as $field) {
+            if(isset($field['is_custom_upload'])) {
+                $html .= '<div class="custom-side-quantity">';
+                $html .= '<div class="table table-bordered nb-custom-table"><div class="thead"><div class="tr"><div class="th">Side</div><div class="th">Name</div><div class="th">Qty</div>';
+                $html .= '</div></div><div class="tbody">';
+
+                $custom_upload = $field;
+                if(isset($custom_upload['val']['files']) && isset($custom_upload['val']['files']) && isset($custom_upload['val']['variants']) && isset($custom_upload['val']['qtys'])) {
+                    if(is_array($custom_upload['val']['files']) && count($custom_upload['val']['files']) > 0) {
+                        foreach ( $custom_upload['val']['files'] as $key => $file ) {
+                            $_file = explode('/', $file);
+                            $file_name = isset($_file[1]) ? $_file[1]: $file;
+                            $index = $key + 1;
+                            $qty = isset($custom_upload['val']['qtys'][$key]) ? $custom_upload['val']['qtys'][$key] : 1;
+                            $variant_name = isset($custom_upload['val']['variants'][$key]) ? $custom_upload['val']['variants'][$key] : 'Variant '.$index;
+                            $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
+                            $qty_min = $custom_upload['min_qty'];
+                            if( is_cart() && isset($qty_min) ) {
+                                $quantity = '<span class="box"><input type="number" data-min-qty="'.$qty_min.'" data-item-key="'.$cart_item_key.'" class="nb-custom-qty-side input-text qty text" step="1" min="1" max="" name="qty_side['.$cart_item_key.']['.$key.']" value="'.$qty.'" title="Qty"></span>';
+                            } else {
+                               $quantity = $qty; 
+                            }
+
+                            $html  .= '<div class="tr"><div class="td"><a class="nbd_cart_item_design_preview" href="' . $file_url . '">'.$file_name.'</a></div><div class="td">'.$variant_name.'</div><div class="td">'.$quantity.'</div></div>';        
+                        }
+                    }
+
                 }
                 $html .= '</div></div></div>';
             }
@@ -1048,6 +1107,7 @@ function nb_ajax_qty_cart() {
         'flag'  => 1
     );
     if( isset($_POST['data']) ) {
+        $upload_fields = false;
         parse_str($_POST['data'], $params);
         $min_qty    = isset($_POST['min_qty']) ? (int) $_POST['min_qty'] : 0;
         $item_key   = isset($_POST['item_key']) ? $_POST['item_key'] : '';
@@ -1057,10 +1117,22 @@ function nb_ajax_qty_cart() {
             if( isset( $cart_items[$item_key] )) {
                 $cart_item = $cart_items[$item_key];
                 $nbd_field = $cart_item['nbo_meta']['field'] ;
+                $nbd_field = $cart_item['nbo_meta']['option_price']['fields'] ;
                 if( isset( $cart_item['nbo_meta'] ) ) {
                     $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
                     if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
                         $item_combination = $fields['combination'];
+                        $upload_fields = false;
+                    }
+                }
+                if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                    foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
+                        if(isset($field['is_custom_upload'])) {
+                            $upload_fields = true;
+                            $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
+                            $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
+                            WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                        }
                     }
                 }
             }
@@ -1100,7 +1172,10 @@ function nb_ajax_qty_cart() {
         foreach( $qty_side as $key => $qty ) {
             $sum_qty += (int) $qty;
         }
-        if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
+        if( $upload_fields && $sum_qty >= (int)$side['qty'] ) {
+             WC()->cart->set_quantity( $item_key, $sum_qty, true );
+             WC()->cart->set_session();
+        } else if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
             WC()->cart->set_quantity( $item_key, $sum_qty, true );
             // set option qty side
             $option_fields = unserialize( base64_decode( WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields']) );

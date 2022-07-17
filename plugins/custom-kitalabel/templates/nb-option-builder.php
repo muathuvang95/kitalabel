@@ -2143,6 +2143,9 @@ if( $cart_item_key != ''){ ?>
         <?php } ?>
     </div>
 </div>
+<?php
+the_content();
+?>
 <!-- MTV -->
 <?php if($type_page != 'quick_view') { do_action('nb_custom_area_design' , $product_id ); } ?>
 <script type="text/javascript">
@@ -2974,6 +2977,14 @@ if( $cart_item_key != ''){ ?>
                         }  
                     } 
                 });
+                var variant_value = 1;
+                angular.forEach($scope.nbd_fields, function(field, field_id){
+                    let _nbd_type = $scope.get_field(field_id).nbd_type;
+                    if(_nbd_type == 'page' ) {
+                        variant_value = field.value ? field.value : 1;
+                    }
+                })
+
                 // $scope.enable_design = true;
                 var area_name = '';
                 var size_name = '';
@@ -3023,7 +3034,7 @@ if( $cart_item_key != ''){ ?>
                     } 
                     setTimeout( function() {
                         var link_upload = jQuery('a.kita-link-upload').data('url');
-                        link_upload += '?product_id=9853&area='+area_val+'&size='+size_val+'&material='+material_val+'&finishing='+finishing_val;
+                        link_upload += '?product_id=9853&area='+area_val+'&size='+size_val+'&material='+material_val+'&finishing='+finishing_val+'&variant='+variant_value;
                         jQuery('.upload-design a.kita-link-upload').attr('href' , link_upload);
                     })
                 }
@@ -6683,7 +6694,6 @@ if( $cart_item_key != ''){ ?>
             if( wrapper.find('.nbo-group-type2-wrap').length ){
                 height = wrapper.find('.nbo-group-type2-wrap:nth(1)').outerHeight();
             }
-            console.log(wrapper.find('.nbo-group-wrap:nth(1)'));
             wrapper.find('.nbo_group_panel_wrap').css('height', ( height + 15 ) + 'px');
         };
         $scope.toggle_float_summary = function(){

@@ -15,7 +15,7 @@
                 <div class="nbd-xlabel-value">
                     <div class="nbd-xlabel-value-inner" title="<?php echo $attr['name']; ?>">
                         <?php if( !isset($attr['coming_soon']) || $attr['coming_soon'] != 'on' ): ?>
-                        <input ng-change="check_valid();updateMapOptions('<?php echo $field['id']; ?>')" value="<?php echo $key; ?>" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value" name="nbd-field[<?php echo $field['id']; ?>]<?php if($show_subattr) echo '[value]'; ?>" 
+                        <input ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>');updateMapOptions('<?php echo $field['id']; ?>')" value="<?php echo $key; ?>" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value" name="nbd-field[<?php echo $field['id']; ?>]<?php if($show_subattr) echo '[value]'; ?>" 
                                type="radio" id='nbd-field-<?php echo $field['id'].'-'.$key; ?>' 
                             <?php 
                                 if( isset($form_values[$field['id']]) ){
