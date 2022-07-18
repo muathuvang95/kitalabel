@@ -137,7 +137,7 @@ div.td {
 
 }
 .nb-custom-option-wrapper .nbo-group-wrap .nbo-group-body .nbd-option-field {
-	padding:  20px 0 20px 0;
+	padding:  10px 0 10px 0;
 	border: none;
 }
 .nb-custom-option-wrapper .nbd-label-wrap input[type="radio"]:checked + label, .nbo-sub-attr-l input[type="radio"]:checked + label {
@@ -726,12 +726,29 @@ ul.list-options-area> li.option-area.activate {
 	color: #fff;
 }
 .kita-custom-page-upload .kita-options-selected {
-	margin-top: 50px;
-	margin-bottom: 100px;
+	margin-top: 30px;
+	margin-bottom: 50px;
 }
-.kita-custom-page-upload .kita-options-selected .kita-col-options{
+.kita-custom-page-upload .kita-title-block {
+	font-size: 20px;
+	line-height: 50px;
+	font-weight: 400;
+	font-style: italic;
+}
+.kita-custom-page-upload .kita-title-block span {
+	font-weight: 600;
+}
+.kita-custom-page-upload .kita-options-selected .kita-col-options-wrap{
 	display: flex;
 	justify-content: center;
+}
+.kita-custom-page-upload .kita-options-selected .kita-col-options{
+	background: #FFFFFF;
+	border: 3px solid #F59832;
+	border-radius: 25px;
+	padding: 20px 30px;
+	width: 100%;
+	max-width: 900px;
 }
 .kita-custom-page-upload .kita-options-selected ul.kita-list {
 	padding-left: 0;
@@ -739,28 +756,21 @@ ul.list-options-area> li.option-area.activate {
 .kita-custom-page-upload .kita-options-selected ul.kita-list> li {
 	list-style: none;
 }
-.kita-custom-page-upload .kita-options-selected ul.kita-list-options> li .nbd-label {
-    font-size: 20px;
+.kita-custom-page-upload .kita-options-selected ul.kita-list-options> li.kita-heading {
+    font-size: 16px;
     color: #333333;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 31px;
+    font-style: italic;
+}
+.kita-custom-page-upload .kita-options-selected ul.kita-list-options> li .nbd-option-selected {
+	text-align: left;
 }
 .kita-custom-page-upload .kita-options-selected ul.kita-list-options> li .nbd-option-selected .name{
-	list-style: none;
-    width: 300px;
-    background: #fff;
-    line-height: 48px;
-    margin-right: 10px;
-    border-radius: 35px;
-    border: solid 1px #D0D0D0;
-    font-weight: 700;
-    font-size: 23px;
-    color: #9d9d9d;
-    min-width: 190px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .25s;
-    display: inline-block;
+	font-size: 16px;
+    color: #333333;
+    font-weight: 400;
+    line-height: 31px;
 }
 .kita-custom-page-upload .kita-options-selected ul.kita-list-files {
 	max-width: 300px;
@@ -771,11 +781,11 @@ ul.list-options-area> li.option-area.activate {
 .kita-custom-page-upload .kita-options-selected ul.kita-list-files>li{
 	list-style: none;
     width: 300px;
-    background: #F59832;
+    background: #000000;
     line-height: 57px;
     margin-right: 10px;
     border-radius: 35px;
-    border: solid 1px #F59832;
+    border: solid 1px #000000;
     font-weight: 700;
     font-size: 23px;
     color: #fff;
@@ -783,39 +793,51 @@ ul.list-options-area> li.option-area.activate {
     text-align: center;
     cursor: pointer;
     transition: all .25s;
-    display: inline-block;
+    display: block;
 }
 .kita-custom-page-upload .kita-options-selected ul.kita-list-files>li span {
 	color: #fff;
 }
-.kita-custom-page-upload .kita-button-upload {
+.kita-custom-page-upload .kita-uploadfile {
 	border: dashed 1px #EF8C04;
-    text-align: center;
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     color: transparent;
     border-radius: 25px;
-    padding-top: 60px;
-    padding-bottom: 30px;
-    margin-bottom: 35px;
+    padding: 10px;
+    margin-bottom: 15px;
 }
 .kita-custom-page-upload .kita-button-upload .title{
-	display: inline-block;
     outline: none;
     white-space: nowrap;
     -webkit-user-select: none;
     cursor: pointer;
     font-weight: 700;
-    font-size: 23px;
+    font-size: 15px;
     line-height: 31px;
-    background: #333;
-    padding: 14px 40px;
+    background: #3C3C3C;
+    padding: 5px 60px;
     color: #fff;
-    border-radius: 35px;
+    border-radius:25px;
     transition: all .25s;
+    max-height: 41px;
 }
 .kita-custom-page-upload .kita-button-upload .result-upload{
 	margin-top: 10px;
 	margin-bottom: 10px;
+	color: #5C5B59;
+	font-size: 16px;
+	line-height: 24px;
+	display: flex;
+	align-items: center;
+}
+.kita-custom-page-upload .kita-button-upload .kita-variant-name{
+	max-width: 200px;
+	border-radius: 18px;
+	background: #FFFFFF;
+	border: 0.5px solid #000000;
+	box-shadow: inset 4px 4px 4px rgba(0, 0, 0, 0.25);
 }
 .kita-custom-page-upload .kita-button-upload .desc{
 	font-size: 16px;
@@ -824,11 +846,10 @@ ul.list-options-area> li.option-area.activate {
 	color: #5C5B59;
 }
 .kita-custom-page-upload .kita-button-upload .format{
-	font-size: 16px;
+	font-size: 12px;
 	line-height: 24px;
 	text-align: center;
 	color: #9A9A9A;
-	margin-top: 58px;
 }
 .kita-custom-page-upload .kita-button-upload .format span{
 	text-transform: uppercase;
@@ -1069,13 +1090,15 @@ body.woocommerce-checkout table.order_details td.product-total {
 .nbd-option-wrapper label {
 	line-height: 24px;
 }
+
 #nbd-custom-design {
-	margin-top: 40px;
+	margin-top: 80px;
 }
+
 .heading {
     display: block;
     text-align: center;
-    padding-bottom: 80px;
+    padding-bottom: 10px;
     padding-top: 0;
 }
 .heading .heading-kita-title {
@@ -1353,7 +1376,9 @@ body.woocommerce-checkout table.order_details td.product-total {
 	max-height: 114px;
 }
 .nb-quantity .minus,
-.nb-quantity .plus {
+.nbu-quantity .minus,
+.nb-quantity .plus,
+.nbu-quantity .plus {
 	display: none;
 }
 .nb-custom-qty-side.qty {
@@ -1393,7 +1418,6 @@ body.woocommerce-checkout table.order_details td.product-total {
 	transform: translateY(-50%);
 	left: 0;
 }
-
 .nb-custom-shop_table th.product-details {
 	min-width: 150px;
 }
@@ -1412,6 +1436,7 @@ body.woocommerce-checkout table.order_details td.product-total {
 }
 .nb-custom-shop_table .product-name .product-thumbnail a img,
 .nb-custom-shop_table .nb-image img {
+
 	position: absolute;
 	width: 100%;
 	height: auto;
@@ -1460,6 +1485,7 @@ body.woocommerce-checkout table.order_details td.product-total {
 .woocommerce-checkout .nb-col-hiden {
 	display: none!important;
 }
+
 @media only screen and (max-width: 768px) {
 	.page-template-default .nbd-sidebar-con-inner ul {
 		max-height: 300px;

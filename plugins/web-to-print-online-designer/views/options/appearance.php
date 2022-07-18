@@ -234,6 +234,7 @@
                     <th><?php _e('Material', 'web-to-print-online-designer'); ?></th>
                     <th><?php _e('Price', 'web-to-print-online-designer'); ?></th>
                     <th><?php _e('Min Qty', 'web-to-print-online-designer'); ?></th>
+                    <th><?php _e('Weight / 1', 'web-to-print-online-designer'); ?></th>
                     <th><?php _e('Show more', 'web-to-print-online-designer'); ?></th>
                 </tr>
             </thead>
@@ -250,6 +251,7 @@
                             <td>{{op_material.name}}</td>
                             <td><input string-to-number class="nbd-short-ip" ng-model="options.combination.options[op_area.name][op_size.name][op_material.name].price" type="number" min="0" step="any" name="options[combination][options][{{op_area.name}}][{{op_size.name}}][{{op_material.name}}][price]" /></td>
                             <td><input string-to-number class="nbd-short-ip" ng-model="options.combination.options[op_area.name][op_size.name][op_material.name].qty" type="number" min="0" step="any" name="options[combination][options][{{op_area.name}}][{{op_size.name}}][{{op_material.name}}][qty]" /></td>
+                            <td><input string-to-number class="nbd-short-ip" ng-model="options.combination.options[op_area.name][op_size.name][op_material.name].weight" type="number" min="0" step="any" name="options[combination][options][{{op_area.name}}][{{op_size.name}}][{{op_material.name}}][weight]" /></td>
                             <td>
                                 <a class="button nbd-mini-btn"  ng-click="show_quantity_break_combination(op_area.name, op_size.name, op_material.name)" title="<?php _e('Expend', 'web-to-print-online-designer'); ?>">
                                     <span ng-show="options.combination.options[op_area.name][op_size.name][op_material.name].show" class="dashicons dashicons-arrow-up"></span>
