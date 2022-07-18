@@ -2158,7 +2158,7 @@ if( $cart_item_key != ''){ ?>
     </div>
 </div>
 <?php
-the_content();
+woocommerce_output_product_data_tabs();
 ?>
 <!-- MTV -->
 <?php if($type_page != 'quick_view') { do_action('nb_custom_area_design' , $product_id ); } ?>

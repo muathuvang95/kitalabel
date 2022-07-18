@@ -3,7 +3,7 @@
     <?php include( CUSTOM_KITALABEL_PATH.'templates/options-builder/field-header.php' ); ?>
     <div class="nbd-field-content">
         <div class="__nbd-dropdown-wrap">
-            <select ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>');updateMapOptions('<?php echo $field['id']; ?>')" style="width: 100%" name="nbd-field[<?php echo $field['id']; ?>]{{nbd_fields['<?php echo $field['id']; ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value">
+            <select ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>');updateMapOptions('<?php echo $field['id']; ?>')" style="width: 100%; border-color:#9f9f9f" name="nbd-field[<?php echo $field['id']; ?>]{{nbd_fields['<?php echo $field['id']; ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value">
             <?php 
                 foreach ($field['general']['attributes']["options"] as $key => $attr): 
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;

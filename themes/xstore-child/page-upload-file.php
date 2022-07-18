@@ -322,8 +322,12 @@ if($option_id) {
 		$('.kita-uploadfile input.button-upload').on('change' , function(event) {
 			var files = $(this).prop('files');
 			var file = files[0];
-			file_name = '<li class="file-name" style="color:#EF8C04"><b>'+file.name+'</b></li>';
-			$(this).parent().parent().find('.result-upload').html(file_name);
+			var files_name = file.name;
+			if(files_name.length > 20) {
+				files_name = '...'+files_name.substr(files_name.length - 20, files_name.length);
+			}
+			var file_name_tag = '<li class="file-name" style="color:#EF8C04"><b>'+files_name+'</b></li>';
+			$(this).parent().parent().find('.result-upload').html(file_name_tag);
 			var is_enable = true;
 			if ( $('.kita-tac-wrapper #cs-argee-condition').is(":checked") ) {
 				var upload = $('.kita-uploadfile .result-upload').html();
