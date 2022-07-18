@@ -23,8 +23,6 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
             add_action('admin_enqueue_scripts', array($this, 'kitalabel_frontend_enqueue_scripts'));
 
-            add_filter( 'kitalabel_custom_after_cart_item_name', array($this, 'kitalabel_custom_render_cart') , 1, 3 );
-
             // enqueue the custom file css & js
             add_action( 'admin_enqueue_scripts', array($this, 'kitalabel_custom_enqueue_scripts'));
 
@@ -119,6 +117,16 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             wp_enqueue_style('custom-kitalabel-css' , CUSTOM_KITALABEL_URL . 'assets/css/custom.css');
 
             wp_register_script( 'custom-kitalabel-js',  CUSTOM_KITALABEL_URL . 'assets/js/custom.js', '', '' );
+
+            wp_register_script( 'woocommerce-kitalabel-js',  CUSTOM_KITALABEL_URL . 'assets/js/woocommerce.js', '', '' );
+
+            if ( get_query_var('et_is-woocommerce', false)) {
+                wp_enqueue_script( 'woocommerce-kitalabel-js');
+                    
+                // if ( get_query_var('et_is-cart', false) ) {
+
+                // }
+            }
 
             $args = array(
                 'url' => admin_url( 'admin-ajax.php' ),
@@ -220,191 +228,6 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             <?php
         }
 
-        public function kitalabel_custom_render_cart( $title = null, $cart_item = null, $cart_item_key = null ) {
-            $product_custom_design = 9550;
-            if (  $cart_item_key && ( is_cart() || is_checkout() )) {
-                $nbd_session = WC()->session->get($cart_item_key . '_nbd');
-                $nbu_session = WC()->session->get($cart_item_key . '_nbu');
-                if( isset($cart_item['nbd_item_meta_ds']) ){
-                    if( isset($cart_item['nbd_item_meta_ds']['nbd']) ) $nbd_session = $cart_item['nbd_item_meta_ds']['nbd'];
-                    if( isset($cart_item['nbd_item_meta_ds']['nbu']) ) $nbu_session = $cart_item['nbd_item_meta_ds']['nbu'];
-                }
-                $_show_design                   = nbdesigner_get_option('nbdesigner_show_in_cart', 'yes');
-                $_show_design                   = apply_filters( 'nbd_show_design_section_in_cart', $_show_design, $cart_item );
-                $enable_edit_design             = nbdesigner_get_option('nbdesigner_show_button_edit_design_in_cart', 'yes') == 'yes' ? true : false;
-                $show_edit_link                 = apply_filters('nbd_show_edit_design_link_in_cart', $enable_edit_design, $cart_item);
-                $product_id                     = $cart_item['product_id'];
-                $variation_id                   = $cart_item['variation_id'];
-                $product_id                     = get_wpml_original_id( $product_id );
-                $is_nbdesign                    = get_post_meta($product_id, '_nbdesigner_enable', true);
-                $_enable_upload                 = get_post_meta($product_id, '_nbdesigner_enable_upload', true);
-                $_enable_upload_without_design  = get_post_meta($product_id, '_nbdesigner_enable_upload_without_design', true);
-                $_product                       = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
-                $product_permalink              = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
-                $option_type = 'normal';
-                if( $product_custom_design == $product_id ) {
-                    $option_type = 'custom_design_page';
-                }         
-                if ( $is_nbdesign && $_show_design == 'yes' ) {
-                    $html = '';
-                    $layout = nbd_get_product_layout( $product_id );
-                    if( isset( $nbd_session ) ){
-                        $id             = 'nbd' . $cart_item_key;
-                        $redirect       = is_cart() ? 'cart' : 'checkout';
-                        // $remove_design  = is_cart() ? '<a class="remove nbd-remove-design nbd-cart-item-remove-design" href="#" data-type="custom" data-cart-item="' . $cart_item_key . '">&times;</a>' : '';
-                        // $html          .= '<p>' . esc_html__('Custom design', 'web-to-print-online-designer') . $remove_design . '</p>';
-                        $list           = Nbdesigner_IO::get_list_images( NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_session . '/preview' );
-                        $list           = nbd_sort_file_by_side( $list );
-                        if( $show_edit_link ){
-                            $link_edit_design = add_query_arg(
-                                array(
-                                    'task'          => 'edit',
-                                    'product_id'    => $product_id,
-                                    'nbd_item_key'  => $nbd_session,
-                                    'cs'            => $option_type,
-                                    'cik'           => $cart_item_key,
-                                    'view'          => $layout,
-                                    'rd'            => $redirect ),
-                                getUrlPageNBD('create'));
-                            if( $product_permalink ){
-                                $att_query = parse_url( $product_permalink, PHP_URL_QUERY );
-                                $link_edit_design .= '&'.$att_query;
-                            }    
-                            if( $layout == 'v' ){
-                                $link_edit_design = add_query_arg(
-                                    array(
-                                        'nbdv-task'     => 'edit',
-                                        'task'          => 'edit',
-                                        'product_id'    => $product_id,
-                                        'nbd_item_key'  => $nbd_session,
-                                        'cik'           => $cart_item_key,
-                                        'rd'            => $redirect),
-                                    $product_permalink );
-                            }
-                            if($cart_item['variation_id'] > 0){
-                                $link_edit_design .= '&variation_id=' . $cart_item['variation_id'];
-                            }
-                            $buton = '<a class="button nbd-edit-design" href="'.$link_edit_design.'">'. esc_html__('Edit design', 'web-to-print-online-designer') .'</a>';
-                        }
-                        if( isset( $cart_item['nbo_meta'] ) ) {
-                            $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-                            if( isset( $fields['combination'] ) && isset( $fields['combination']['side']) && count($fields['combination']['side']) > 0 ) {
-                                $side = $fields['combination']['side'];
-                                $qty_min = isset( $fields['combination']['min_qty'] ) ? $fields['combination']['min_qty'] : $cart_item['quantity'];
-                            }
-                        }
-                        $quantity = '';
-                        $product_config = nbd_get_data_from_json( NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_session . '/config.json' )->product;
-                        if( isset($side) ) {
-                           foreach ( $side as $key => $qty ) {
-                                if( is_cart() && isset($side ) && isset($qty_min) ) {
-                                    $quantity = '<span class="box"><input type="number" data-min-qty="'.$qty_min.'" data-item-key="'.$cart_item_key.'" class="nb-custom-qty-side input-text qty text" step="1" min="1" max="" name="qty_side['.$cart_item_key.']['.$key.']" value="'.$qty.'" title="Qty"></span>';
-                                } else {
-                                   $quantity = $qty; 
-                                }
-                                $index = $key + 1;
-                                $design_name = 'Design '.$index;
-                                if( isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
-                                    $design_name = $product_config[$key]->orientation_name;
-                                }
-                                if(isset( $list[$key] ) ) {
-                                   $src    = Nbdesigner_IO::convert_path_to_url( $list[$key] ) . '?&t=' . round( microtime( true ) * 1000 );
-                                    if( $key == 0 && is_cart() ) {
-                                        $html  .= '<tr><td><img class="nbd_cart_item_design_preview" src="' . $src . '"/></td><td>'.$design_name.'</td><td>'.$quantity.'</td><td class="row-middle" rowspan="'.count($side).'">'.$buton.'</td></tr>';
-                                    } else {
-                                        $html  .= '<tr><td><img class="nbd_cart_item_design_preview" src="' . $src . '"/></td><td>'.$design_name.'</td><td>'.$quantity.'</td></tr>';
-                                    } 
-                                }                      
-                            } 
-                        }
-                    }
-                    else if( $is_nbdesign && !$_enable_upload_without_design && $show_edit_link ){
-                        $id = 'nbd' . $cart_item_key; 
-                        $redirect = is_cart() ? 'cart' : 'checkout';
-                        $link_create_design = add_query_arg(
-                            array(
-                                'task'          => 'new',
-                                'task2'         => 'update',
-                                'product_id'    => $product_id,
-                                'variation_id'  => $variation_id,
-                                'cik'           => $cart_item_key,
-                                'view'          => $layout,
-                                'rd'            => $redirect),
-                            getUrlPageNBD('create'));
-                        if( $layout == 'v' ){
-                            $link_create_design = add_query_arg(
-                                array(
-                                    'nbdv-task'     => 'new',
-                                    'task'          => 'new',
-                                    'task2'         => 'update',
-                                    'product_id'    => $product_id,
-                                    'variation_id'  => $variation_id,
-                                    'cik'           => $cart_item_key,
-                                    'view'          => $layout,
-                                    'rd'            => $redirect),
-                                $product_permalink );
-                        }
-                        if( $product_permalink ){
-                            $att_query = parse_url( $product_permalink, PHP_URL_QUERY );
-                            $link_create_design .= '&'.$att_query;
-                        }
-                        $html .= '<div class="nbd-cart-upload-file nbd-cart-item-add-design">';
-                        $html .=    '<a class="button nbd-create-design" href="' . $link_create_design . '">'. esc_html__('Add design', 'web-to-print-online-designer') .'</a>';
-                        $html .= '</div>';
-                    }
-                    if( isset( $nbu_session ) ){
-                        $id             = 'nbu' . $cart_item_key; 
-                        $redirect       = is_cart() ? 'cart' : 'checkout';
-                        $html          .= '<div id="'.$id.'" class="nbd-cart-upload-file nbd-cart-item-upload-file">';
-                        // $remove_upload  = is_cart() ? '<a class="remove nbd-cart-item-remove-file" href="#" data-type="upload" data-cart-item="' . $cart_item_key . '">&times;</a>' : '';
-                        // $html          .= '<p>' . esc_html__('Upload file', 'web-to-print-online-designer') . $remove_upload . '</p>';
-                        $files          = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR . '/' . $nbu_session );
-                        $create_preview = nbdesigner_get_option('nbdesigner_create_preview_image_file_upload');
-                        $upload_html    = '';
-                        foreach ( $files as $file ) {
-                            $ext        = pathinfo( $file, PATHINFO_EXTENSION );
-                            $src        = Nbdesigner_IO::get_thumb_file( pathinfo( $file, PATHINFO_EXTENSION ), '');
-                            $file_url   = Nbdesigner_IO::wp_convert_path_to_url( $file );
-                            if(  $create_preview == 'yes' && ( $ext == 'png' || $ext == 'jpg' || $ext == 'pdf' ) ){
-                                $dir        = pathinfo( $file, PATHINFO_DIRNAME );
-                                $filename   = pathinfo( $file, PATHINFO_BASENAME );
-                                if( file_exists($dir.'_preview/'.$filename) ){
-                                    $src = Nbdesigner_IO::wp_convert_path_to_url( $dir.'_preview/'.$filename );
-                                }else if( $ext == 'pdf' && file_exists($dir.'_preview/'.$filename.'.jpg' ) ){
-                                    $src = Nbdesigner_IO::wp_convert_path_to_url( $dir.'_preview/'.$filename.'.jpg' );
-                                }else{
-                                    $src = Nbdesigner_IO::get_thumb_file( $ext, '' );
-                                }
-                            }else {
-                                $src = Nbdesigner_IO::get_thumb_file( $ext, '' );
-                            }
-                            $upload_html .= '<div class="nbd-cart-item-upload-preview-wrap"><a target="_blank" href='.$file_url.'><img class="nbd-cart-item-upload-preview" src="' . $src . '"/></a><p class="nbd-cart-item-upload-preview-title">'. basename($file).'</p></div>';
-                        }
-                        $upload_html = apply_filters('nbu_cart_item_html', $upload_html, $cart_item, $nbu_session);
-                        $html .= $upload_html;
-                    }
-                    // $option = unserialize(get_post_meta($product_id, '_nbdesigner_option', true)); 
-                    // if( isset($nbd_session) ) {
-                    //     $path = NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_session . '/config.json';
-                    //     $config = nbd_get_data_from_json($path);
-                    //     if( isset( $config->custom_dimension ) && isset( $config->custom_dimension->price ) ){
-                    //         $nbd_variation_price = $config->custom_dimension->price;
-                    //     }
-                    // }
-                    // if( ( ( isset( $nbd_variation_price ) && $nbd_variation_price != 0 ) || $option['extra_price'] ) && ! $option['request_quote'] ){
-                    //     $decimals = wc_get_price_decimals();
-                    //     $extra_price = $option['extra_price'] ? $option['extra_price'] : 0;
-                    //     if( (isset($nbd_variation_price) && $nbd_variation_price != 0) ) {
-                    //         $extra_price = $option['type_price'] == 1 ? wc_price($extra_price + $nbd_variation_price) : $extra_price . ' % + ' . wc_price($nbd_variation_price);
-                    //     }else {
-                    //         $extra_price = $option['type_price'] == 1 ? wc_price($extra_price) : $extra_price . '%';
-                    //     }
-                    //     $html .= '<p id="nbx'.$cart_item_key.'">' . esc_html__('Extra price for design','web-to-print-online-designer') . ' + ' .  $extra_price . '</p>';
-                    // }
-                    return $html;
-                } 
-            } 
-        }
     }
 }
 
