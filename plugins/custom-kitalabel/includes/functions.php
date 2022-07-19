@@ -852,9 +852,9 @@ function nb_custom_order_item_meta_end_1( $item_id, $item ){
     $nbd_item_key = wc_get_order_item_meta( $item_id, '_nbd' );
     $nbu_item_key = wc_get_order_item_meta( $item_id, '_nbu' );
     if( $nbd_item_key || $nbu_item_key ){
+        $html = '';
         $show_design_in_order = nbdesigner_get_option( 'nbdesigner_show_in_order', 'yes' );
         if( ( isset( $item["item_meta"]["_nbd"] ) || isset( $item["item_meta"]["_nbu"] ) ) && $show_design_in_order == 'yes' ){
-            
             $product_id     = $item['product_id'];
             $layout         = nbd_get_product_layout( $product_id );
             if( isset( $item["item_meta"]["_nbd"]  ) ){

@@ -142,7 +142,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
             <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kitalabelModal">
+            <button type="button" class="button button-smaill button-primary" data-bs-toggle="modal" data-bs-target="#kitalabelModal">
                 Download PDF all
             </button>
 
@@ -173,44 +173,45 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                     foreach ( $order->get_items() as $item_id => $item ) {
                                         $nbd_item_key = wc_get_order_item_meta( $item_id, '_nbd' );
                                         $nbu_item_key = wc_get_order_item_meta( $item_id, '_nbu' );
+                                        if($nbd_item_key ||$nbu_item_key) {
+                                            $list_upload = array();
+                                            if( $nbu_item_key ){
+                                                $list_upload = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR .'/'. $nbu_item_key );
+                                            }
 
-                                        $list_upload = array();
-                                        if( $nbu_item_key ){
-                                            $list_upload = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR .'/'. $nbu_item_key );
+                                            $path = NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key;
+                                            $pdf_path = $path . '/customer-pdfs';
+                                            $list_pdf = Nbdesigner_IO::get_list_files_by_type($pdf_path, 1, 'pdf');
+
+                                            if(count($list_pdf) == 0) {
+                                                $can_download_all = false;
+                                            }
+
+                                            $list_images = Nbdesigner_IO::get_list_images(NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key .'/preview', 1);
+                                            asort( $list_images );
+                                            ?>
+                                            <tr>
+                                                <th scope="row"><?php echo esc_html($index); ?></th>
+                                                <td><?php echo esc_html($item->get_name()); ?></td>
+                                                <td>
+                                                    <?php foreach($list_images as $key => $image) {
+                                                        $src = Nbdesigner_IO::convert_path_to_url($image);
+                                                    ?>
+                                                            <img class="nbdesigner_order_image_design" src="<?php echo esc_url( $src ); ?>" />
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                        <div class="kitalabel-has-pdf<?php echo count($list_pdf) > 0 ? ' active': ''; ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg></div>
+                                                        <div class="kitalabel-no-pdf<?php echo count($list_pdf) > 0 ? '': ' active'; ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg></div>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-primary kitalabel-order-item" data-item-id="<?php echo esc_attr($item_id);  ?>" data-has-pdf="<?php echo esc_attr(count($list_pdf) > 0 ? '1' : '0');  ?>" <?php echo esc_attr(count($list_pdf) > 0 ? 'disabled' : '');  ?> data-item-key="<?php echo esc_attr($nbd_item_key);  ?>"><div class="kitalabel-create active">Create</div><div class="kitalabel-load spinner-border spinner-border-sm text-light" role="status"></div></button>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                            $index++;
                                         }
-
-                                        $path = NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key;
-                                        $pdf_path = $path . '/customer-pdfs';
-                                        $list_pdf = Nbdesigner_IO::get_list_files_by_type($pdf_path, 1, 'pdf');
-
-                                        if(count($list_pdf) == 0) {
-                                            $can_download_all = false;
-                                        }
-
-                                        $list_images = Nbdesigner_IO::get_list_images(NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key .'/preview', 1);
-                                        asort( $list_images );
-                                        ?>
-                                        <tr>
-                                            <th scope="row"><?php echo esc_html($index); ?></th>
-                                            <td><?php echo esc_html($item->get_name()); ?></td>
-                                            <td>
-                                                <?php foreach($list_images as $key => $image) {
-                                                    $src = Nbdesigner_IO::convert_path_to_url($image);
-                                                ?>
-                                                        <img class="nbdesigner_order_image_design" src="<?php echo esc_url( $src ); ?>" />
-                                                <?php } ?>
-                                            </td>
-                                            <td>
-                                                    <div class="kitalabel-has-pdf<?php echo count($list_pdf) > 0 ? ' active': ''; ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg></div>
-                                                    <div class="kitalabel-no-pdf<?php echo count($list_pdf) > 0 ? '': ' active'; ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg></div>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-primary kitalabel-order-item" data-item-id="<?php echo esc_attr($item_id);  ?>" data-has-pdf="<?php echo esc_attr(count($list_pdf) > 0 ? '1' : '0');  ?>" <?php echo esc_attr(count($list_pdf) > 0 ? 'disabled' : '');  ?> data-item-key="<?php echo esc_attr($nbd_item_key);  ?>"><div class="kitalabel-create active">Create</div><div class="kitalabel-load spinner-border spinner-border-sm text-light" role="status"></div></button>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                        $index++;
                                     }
                                 } ?>
                             </tbody>
