@@ -126,7 +126,6 @@ jQuery( function( $ ) {
         var $a = $( e.currentTarget );
         var $form = $a.parents( 'form' );
         var qty_sum = 0;
-        console.log(jQuery('input[data-item-key='+item_key+']'));
         jQuery('input[data-item-key='+item_key+']').each(function(key , val) {
             var qty_side = jQuery(val).val();
             qty_sum += parseInt(qty_side);
