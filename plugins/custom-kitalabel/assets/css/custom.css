@@ -1512,3 +1512,19 @@ body.woocommerce-checkout table.order_details td.product-total {
 	}
 
 }
+
+.nb-tabs-wrapper .wc-tabs {
+	border-bottom: 1px solid #E6E6E6;
+	text-align: left!important;
+	margin-bottom: 10px;
+}
+.nb-tabs-wrapper .wc-tabs li a.tab-title {
+	font-size: 16px;
+	line-height: 22px;
+}
+.nb-tabs-wrapper .wc-tabs li a.tab-title.opened {
+	font-size: 16px;
+	line-height: 22px;
+	text-decoration: underline;
+	font-weight: 600;
+}

@@ -1103,7 +1103,7 @@ function nb_ajax_qty_cart() {
             if( isset( $cart_items[$item_key] )) {
                 $cart_item = $cart_items[$item_key];
                 $nbd_field = $cart_item['nbo_meta']['field'] ;
-                $nbd_field = $cart_item['nbo_meta']['option_price']['fields'] ;
+                $nbd_fields = $cart_item['nbo_meta']['option_price']['fields'] ;
                 if( isset( $cart_item['nbo_meta'] ) ) {
                     $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
                     if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
@@ -1117,19 +1117,20 @@ function nb_ajax_qty_cart() {
                             $upload_fields = true;
                             $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
                             $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
-                            WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                            $nbd_field[$key]['qtys'] = $qty_side;
                         }
                     }
                 }
             }
         }
+
         $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
-        if( isset($item_combination) && isset($nbd_field) ) {
-            foreach($nbd_field as $key => $val) {
+        if( isset($item_combination) && isset($nbd_fields) ) {
+            foreach($nbd_fields as $key => $val) {
                 $_origin_field   = $fe_options->get_field_by_id( $fields, $key );
                 if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
-                    $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                    $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                    $area_name = $val['value_name'];
+                    $_area_name = $val['value_name'];
                     if( $area_name == 'Square' || $area_name == 'Circle' ) {
                         $_area_name = 'Square + Circle';
                     }
@@ -1138,13 +1139,13 @@ function nb_ajax_qty_cart() {
                     }
                 }
                 if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
-                    $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                    $size_name = $val['value_name'];
                 }
                 if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
-                    $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                    $material_name = $val['value_name'];
                 }
                 if( !isset($_origin_field['nbd_type']) ) {
-                    $finishing_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                    $finishing_name = $val['value_name'];
                 }
             }
             if( isset($_area_name) && isset($size_name) && isset($material_name)  && isset($item_combination['options']) ) {
@@ -1158,9 +1159,13 @@ function nb_ajax_qty_cart() {
         foreach( $qty_side as $key => $qty ) {
             $sum_qty += (int) $qty;
         }
-        if( $upload_fields && $sum_qty >= (int)$side['qty'] ) {
-             WC()->cart->set_quantity( $item_key, $sum_qty, true );
-             WC()->cart->set_session();
+        if( $upload_fields ) {
+            if(isset($cart_item) && isset($nbd_field) ) {
+                WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                WC()->cart->cart_contents[ $item_key ]['nbo_meta']['field'] = $nbd_field;
+                WC()->cart->set_quantity( $item_key, $sum_qty );
+                WC()->cart->set_session();
+            }
         } else if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
             WC()->cart->set_quantity( $item_key, $sum_qty, true );
             // set option qty side
@@ -1223,6 +1228,9 @@ function nb_custom_update_cart() {
             if(count(nb_array_diff($options_new, $options_old)) > 0) {
                 $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
                 foreach($options_new as $key => $val) {
+                    if(is_array($val) && isset($val['value']) ) {
+                        $val = $val['value'];
+                    }
                     $_origin_field   = $fe_options->get_field_by_id( $fields, $key );
                     if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
                         $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
@@ -1306,8 +1314,16 @@ function nb_custom_input_cart_item( $product_quantity, $cart_item_key, $cart_ite
         if( isset($cart_item['nbd_item_meta_ds']) ) {
            if( isset($cart_item['nbd_item_meta_ds']['nbd']) ) $nbd_session = $cart_item['nbd_item_meta_ds']['nbd'];
         }
+        $has_upload = false;
+        if(isset($cart_item['nbo_meta']['option_price']) && $cart_item['nbo_meta']['option_price']['fields'] && is_array($cart_item['nbo_meta']['option_price']['fields'])) {
+            foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
+                if(isset($field['is_custom_upload'])) {
+                    $has_upload = true;
+                }
+            }
+        }
         if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0  ) {
-            if( isset($nbd_session) ) {
+            if( isset($nbd_session) || $has_upload ) {
                 $product_quantity = str_replace('<input' , '<input disabled class="text-center" style="max-width:80px"' , $product_quantity );
                 $product_quantity = str_replace('input-text' , 'nb-input-text' , $product_quantity );
                 $product_quantity = str_replace('class="quantity"' , 'class="nb-quantity"' , $product_quantity );
