@@ -80,8 +80,10 @@ do_action( 'woocommerce_before_cart' ); ?>
 		                            <?php
 		                                $thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
 
-		                                if ( ! $_product->is_visible() || ! $product_permalink){
+		                                if ( ! $_product->is_visible() || ! $product_permalink || $kita_hook_variant){
+		                                	echo '<div class="nb-image">';
 		                                    echo wp_kses_post( $thumbnail );
+		                                    echo '</div>';
 		                                } else {
 		                                    printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $thumbnail );
 		                                }

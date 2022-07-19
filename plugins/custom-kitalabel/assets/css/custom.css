@@ -1448,7 +1448,16 @@ body.woocommerce-checkout table.order_details td.product-total {
 }
 .nb-custom-shop_table .nb-quantity input[type=number] {
 	max-width: 100px!important;
-	background: #e3e3e3;
+	width: 88px;
+    text-align: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: #fff;
+    float: left;
+    font-size: 16px;
+    font-weight: bold;
+    height: 43px;
 }
 .nb-custom-shop_table .nbd-edit-design {
 	color: #fff;
