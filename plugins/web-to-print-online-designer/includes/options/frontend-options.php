@@ -870,6 +870,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                         'files' => $nbd_upload_field[$field_id],
                                         'variants' => $nbd_field[$field_id]['variant'],
                                         'qtys' => $nbd_field[$field_id]['qty'],
+                                        'min_qty' => $nbd_field[$field_id]['min_qty'],
                                     );
                                 }
                             }
@@ -1238,9 +1239,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     // kita upload file
                     if( $origin_field['general']['input_type'] == 'u' ){
                         if(is_array($val)) {
-                            if(isset($val['files']) && isset($val['variants']) ) {
+                            if(isset($val['files']) && isset($val['variants']) && isset($val['min_qty']) ) {
                                 $_fields[$key]['is_custom_upload']     = 1;
-                                $_fields[$key]['min_qty']     = $quantity;
+                                $_fields[$key]['min_qty']     = $val['min_qty'];
                                 // foreach($val['files'] as $k => $name) {
                                 //     $variant_index = $k + 1;
                                 //     $file_name = explode('/', $name);
@@ -2496,7 +2497,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     }
                 }
                 if($check_custom_design) {
-                    get_template_part('custom-nbdesign/nb-quick-view' , array());
+                    custom_kita_get_template('nb-quick-view' , array());
                 } else {
                      // END
                     if($type == '1' || $mode == 'catalog' ){
