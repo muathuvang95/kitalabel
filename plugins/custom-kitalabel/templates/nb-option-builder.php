@@ -2966,7 +2966,7 @@ woocommerce_output_product_data_tabs();
                 if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
                     angular.forEach($scope.nbd_fields, function(field, field_id){
                         let _nbd_type = $scope.get_field(field_id).nbd_type;
-                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || typeof _nbd_type == 'undefined' ) {
+                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || _nbd_type == 'orientation' || typeof _nbd_type == 'undefined' ) {
                             $scope.nbd_fields[field_id].value = 0;
                         }
                     })
