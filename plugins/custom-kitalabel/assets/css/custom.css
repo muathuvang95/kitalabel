@@ -1393,6 +1393,7 @@ body.woocommerce-checkout table.order_details td.product-total {
     margin: 0 auto;
     padding-left: 10%;
     padding-right: 10%;
+    display: block;
 }
 .nb-product-thumbnail .pswp-additional img {
 	position: absolute;
