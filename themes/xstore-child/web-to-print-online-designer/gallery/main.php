@@ -17,8 +17,6 @@
                 <ul id="nbdl-search-type">
                     <li data-value="" class="<?php echo $search_type == '' ? 'active' : ''; ?>" ><?php esc_html_e( 'All', 'web-to-print-online-designer'); ?></li>
                     <li data-value="design" class="<?php echo $search_type == 'design' ? 'active' : ''; ?>" ><?php esc_html_e( 'Design name', 'web-to-print-online-designer'); ?></li>
-                    <li data-value="artist" class="<?php echo $search_type == 'artist' ? 'active' : ''; ?>" ><?php esc_html_e( 'Artist', 'web-to-print-online-designer'); ?></li>
-                </ul>
             </div>
         </div>
     </div>
