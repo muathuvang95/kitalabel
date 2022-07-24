@@ -2825,6 +2825,8 @@ class Nbdesigner_Plugin {
                     $full_name = $path . '/used_font.json';
                 }else if( $key == 'config' ){
                     $full_name = $path . '/config.json';
+                }else if( $key == 'printing_options' ){
+                    $full_name = $path . '/printing_options.json';
                 }else if( $key != 'template_thumb' ){
                     if( strpos( $key, '_svg' ) > 0 ){
                         $ext = 'svg';

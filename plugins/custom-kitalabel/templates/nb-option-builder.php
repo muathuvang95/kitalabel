@@ -2002,7 +2002,7 @@ foreach( $options["fields"] as $key => $field ){
                 $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/xlabel.php'; // MTV
                 break;
             default:
-                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/advanced-dropdown.php'; // MTV
+                $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/dropdown.php'; // MTV
                 break;
         }
     }
