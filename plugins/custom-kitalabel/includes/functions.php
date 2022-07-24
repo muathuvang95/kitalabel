@@ -433,61 +433,56 @@ function nb_button_custom_design( $pid ) {
             var hire_us_design_for_you = <?php echo $show_button_hire_us; ?>;
             var is_nbd_upload_without_design = <?php echo $_enable_upload_without_design; ?>;
         </script>
-        <div class="row">
-            <div class="col-md-6"></div>
-            <div class="col-md-6">
-                <div class="nbdesigner_frontend_container nb_button_custom_design">
-                    <input class="nb-custom-design-page" name="nb-custom-design-page" type="hidden" value="custom_design_page" />
-                    <input name="nbd-add-to-cart" type="hidden" value="<?php echo( $pid ); ?>" />
-                    <div class="nbd-actions-wrap">
-                        <?php if( $is_nbdesign ): ?>
-                        <div class="nbd-action-wrap">
-                            <div class="button alt nbdesign-button start-design">
-                                <span ng-click="NbCustomDesign('start_design')"><?php echo $label_design; ?></span>
-                                <span class="nb-cs-help-tip">
-                                    <span class="data-tip"><?php echo nbdesigner_get_option('nbd_desc_button_design'); ?></span>
-                                </span>
-                                <!-- <span class="show-desc" ng-click="showDescDesign('design')"><span ng-show="!showDescDesign['design']" class="dashicons dashicons-arrow-down"></span><span ng-show="showDescDesign['design']" class="dashicons dashicons-arrow-up"></span></span> -->
-                            </div>
-                            <span ng-show="field.isExpand" class="dashicons dashicons-arrow-up"></span>
-                            <div ng-if="showDescDesign['design']" class="desc"><?php echo $desc_design; ?></div>
-                        </div>
-                        <div class="nbd-action-wrap">
-                            <div class="button alt nbdesign-button upload-design">
-                                <span ><a class="kita-link-upload" data-url="<?php echo home_url().'/upload-file'; ?>" href="<?php echo home_url().'/upload-file'; ?>"><?php echo $label_upload ; ?></a></span>
-                                <span class="nb-cs-help-tip">
-                                    <span class="data-tip"><?php echo nbdesigner_get_option('nbd_desc_button_upload'); ?></span>
-                                </span>
-                                <!-- <span class="show-desc" ng-click="showDescDesign('upload')" ><span ng-show="!showDescDesign['upload']" class="dashicons dashicons-arrow-down"></span><span ng-show="showDescDesign['upload']" class="dashicons dashicons-arrow-up"></span></span> -->
-                            </div>
-                            <div ng-if="showDescDesign['upload']" class="desc"><?php echo $desc_upload; ?></div>
-                        </div>
-                        <script type="text/javascript">
-                            jQuery(document).ready(function($) {
-                                $('.nb_button_custom_design .nb-cs-help-tip').click(function() {
-                                    $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
-                                    $(this).addClass('active');
-                                })
-                                $(document).click(function (e) {
-                                    var container = $(".nb_button_custom_design .nb-cs-help-tip");
-                                    if (!container.is(e.target) && container.has(e.target).length === 0) {
-                                        $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
-                                    }
-                                });
-                            })
-                        </script>
-                        <?php endif; ?>
+        <div class="nbdesigner_frontend_container nb_button_custom_design">
+            <input class="nb-custom-design-page" name="nb-custom-design-page" type="hidden" value="custom_design_page" />
+            <input name="nbd-add-to-cart" type="hidden" value="<?php echo( $pid ); ?>" />
+            <div class="row nbd-actions-wrap">
+                <?php if( $is_nbdesign ): ?>
+                <div class="col-md-6 nbd-action-wrap">
+                    <div class="button alt nbdesign-button start-design">
+                        <span ng-click="NbCustomDesign('start_design')"><?php echo $label_design; ?></span>
+                        <span class="nb-cs-help-tip">
+                            <span class="data-tip"><?php echo nbdesigner_get_option('nbd_desc_button_design'); ?></span>
+                        </span>
+                        <!-- <span class="show-desc" ng-click="showDescDesign('design')"><span ng-show="!showDescDesign['design']" class="dashicons dashicons-arrow-down"></span><span ng-show="showDescDesign['design']" class="dashicons dashicons-arrow-up"></span></span> -->
                     </div>
-                    <div class="nb-bottom-wrap">
-                        <div class="content">
-                            <span class="text">
-                                Perlu cetak bentuk lain? Hubungi kami
-                            </span>
-                            <a href="<?php echo home_url(). '/product/special-request/'; ?>" class="text">
-                                di sini
-                            </a>
-                        </div>
+                    <span ng-show="field.isExpand" class="dashicons dashicons-arrow-up"></span>
+                    <div ng-if="showDescDesign['design']" class="desc"><?php echo $desc_design; ?></div>
+                </div>
+                <div class="col-md-6 nbd-action-wrap">
+                    <div class="button alt nbdesign-button upload-design">
+                        <span ><a class="kita-link-upload" data-url="<?php echo home_url().'/upload-file'; ?>" href="<?php echo home_url().'/upload-file'; ?>"><?php echo $label_upload ; ?></a></span>
+                        <span class="nb-cs-help-tip">
+                            <span class="data-tip"><?php echo nbdesigner_get_option('nbd_desc_button_upload'); ?></span>
+                        </span>
+                        <!-- <span class="show-desc" ng-click="showDescDesign('upload')" ><span ng-show="!showDescDesign['upload']" class="dashicons dashicons-arrow-down"></span><span ng-show="showDescDesign['upload']" class="dashicons dashicons-arrow-up"></span></span> -->
                     </div>
+                    <div ng-if="showDescDesign['upload']" class="desc"><?php echo $desc_upload; ?></div>
+                </div>
+                <script type="text/javascript">
+                    jQuery(document).ready(function($) {
+                        $('.nb_button_custom_design .nb-cs-help-tip').click(function() {
+                            $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
+                            $(this).addClass('active');
+                        })
+                        $(document).click(function (e) {
+                            var container = $(".nb_button_custom_design .nb-cs-help-tip");
+                            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                                $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
+                            }
+                        });
+                    })
+                </script>
+                <?php endif; ?>
+            </div>
+            <div class="nb-bottom-wrap">
+                <div class="content">
+                    <span class="text">
+                        Perlu cetak bentuk lain? Hubungi kami
+                    </span>
+                    <a href="<?php echo home_url(). '/product/special-request/'; ?>" class="text">
+                        di sini
+                    </a>
                 </div>
             </div>
         </div>
@@ -503,40 +498,35 @@ function nb_button_custom_design_disable( $pid ) {
         $label_upload                   = apply_filters( 'nbd_start_design_and_upload_label', esc_html__( 'Upload Desain Kamu', 'web-to-print-online-designer' ) );
 
         ?>
-        <div class="row">
-            <div class="col-md-6"></div>
-            <div class="col-md-6">
-                <div class="nbdesigner_frontend_container nb_button_custom_design">
-                    <input name="nbd-add-to-cart" type="hidden" value="<?php echo( $pid ); ?>" />
-                    <div class="nbd-actions-wrap">
-                        <?php if( $is_nbdesign ): ?>
-                        <div class="nbd-action-wrap">
-                            <a class="button alt nbdesign-button start-design" style="background-color: #d2b690; color: #8c8989">
-                                <span><?php echo $label_design; ?></span>
-                            </a>
-                        </div>
-                        <div class="nbd-action-wrap">
-                            <a class="button alt nbdesign-button upload-design" style="background-color: #9a9a9a; color: #8c8989">
-                                <span><?php echo $label_upload ; ?></span>
-                            </a>
-                        </div>
-                        <?php endif; ?>
+            <div class="nbdesigner_frontend_container nb_button_custom_design">
+                <input name="nbd-add-to-cart" type="hidden" value="<?php echo( $pid ); ?>" />
+                <div class="nbd-actions-wrap row">
+                    <?php if( $is_nbdesign ): ?>
+                    <div class="col-md-6 nbd-action-wrap">
+                        <a class="button alt nbdesign-button start-design" style="background-color: #d2b690; color: #8c8989">
+                            <span><?php echo $label_design; ?></span>
+                        </a>
                     </div>
-                    <div class="nb-bottom-wrap nb-bottom-wrap-none">
-                        <div class="content">
-                            <span class="text">
-                                Perlu cetak bentuk lain? Hubungi kami
-                            </span>
-        <!-- <a href="http://staging.kitalabel.com/special-request/" class="text"> -->
-        <!--Steve change here 7 APRIL 2022  -->
-                <a href="http://staging.kitalabel.com/product/request-print-custom/" class="text">
-                                di sini
-                            </a>
-                        </div>
+                    <div class="col-md-6 nbd-action-wrap">
+                        <a class="button alt nbdesign-button upload-design" style="background-color: #9a9a9a; color: #8c8989">
+                            <span><?php echo $label_upload ; ?></span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <div class="nb-bottom-wrap nb-bottom-wrap-none">
+                    <div class="content">
+                        <span class="text">
+                            Perlu cetak bentuk lain? Hubungi kami
+                        </span>
+    <!-- <a href="http://staging.kitalabel.com/special-request/" class="text"> -->
+    <!--Steve change here 7 APRIL 2022  -->
+            <a href="http://staging.kitalabel.com/product/request-print-custom/" class="text">
+                            di sini
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
         <?php
     }
 }
@@ -1868,3 +1858,11 @@ function nb_custom_login_ajax(){
     wp_send_json_success($results);
     die();
 }
+// add_filter('woocommerce_product_get_weight', 'nb_custom_weight_product_design', 90, 2);
+// function nb_custom_weight_product_design($value, $product){
+//     echo '<pre>';
+//     var_dump($product->get_title());
+//     echo '</pre>';
+//     die;
+//     return $value;
+// }

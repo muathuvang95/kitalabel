@@ -172,6 +172,10 @@ div.td {
 	border-radius: 5px;
 	box-shadow: 0px 0px 5px #c1c1c1;
 }
+.nb-custom-option-wrapper .nbo-thumbnail .nb-custom-box {
+	text-align: center;
+	margin-bottom: 10px;
+}
 .nb-custom-option-wrapper .nbo-group-wrap .nbo-thumbnail {
 	padding:  1px;
 }
@@ -247,8 +251,7 @@ div.td {
 	margin-top: 60px;
 }
 .nb_button_custom_design .nbd-actions-wrap {
-	justify-content: center;
-	align-items: center;
+	display: block!important;
 	margin-bottom: 50px;
 }
 .nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button {
@@ -260,8 +263,8 @@ div.td {
 	width: 100%;
 }
 .nb_button_custom_design .nbd-action-wrap {
-	width: 50%;
 	padding: 0 10px;
+	margin: 0 0 10px 0;
 }
 .nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button>span {
 	color:  #444;
@@ -336,7 +339,7 @@ div.td {
 	font-size: 12px;
 	line-height: 22px;
 	font-weight: 400;
-	text-align: justify;
+	text-align: center;
 	font-style: normal;
 	color: #fff;
 	background: #000;
@@ -1500,6 +1503,9 @@ body.woocommerce-checkout table.order_details td.product-total {
 .woocommerce-checkout .nb-col-hiden {
 	display: none!important;
 }
+.nb-group-timeline-container {
+	display: block;
+}
 @media only screen and (max-width: 768px) {
 	.page-template-default .nbd-sidebar-con-inner ul {
 		max-height: 300px;
@@ -1514,20 +1520,38 @@ body.woocommerce-checkout table.order_details td.product-total {
 	.nb-col-modile-hiden {
 		display: none!important;
 	}
+	.nb-group-timeline-container {
+		display: none;
+	}
+}
+.nb-tabs-wrapper {
+	margin-top: 200px!important;
 }
 
 .nb-tabs-wrapper .wc-tabs {
-	border-bottom: 1px solid #E6E6E6;
-	text-align: left!important;
+	text-align: center!important;
 	margin-bottom: 10px;
 }
+.nb-tabs-wrapper .wc-tabs li {
+	margin-right: 1px!important;
+}
+.nb-tabs-wrapper .wc-tabs li.et-opened a.tab-title {
+	background-color: #EB8C23;
+}
 .nb-tabs-wrapper .wc-tabs li a.tab-title {
-	font-size: 16px;
-	line-height: 22px;
+	font-size: 20px;
+	line-height: 25px;
+	font-weight: 400;
+	color: #000000;
+	text-decoration: none;
+	border-radius: 15px 15px 0px 0px;
+	background-color: #9A9A9A;
+	padding: 15px 35px;
 }
 .nb-tabs-wrapper .wc-tabs li a.tab-title.opened {
-	font-size: 16px;
-	line-height: 22px;
-	text-decoration: underline;
-	font-weight: 600;
+	font-weight: 700;
+}
+.nb-tabs-wrapper .tab-content {
+	background: #ECECEC;
+    padding: 20px;
 }

@@ -254,7 +254,7 @@ $currentDir = ABSPATH . 'wp-content/plugins/web-to-print-online-designer/templat
         margin: -2px -24px 0 5px;
         line-height: 1;
         color: #fff !important;
-        background: #333333;
+        background: #EB8C23;
         border-radius: 50%;
         display: inline-block;
         font-size: 10px;
@@ -1334,7 +1334,7 @@ $currentDir = ABSPATH . 'wp-content/plugins/web-to-print-online-designer/templat
         width: 20px;
         height: 40px;
         display: block;
-        border: solid #404762;
+        border: solid #EB8C23;
         border-width: 0 4px 4px 0;
         position: absolute;
         top: calc(50% - 22px);
@@ -1979,7 +1979,7 @@ foreach( $options["fields"] as $key => $field ){
         if( $field['general']['input_type'] == 'a' ) {
             $tempalte = $currentDir .'/options-builder/textarea'.$_prefix.'.php'; 
         } else {
-            $tempalte = $currentDir .'/options-builder/input'.$_prefix.'.php'; 
+            $tempalte = CUSTOM_KITALABEL_PATH .'templates/options-builder/input.php'; // MTV
         }
     }else{
         if( count($field['general']['attributes']["options"]) == 0){
@@ -2147,14 +2147,6 @@ if( $cart_item_key != ''){ ?>
             <!-- Form End -->
         </div>
         <!-- MTV -->
-        <?php if( $type_page != 'quick_view') { ?>
-        <div ng-if="enable_design">
-            <?php do_action('nb_button_custom_design' , $product_id ); ?>
-        </div>
-        <div ng-if="!enable_design">
-            <?php do_action('nb_button_custom_design_disable' , $product_id ); ?>
-        </div>
-        <?php } ?>
     </div>
 </div>
 <?php
@@ -2931,42 +2923,13 @@ woocommerce_output_product_data_tabs();
                     if( angular.isDefined(_groups[0]) && _groups[0].fields.indexOf(cur_field_id) > -1 ) {
                         $scope.selected_options[_nbd_type] = cur_field_id;
                         check_scroll = true;
-                    }
-                    // change benefit
-                    var _groups_index = -1;
-                    var _field_index = -1;
-                    angular.forEach(_groups , function( _group , _group_id ) {
-                        if( _group.fields.indexOf(cur_field_id) > -1 ) {
-                            _groups_index = _group_id;
-                            _field_index = _group.fields.indexOf(cur_field_id);
-                            
-                        }
-                    })
-                    if( angular.isDefined($scope.nbd_fields[cur_field_id].value) ) {
-                        var _op_selected = _fie.general.attributes.options[$scope.nbd_fields[cur_field_id].value];
-                        let options_element = jQuery('#nbd-custom-design');
-                        if( _groups_index > -1 && _field_index > -1 ) {
-                           var _benefit_content = options_element.find('.nbd-column-'+_groups_index).find('.nbo-group-left').find('.benefit-col-'+_field_index);
-                           _benefit_content.find('.title').find('p').html(_op_selected.name);
-                           jQuery('#nbd-custom-design .nbd-column-'+_groups_index+' .nbo-group-left .benefit-col-'+_field_index+' .title').data('title' , _op_selected.name);
-                           _benefit_content.find('.benefit-item.benefit').find('.benefit-content').html(_op_selected.benefit.replaceAll('/' , '<br>'));
-                           jQuery('#nbd-custom-design .nbd-column-'+_groups_index+' .nbo-group-left .benefit-col-'+_field_index+' .title .benefit-item.benefit .benefit-content').data('benefit' , _op_selected.benefit.replaceAll('/' , '<br>') );
-                           _benefit_content.find('.benefit-item.un-benefit').find('.benefit-content').html(_op_selected.un_benefit.replaceAll('/' , '<br>'));
-                           jQuery('#nbd-custom-design .nbd-column-'+_groups_index+' .nbo-group-left .benefit-col-'+_field_index+' .title .benefit-item.un-benefit .benefit-content').data('benefit' , _op_selected.un_benefit.replaceAll('/' , '<br>') );
-                           if(_op_selected.benefit == '' || _op_selected.un_benefit == '') {
-                               _benefit_content.css('display' , 'none');  
-                            } else {
-                                _benefit_content.css('display' , 'block');  
-                            }
-                        }
-                        
                     } 
                 }
                 // disabled checkbox label
                 if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
                     angular.forEach($scope.nbd_fields, function(field, field_id){
                         let _nbd_type = $scope.get_field(field_id).nbd_type;
-                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || _nbd_type == 'orientation' || typeof _nbd_type == 'undefined' ) {
+                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || typeof _nbd_type == 'undefined' ) {
                             $scope.nbd_fields[field_id].value = 0;
                         }
                     })
@@ -2982,8 +2945,13 @@ woocommerce_output_product_data_tabs();
                 $scope.enable_design = false;
                 var check_ed = true;
                 angular.forEach( $scope.options_selected_copy , function( val , key ) {
+                    let _nbd_filed = $scope.get_field(key);
+                    var maybe_check_field = false;
+                    if(_nbd_filed.general.data_type == 'i' && _nbd_filed.general.input_type != 'a' && _nbd_filed.nbd_type == 'page') {
+                        maybe_check_field = true;
+                    }
                     if( val.enable && val.published && val.show_in_group) { 
-                        if( val.selected && check_ed ) {
+                        if( ( val.selected || maybe_check_field ) && check_ed ) {
                             $scope.enable_design = true;
                         } else {
                             $scope.enable_design = false;
@@ -3012,40 +2980,42 @@ woocommerce_output_product_data_tabs();
                     angular.forEach( $scope.options_selected_copy , function( val , key) {
                         if(val.enable && val.published && val.show_in_group && val.selected) {
                             var _origin_field = $scope.get_field(val.id);
-                            var selected_option = _origin_field.general.attributes.options[val.value].name;
-                            switch(_origin_field.nbd_type) {
-                                case 'area':
-                                    area_name = selected_option;
-                                    _area_name = selected_option;
-                                    if( area_name == 'Square' || area_name == 'Circle' ) {
-                                        _area_name = 'Square + Circle';
-                                    }
-                                    if( area_name == 'Rectangle' || area_name == 'Oval' ) {
-                                        _area_name = 'Rectangle + Oval';
-                                    }
-                                    area_val  = val.value;
-                                    break;
-                                case 'size':
-                                    size_name = selected_option;
-                                    size_val  = val.value;
-                                    break;
-                                case 'color':
-                                    material_name = selected_option;
-                                    material_val = val.value;
-                                    break;
-                                default:
-                                // code block
-                            }
-                            if(typeof _origin_field.nbd_type == 'undefined') {
-                                finishing_name = selected_option;
-                                finishing_val  = val.value;
+                            if(_origin_field.general.data_type != 'i') {
+                                var selected_option = _origin_field.general.attributes.options[val.value].name;
+                                switch(_origin_field.nbd_type) {
+                                    case 'area':
+                                        area_name = selected_option;
+                                        _area_name = selected_option;
+                                        if( area_name == 'Square' || area_name == 'Circle' ) {
+                                            _area_name = 'Square + Circle';
+                                        }
+                                        if( area_name == 'Rectangle' || area_name == 'Oval' ) {
+                                            _area_name = 'Rectangle + Oval';
+                                        }
+                                        area_val  = val.value;
+                                        break;
+                                    case 'size':
+                                        size_name = selected_option;
+                                        size_val  = val.value;
+                                        break;
+                                    case 'color':
+                                        material_name = selected_option;
+                                        material_val = val.value;
+                                        break;
+                                    default:
+                                    // code block
+                                }
+                                if(typeof _origin_field.nbd_type == 'undefined') {
+                                    finishing_name = selected_option;
+                                    finishing_val  = val.value;
+                                }
                             }
                         }
                     })
                     if( _area_name!= '' && size_name != '' && material_name != '' ) {
                         var _quantity = $scope.options.combination.options[_area_name][size_name][material_name].qty;
                         jQuery('.nb-custom-quantity').val(_quantity);
-                    } 
+                    }
                     setTimeout( function() {
                         var link_upload = jQuery('a.kita-link-upload').data('url');
                         link_upload += '?product_id=9853&area='+area_val+'&size='+size_val+'&material='+material_val+'&finishing='+finishing_val+'&variant='+variant_value;
@@ -3421,36 +3391,25 @@ woocommerce_output_product_data_tabs();
                     $scope.product_img.option_index  = _field.value;
                 }
                 // MTV
-                let groups = $scope.options.groups;
-                var groups_index = 0;
-                groups.forEach( function( value , key) {
-                    if( value.fields.indexOf(cur_field_id) > -1 ) {
-                        groups_index = key;
-                    }
-                })
-                var class_name = '.nbd-column-'+groups_index;
-                if( angular.isDefined(field.nbd_type) && field.nbd_type == 'size' ) {
-                    var size_data = jQuery( '#nbd-custom-design' ).find( class_name ).find( '.nbo-group-left' ).find( '.nbo-size' ).find('.name');
-                    size_data.html(_field.value_name);
-                }
+
                 if( angular.isDefined($scope.product_img.field_id) && angular.isDefined($scope.product_img.option_index) ){
-                    $scope.custom_change_product_image($scope.product_img.field_id, $scope.product_img.option_index , class_name);
+                    $scope.custom_change_product_image($scope.product_img.field_id, $scope.product_img.option_index);
                 }
             }  
         };
-        $scope.custom_change_product_image = function( field_id, option_index , class_name ){
+        $scope.custom_change_product_image = function( field_id, option_index ){
             var field = $scope.get_field(field_id);
             if( field.appearance.change_image_product == 'y' && field.general.attributes.options[option_index].imagep == 'y' ){
                 var options_element = jQuery( '#nbd-custom-design' );
-                var product_image = options_element.find( class_name ).find( '.nbo-group-left' ).find( 'img.wp-post-image' );
+                var product_image = options_element.find( '.nbo-group-left' ).find( 'img.wp-post-image' );
                 var option_data = field.general.attributes.options[option_index];
-                var product_image_wrap = options_element.find( class_name ).find( '.nbo-group-left' ).find( 'wrap-image' );
+                var product_image_wrap = options_element.find( '.nbo-group-left' ).find( 'wrap-image' );
                 if (product_image.length){
                     if( !option_data.full_src_w ) option_data.full_src = product_image.attr('data-large_image_width');
                     if( !option_data.full_src_h ) option_data.full_src_h = product_image.attr('data-large_image_height');
                     $scope.set_product_image_attr(product_image, 'src', option_data.image_link, 0);
                     $scope.set_product_image_attr(product_image, 'srcset', option_data.image_srcset, 0);
-                    jQuery('#nbd-custom-design '+class_name+' .nbo-group-left img.wp-post-image').data('src' , option_data.full_src);
+                    jQuery('#nbd-custom-design .nbo-group-left img.wp-post-image').data('src' , option_data.full_src);
                     $scope.set_product_image_attr(product_image, 'sizes', option_data.image_sizes, 0);
                     $scope.set_product_image_attr(product_image, 'title', option_data.image_title, 0);
                     $scope.set_product_image_attr(product_image, 'alt', option_data.image_alt, 0);
