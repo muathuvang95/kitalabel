@@ -157,6 +157,30 @@ if( !class_exists('Nbdesigner_Settings_General') ) {
                         'css' => 'margin: 0 15px 10px 5px;'
                     ),
                     array(
+                        'title'         => esc_html__( 'Show/hide item sidebar template page', 'web-to-print-online-designer'),
+                        'id'            => 'nbdesigner_enabel_item_sidebar_template',
+                        'default'       => json_encode(array(
+                                'nbdesigner_item_sidebar_tags'              => 1,
+                                'nbdesigner_item_sidebar_colors'            => 1,
+                                'nbdesigner_item_sidebar_cat'               => 1,
+                                'nbdesigner_item_sidebar_designer'          => 1,
+                                'nbdesigner_item_sidebar_products'          => 1,
+                                'nbdesigner_item_sidebar_wishlist'          => 1,
+                            )),
+                        'description'   => esc_html__( 'Show/hide item sidebar template page. ', 'web-to-print-online-designer'),
+                        'type'          => 'multicheckbox',
+                        'class'         => 'regular-text',
+                        'options'       => array(
+                            'nbdesigner_item_sidebar_tags'              => esc_html__('Tags', 'web-to-print-online-designer'),
+                            'nbdesigner_item_sidebar_colors'            => esc_html__('Colors', 'web-to-print-online-designer'),
+                            'nbdesigner_item_sidebar_cat'               => esc_html__('Design Category', 'web-to-print-online-designer'),
+                            'nbdesigner_item_sidebar_designer'          => esc_html__('Designer', 'web-to-print-online-designer'),
+                            'nbdesigner_item_sidebar_products'          => esc_html__('Products', 'web-to-print-online-designer'),
+                            'nbdesigner_item_sidebar_wishlist'          => esc_html__('Wishlist', 'web-to-print-online-designer'),
+                        ),
+                        'css' => 'margin: 0 15px 10px 5px;'
+                    ),
+                    array(
                         'title'         => esc_html__('Allow download design in editor', 'web-to-print-online-designer'),
                         'description'   => esc_html__('Allow the customer download their designs in editor ( Modern layout ).', 'web-to-print-online-designer'),
                         'id'            => 'allow_customer_download_design_in_editor',

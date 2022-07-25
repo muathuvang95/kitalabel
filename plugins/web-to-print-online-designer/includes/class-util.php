@@ -1348,6 +1348,13 @@ function default_frontend_setting(){
         'nbdesigner_download_design_upload_file'    => 0,
         'nbdesigner_attach_design_png'              => 1,
         'nbdesigner_attach_design_svg'              => 0,
+
+        'nbdesigner_item_sidebar_tags'              => 1,
+        'nbdesigner_item_sidebar_colors'            => 1,
+        'nbdesigner_item_sidebar_cat'               => 1,
+        'nbdesigner_item_sidebar_designer'          => 1,
+        'nbdesigner_item_sidebar_products'          => 1,
+        'nbdesigner_item_sidebar_wishlist'          => 1,
         
         'allow_customer_download_design_in_editor'  => 'no',
         'nbdesigner_download_design_in_editor_png'  => 0,

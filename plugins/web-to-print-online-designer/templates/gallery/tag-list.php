@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly  ?>
-<?php if( count($tags) > 0 ): ?>
+
+<?php if( count($tags) > 0 && nbdesigner_get_option('nbdesigner_item_sidebar_tags') == 1 ): ?>
 <div class="nbd-category nbd-sidebar-con">
     <p class="nbd-sidebar-h3"><?php esc_html_e('Tags', 'web-to-print-online-designer'); ?></p>
     <div class="nbd-sidebar-con-inner">
@@ -19,7 +20,7 @@
     </div>
 </div>
 <?php endif; ?>
-<?php if( count($colors) > 0 ): ?>
+<?php if( count($colors) > 0 && nbdesigner_get_option('nbdesigner_item_sidebar_colors') == 1 ): ?>
 <div class="nbd-category nbd-sidebar-con">
     <p class="nbd-sidebar-h3"><?php esc_html_e('Colors', 'web-to-print-online-designer'); ?></p>
     <div class="nbd-sidebar-con-inner">
