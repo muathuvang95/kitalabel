@@ -23,7 +23,7 @@
                     ?>><?php echo $attr['name']; ?>
                 </option>
             <?php endforeach; ?>
-            </select> 
+            </select>
         </div>
         <div class="nbo-invalid-option" 
             ng-class="nbd_fields['<?php echo $field['id']; ?>'].valid === false ? 'active' : ''"
