@@ -24,7 +24,6 @@ jQuery(document).ready(function ($) {
                     data: {
                         action: "kitalbel_convert_pdf_item",
                         item_key: item_key,
-                        item_key: item_key,
                     },
                     context: this,
                     beforeSend: function () {
@@ -60,7 +59,6 @@ jQuery(document).ready(function ($) {
                 data: {
                     action: "kitalbel_convert_pdf_item",
                     item_key: item_key,
-                    item_key: item_key,
                 },
                 context: this,
                 beforeSend: function () {
@@ -83,7 +81,30 @@ jQuery(document).ready(function ($) {
     })
 
     $('.kitalabel-download-pdf-all').on('click', function(e) {
-        e.preventDefault();
-        console.log(123);
+        // e.preventDefault();
+        // jQuery.ajax({
+        //     type: "post",
+        //     dataType: "json",
+        //     url: kitalabel_frontend.url,
+        //     data: {
+        //         action: "kitalabel_download_all",
+        //     },
+        //     context: this,
+        //     beforeSend: function () {
+        //         $(this).find('.kitalabel-create').toggleClass('active');
+        //         $(this).find('.kitalabel-load').toggleClass('active');
+        //     },
+        //     success: function (response) {
+        //         $(this).find('.kitalabel-create').toggleClass('active');
+        //         $(this).find('.kitalabel-load').toggleClass('active');
+        //         if (response.data && response.data.created) {
+        //             $(this).parent().parent().find('.kitalabel-has-pdf').toggleClass('active');
+        //             $(this).parent().parent().find('.kitalabel-no-pdf').toggleClass('active');
+        //             $( this ).data('has-pdf', 1);
+        //             $(this).prop('disabled', true);
+        //         }
+        //         kitalabel_check_can_download_all();
+        //     },
+        // });
     })
 });
