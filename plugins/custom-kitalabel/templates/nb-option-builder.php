@@ -2934,14 +2934,6 @@ woocommerce_output_product_data_tabs();
                         }
                     })
                 }
-                if( Object.keys($scope.selected_options).length == Object.keys(_count_options).length && Object.keys(_count_options).length > 0 && check_scroll) {
-                    jQuery('html, body').animate({
-                        scrollTop: jQuery(".nbd-column-1 .nbo-group-options").offset().top
-                    }, 300);
-                    jQuery('#nbo-options-wrap' ).animate({
-                        scrollTop: jQuery(".nbd-column-1 .nbo-group-options").offset().top
-                    }, 300);
-                }
                 $scope.enable_design = false;
                 var check_ed = true;
                 angular.forEach( $scope.options_selected_copy , function( val , key ) {

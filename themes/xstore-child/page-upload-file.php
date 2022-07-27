@@ -371,17 +371,19 @@ if($option_id) {
 		$(".kita-uploadfile").on("drop", function(event) {
 		    event.preventDefault();  
 		    event.stopPropagation();
-		    $('input.button-upload').prop( 'files' , event.originalEvent.dataTransfer.files );
-		    $(this).find('input.button-upload').trigger('change');
+		    var file = event.originalEvent.dataTransfer.files[0];
+		    var extension = file.type.split("/").pop();
+		    var accept = '<?php echo $allowed_type; ?>'
+
+		    if(accept.indexOf(extension) < 0) {
+		    	alert('Invalid file');
+		    } else {
+		    	$(this).find('input.button-upload').prop( 'files' , event.originalEvent.dataTransfer.files );
+		    	$(this).find('input.button-upload').trigger('change');
+		    }
 		});
 	})
 </script>
-<?php 
-	if($_SERVER['SERVER_ADDR'] == '127.0.0.1') {
-		echo do_shortcode( '[pafe-template id="8250"]' );
-	}
-	else {
-		echo do_shortcode( '[pafe-template id="8962"]' );
-	}
-?>
+
 <?php get_footer(); ?>
+
