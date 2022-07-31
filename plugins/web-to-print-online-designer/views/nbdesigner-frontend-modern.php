@@ -74,7 +74,7 @@
         <link type="text/css" href="<?php echo NBDESIGNER_PLUGIN_URL .'assets/css/spectrum.css'; ?>" rel="stylesheet" media="all">
         <link type="text/css" href="<?php echo NBDESIGNER_PLUGIN_URL .'assets/css/modern-additional.css'; ?>" rel="stylesheet" media="all">
         <!-- custom kitalabel -->
-        <link type="text/css" href="<?php echo get_stylesheet_directory_uri() .'/custom-nbdesign/css/custom.css'; ?>" rel="stylesheet" media="all"> 
+        <link type="text/css" href="<?php echo CUSTOM_KITALABEL_URL . 'assets/css/custom.css'; ?>" rel="stylesheet" media="all"> 
         <?php if(is_rtl()): ?>
         <link type="text/css" href="<?php echo NBDESIGNER_PLUGIN_URL .'assets/css/modern-rtl.css'; ?>" rel="stylesheet" media="all">
         <?php endif; ?>
@@ -157,6 +157,7 @@
             if( isset( $_GET['nbo_values'] ) && $_GET['nbo_values'] != '' ){
                 $link_get_options .= '&nbo_values='. $_GET['nbo_values'];
             }
+
             $link_edit_option = '';
             if( isset( $_GET['cik'] ) && $_GET['cik'] != '' ){
                 $link_get_options .= '&nbo_cart_item_key=' . $_GET['cik'];
@@ -169,6 +170,8 @@
                     );
                     $link_edit_option = wp_nonce_url( $link_edit_option, 'nbo-edit' );
                 }
+            } else if($reference) { // custom kitalabel
+                $link_get_options .= '&reference='. $reference;
             }
 
             $layout             = 'modern';
