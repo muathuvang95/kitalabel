@@ -483,6 +483,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $arr['nbo_meta']['original_price'] = $original_price;
                         $arr['nbo_meta']['price'] = $this->format_price($original_price + $option_price['total_price'] - $option_price['discount_price']);
                     }
+                    $arr['nbo_meta']['order_again'] = $order->get_id(); // custom kitalabel
                 }
             }
             return $arr;
@@ -593,6 +594,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 }
                 $item->add_meta_data('_nbo_option_price', $values['nbo_meta']['option_price']);
                 $item->add_meta_data('_nbo_field', $values['nbo_meta']['field']);
+                $item->add_meta_data('_order_again', $values['nbo_meta']['order_again']); // custom kitalabel
                 $item->add_meta_data('_nbo_options', wp_slash( $values['nbo_meta']['options'] ));
                 $item->add_meta_data('_nbo_original_price', $values['nbo_meta']['original_price']);
                 if( isset($values['nb_custom_note']) && count($values['nb_custom_note']) > 0 ) {
