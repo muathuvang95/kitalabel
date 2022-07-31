@@ -2149,9 +2149,7 @@ if( $cart_item_key != ''){ ?>
         <!-- MTV -->
     </div>
 </div>
-<?php
-woocommerce_output_product_data_tabs();
-?>
+
 <!-- MTV -->
 <?php if($type_page != 'quick_view') { do_action('nb_custom_area_design' , $product_id ); } ?>
 <script type="text/javascript">
@@ -3091,6 +3089,7 @@ woocommerce_output_product_data_tabs();
             nbOption.odOption = {};
             nbOption.extraOdOption = {};
             var options_str = '';
+            nbOption.printingOptions = jQuery('form.cart').serialize();
             angular.forEach($scope.nbd_fields, function(field, field_id){
                 if(field.enable){
                     var origin_field = $scope.get_field(field_id);

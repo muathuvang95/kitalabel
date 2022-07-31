@@ -82,7 +82,7 @@ if(!class_exists('NBD_Request_Quote')) {
             add_action( 'woocommerce_before_my_account', array( $this, 'my_quotes' ) );
             add_action( 'init', array( $this, 'add_endpoint' ) );
             add_action( 'nbd_installed', array( $this, 'add_endpoint' ) );
-            add_action( 'template_redirect', array( $this, 'load_view_quote_page' ) );
+            add_action( 'template_redirect', array( $this, 'load_view_quote_page' ), 10, 1);
             //Exclude quote orders in the customer order list
             add_filter( 'woocommerce_my_account_my_orders_query', array( $this, 'my_account_my_orders_query' ) );
             
@@ -435,7 +435,7 @@ if(!class_exists('NBD_Request_Quote')) {
                     'comment_status'    => 'closed',
                     'post_date' => date('Y-m-d H:i:s')
                 );
-                $nbd_raq_page_id = wp_insert_post($post, false);	
+                $nbd_raq_page_id = wp_insert_post($post, false);    
                 update_option( 'nbdesigner_raq_page_id', $nbd_raq_page_id );
             }
         }
@@ -1193,7 +1193,9 @@ if(!class_exists('NBD_Request_Quote')) {
             $order_id           = $wp->query_vars[ $view_quote ];
             $post->post_title   = sprintf( __( 'Quote #%s', 'web-to-print-online-designer' ), $order_id );
             $post->post_content = WC_Shortcodes::shortcode_wrapper( array( $this, 'view_quote' ) );
-            remove_filter( 'the_content', 'wpautop' );
+            if($order_id) {
+                remove_all_filters( 'the_content' );
+            }
         }
         public function view_quote(){
             global $wp;
@@ -1398,7 +1400,7 @@ if(!class_exists('NBD_Request_Quote')) {
             $order->update_meta_data('_raq_status', 'accept');
             $order->save();
         }
-	public function set_quote_ready_for_pay_now( $response, $order, $status = '' ) {
+    public function set_quote_ready_for_pay_now( $response, $order, $status = '' ) {
             if ( nbd_is_true( $order->get_meta('_raq_pay') ) && isset( $_GET['pay_for_order'] ) &&
                 in_array( $order->get_status(), array(
                     'nbdq-pending',
@@ -1408,7 +1410,7 @@ if(!class_exists('NBD_Request_Quote')) {
                 $response = true;
             }
             return $response;
-	}
+    }
         public function prevent_change_product_price( $need, $cart_item ){
             if ( isset( $cart_item['raq'] )){
                 $need = false;
@@ -1482,7 +1484,7 @@ if(!class_exists('NBD_Request_Quote')) {
         /**
          * Disallow change the quantity in the cart when the order-quote is in the cart
          */
-	public function cart_update_validation($result, $cart_item_key) {
+    public function cart_update_validation($result, $cart_item_key) {
             $order = $this->get_current_order_id();
             if ( $order ) {
                 $result = false;
@@ -1493,7 +1495,7 @@ if(!class_exists('NBD_Request_Quote')) {
         /**
          * Add fee into cart after that the request was accepted
          */
-	public function add_cart_fee() {
+    public function add_cart_fee() {
             $fees = WC()->session->get('request_quote_fee');
             if ($fees) {
                 foreach ($fees as $fee) {

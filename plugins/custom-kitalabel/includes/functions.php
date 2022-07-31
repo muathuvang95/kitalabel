@@ -200,6 +200,16 @@ function _nb_show_option_fields($product_id = 0 , $type_page = ''){
                 }
             }
 
+            // custom kitalabel
+            if(count($form_values) == 0 && isset( $_GET['reference']) && $_GET['reference'] ) {
+                // $form_values = (array)json_decode(file_get_contents( NBDESIGNER_CUSTOMER_DIR .'/'. $_GET['reference'] . '/printing_options.json' ));
+                $printing_options = array();
+                parse_str(file_get_contents( NBDESIGNER_CUSTOMER_DIR .'/'. $_GET['reference'] . '/printing_options.json' ), $printing_options);
+                if(isset($printing_options['nbd-field']) && is_array($printing_options['nbd-field'])) {
+                    $form_values = $printing_options['nbd-field'];
+                }
+            }
+
             if( $type == 'variable' ){
                 $all = get_posts( array(
                     'post_parent' => $product_id,

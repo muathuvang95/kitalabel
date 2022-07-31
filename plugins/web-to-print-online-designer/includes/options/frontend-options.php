@@ -2474,21 +2474,24 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 setup_postdata($post);
                 //custom Kitalabel , update the option when edit design in the cart
                 $check_custom_design = false;
-                if( isset($_GET['nbo_cart_item_key']) ) {
-                    $cart_item_key = $_GET['nbo_cart_item_key'];
-                    $cart_items = $woocommerce->cart->get_cart();
-                    if( isset( $cart_items[$cart_item_key] )) {
-                        $item =  $cart_items[$cart_item_key];
-                        if( isset( $item['nbo_meta'] ) ) {
-                            $fields = unserialize( base64_decode( $item['nbo_meta']['options']['fields']) ) ;
-                            if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 && $product_custom_design == $product_id ) {
-                                $check_custom_design = true;
-                            }
-                        }
-                    }
+                // if( isset($_GET['nbo_cart_item_key']) ) {
+                //     $cart_item_key = $_GET['nbo_cart_item_key'];
+                //     $cart_items = $woocommerce->cart->get_cart();
+                //     if( isset( $cart_items[$cart_item_key] )) {
+                //         $item =  $cart_items[$cart_item_key];
+                //         if( isset( $item['nbo_meta'] ) ) {
+                //             $fields = unserialize( base64_decode( $item['nbo_meta']['options']['fields']) ) ;
+                //             if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 && $product_custom_design == $product_id ) {
+                //                 $check_custom_design = true;
+                //             }
+                //         }
+                //     }
+                // }
+                if( $product_custom_design == $product_id ) {
+                    $check_custom_design = true;
                 }
                 if($check_custom_design) {
-                    custom_kita_get_template('nb-quick-view' , array());
+                    custom_kita_get_template('nb-quick-view.php' , array());
                 } else {
                      // END
                     if($type == '1' || $mode == 'catalog' ){
