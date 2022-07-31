@@ -82,8 +82,7 @@ if(!class_exists('NBD_Request_Quote')) {
             add_action( 'woocommerce_before_my_account', array( $this, 'my_quotes' ) );
             add_action( 'init', array( $this, 'add_endpoint' ) );
             add_action( 'nbd_installed', array( $this, 'add_endpoint' ) );
-            // add_action( 'template_redirect', array( $this, 'load_view_quote_page' ) );
-            add_action('woocommerce_account_view-quote_endpoint', array($this, 'load_view_quote_page' ), 10, 1);
+            add_action( 'template_redirect', array( $this, 'load_view_quote_page' ), 10, 1);
             //Exclude quote orders in the customer order list
             add_filter( 'woocommerce_my_account_my_orders_query', array( $this, 'my_account_my_orders_query' ) );
             
@@ -1192,16 +1191,9 @@ if(!class_exists('NBD_Request_Quote')) {
                 return;
             }
             $order_id           = $wp->query_vars[ $view_quote ];
-            if($order_id) {
-                ob_start();
-                $post->post_title   = sprintf( __( 'Quote #%s', 'web-to-print-online-designer' ), $order_id );
-                echo $post->post_content = WC_Shortcodes::shortcode_wrapper( array( $this, 'view_quote' ) );
-                $content = ob_get_clean();
-                echo $content;
-            } else {
-                $this->my_quotes();
-            }
-            remove_filter( 'the_content', 'wpautop' );
+            $post->post_title   = sprintf( __( 'Quote #%s', 'web-to-print-online-designer' ), $order_id );
+            $post->post_content = WC_Shortcodes::shortcode_wrapper( array( $this, 'view_quote' ) );
+            remove_all_filters( 'the_content' );
         }
         public function view_quote(){
             global $wp;
