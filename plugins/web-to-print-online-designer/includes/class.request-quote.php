@@ -1193,7 +1193,9 @@ if(!class_exists('NBD_Request_Quote')) {
             $order_id           = $wp->query_vars[ $view_quote ];
             $post->post_title   = sprintf( __( 'Quote #%s', 'web-to-print-online-designer' ), $order_id );
             $post->post_content = WC_Shortcodes::shortcode_wrapper( array( $this, 'view_quote' ) );
-            remove_all_filters( 'the_content' );
+            if($order_id) {
+                remove_all_filters( 'the_content' );
+            }
         }
         public function view_quote(){
             global $wp;
