@@ -2623,36 +2623,36 @@ if( $cart_item_key != ''){ ?>
             }  
         }
         $scope.nb_leave_option = function(filed_id , index) {
-            if(angular.isDefined(filed_id) && angular.isDefined(index) ) {
-                var field           = $scope.get_field(filed_id);
-                var option_selected = field.general.attributes.options[index];
-                if(option_selected.coming_soon == 'on') return;
-                let groups          = $scope.options.groups;
-                var options_element = jQuery( '#nbd-custom-design' );
-                var groups_index    = 0;
-                var field_index     = -1;
-                groups.forEach( function( value , key) {
-                    if( value.fields.indexOf(filed_id) > -1 ) {
-                        groups_index = key;
-                        field_index = value.fields.indexOf(filed_id);
-                    }
-                })
-                if( field.general.data_type == 'm' && field.appearance.change_image_product == 'y' && field.show_in_group ){
-                    let image_link = field.general.attributes.options[index].image_link;
-                    var class_name = '.nbd-column-'+groups_index;     
-                    var data_image = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left img.wp-post-image').data('src');
-                    var product_image = options_element.find( class_name ).find( '.nbo-group-left' ).find( 'img.wp-post-image' );
-                    $scope.set_product_image_attr(product_image, 'src', data_image , 0);
-                }
-                if( field_index > -1) {
-                    var benefit     = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.benefit .benefit-content').data('benefit');
-                    var un_benefit  = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.un-benefit .benefit-content').data('benefit');
-                    var title       = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title').data('title');
-                    jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title p').html(title);
-                    jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.benefit .benefit-content').html(un_benefit);
-                    jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.un-benefit .benefit-content').html(benefit);
-                }
-            } 
+            // if(angular.isDefined(filed_id) && angular.isDefined(index) ) {
+            //     var field           = $scope.get_field(filed_id);
+            //     var option_selected = field.general.attributes.options[index];
+            //     if(option_selected.coming_soon == 'on') return;
+            //     let groups          = $scope.options.groups;
+            //     var options_element = jQuery( '#nbd-custom-design' );
+            //     var groups_index    = 0;
+            //     var field_index     = -1;
+            //     groups.forEach( function( value , key) {
+            //         if( value.fields.indexOf(filed_id) > -1 ) {
+            //             groups_index = key;
+            //             field_index = value.fields.indexOf(filed_id);
+            //         }
+            //     })
+            //     if( field.general.data_type == 'm' && field.appearance.change_image_product == 'y' && field.show_in_group ){
+            //         let image_link = field.general.attributes.options[index].image_link;
+            //         var class_name = '.nbd-column-'+groups_index;     
+            //         var data_image = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left img.wp-post-image').data('src');
+            //         var product_image = options_element.find( class_name ).find( '.nbo-group-left' ).find( 'img.wp-post-image' );
+            //         $scope.set_product_image_attr(product_image, 'src', data_image , 0);
+            //     }
+            //     if( field_index > -1) {
+            //         var benefit     = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.benefit .benefit-content').data('benefit');
+            //         var un_benefit  = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.un-benefit .benefit-content').data('benefit');
+            //         var title       = jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title').data('title');
+            //         jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title p').html(title);
+            //         jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.benefit .benefit-content').html(un_benefit);
+            //         jQuery('#nbd-custom-design .nbd-column-'+groups_index+' .nbo-group-left .benefit-col-'+field_index+' .title .benefit-item.un-benefit .benefit-content').html(benefit);
+            //     }
+            // } 
         }
         $scope.check_valid = function( calculate_pm, pro , cur_field_id){
             $timeout(function(){
@@ -2927,7 +2927,7 @@ if( $cart_item_key != ''){ ?>
                 if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
                     angular.forEach($scope.nbd_fields, function(field, field_id){
                         let _nbd_type = $scope.get_field(field_id).nbd_type;
-                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || typeof _nbd_type == 'undefined' ) {
+                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || _nbd_type == 'orientation' || typeof _nbd_type == 'undefined' ) {
                             $scope.nbd_fields[field_id].value = 0;
                         }
                     })

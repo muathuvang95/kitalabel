@@ -816,10 +816,16 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 if( isset( $field['fixed_amount'] ) ){
                                     $post_fix = '<small>'. __('( for all items )', 'web-to-print-online-designer') .'</small>';
                                 }
+                                $name = $field['value_name'];
+                                $hidden_name = false;
+                                if(is_array($field['value_name'])) {
+                                    $hidden_name = true;
+                                    $name = '';
+                                }
                                 $item_data[] = array(
                                     'name'      => $field['name'],
-                                    'display'   => ( $hide_option_price == 'yes' || floatval($field['price']) == 0 ) ? $field['value_name'].'&nbsp;' : $field['value_name']. '&nbsp;&nbsp;' . $price .$post_fix, // custom kitalabel hide the price when the price =0
-                                    'hidden'    => false
+                                    'display'   => ( $hide_option_price == 'yes' || floatval($field['price']) == 0 ) ? $name.'&nbsp;' : $name. '&nbsp;&nbsp;' . $price .$post_fix, // custom kitalabel hide the price when the price =0
+                                    'hidden'    => $hidden_name
                                 );
                             }
                         }
