@@ -12,7 +12,6 @@ do_action('nbo_quick_view_before_single_product');
     <div class="product" id="product-<?php echo $post->ID; ?>">
         <div class="quick-view-image images">
             <div class="woocommerce-product-gallery__image">
-                <input type="checkbox" id="zoomCheck">
                 <?php if (has_post_thumbnail()) : ?>
                     <?php echo get_the_post_thumbnail($post->ID, apply_filters('single_product_large_thumbnail_size', 'shop_single')) ?>
                 <?php else : ?>
