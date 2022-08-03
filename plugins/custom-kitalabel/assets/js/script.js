@@ -24,7 +24,6 @@ jQuery(document).ready(function ($) {
                     data: {
                         action: "kitalbel_convert_pdf_item",
                         item_key: item_key,
-                        item_key: item_key,
                     },
                     context: this,
                     beforeSend: function () {
@@ -60,7 +59,6 @@ jQuery(document).ready(function ($) {
                 data: {
                     action: "kitalbel_convert_pdf_item",
                     item_key: item_key,
-                    item_key: item_key,
                 },
                 context: this,
                 beforeSend: function () {
@@ -84,6 +82,32 @@ jQuery(document).ready(function ($) {
 
     $('.kitalabel-download-pdf-all').on('click', function(e) {
         e.preventDefault();
-        console.log(123);
+        var order_id = $( this ).data('order-id');
+        if(order_id) {
+            jQuery.ajax({
+                type: "post",
+                dataType: "json",
+                url: kitalabel_frontend.url,
+                data: {
+                    action: "kitalabel_download_all",
+                    order_id: order_id,
+                },
+                context: this,
+                beforeSend: function () {
+                    $(this).html('Downloading ...');
+                    $(this).find('.kitalabel-load').toggleClass('active');
+                },
+                success: function (response) {
+                    $(this).html('Download all');
+                    a = document.createElement('a');
+                    var link = response.data.url;
+                    a.setAttribute('href', link);
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                },
+            });
+        }
     })
 });

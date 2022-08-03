@@ -2568,7 +2568,7 @@ function nbd_convert_svg_embed( $path ){
         file_put_contents($new_svg_path, $new_svg);
     }
 }
-function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $showBleed = 'no', $extra = null ){
+function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $showBleed = 'no', $extra = null, $custom_name = false ){
     if( !class_exists('TCPDF') ){
         require_once( NBDESIGNER_PLUGIN_DIR.'includes/tcpdf/tcpdf.php' );
     }
@@ -2586,7 +2586,7 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
     }
 
     if( nbdesigner_get_option( 'nbdesigner_enable_cloud2print_api', 'no' ) == 'yes' ){
-        nbd_cloud_export_pdfs( $nbd_item_key, $watermark, $force, $showBleed, null, false );
+        nbd_cloud_export_pdfs( $nbd_item_key, $watermark, $force, $showBleed, null, false, $custom_name );
         $output_file    = NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_item_key. '/customer-pdfs' . '/' . $nbd_item_key . '.pdf';
         if( $force ){
             $result[] = $output_file;
@@ -2597,7 +2597,10 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
         $datas      = unserialize( file_get_contents( $path .'/product.json' ) );
         $option     = unserialize( file_get_contents( $path .'/option.json' ) );
         $config     = nbd_get_data_from_json( $path . '/config.json' );
+        // custom kitalabel
+        $product_config = array();
         if( isset( $config->product ) && count( $config->product ) ){
+            $product_config = $config->product;
             $datas = array();
             foreach( $config->product as $side ){
                 $datas[] = (array)$side;
@@ -2931,6 +2934,18 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
             do_action( 'after_nbd_pdf', $pdf, $_pdf, $nbd_item_key, $extra );
             if( !$force ){
                 $output_file = $folder .'/'. $nbd_item_key .'_'.$key.'.pdf';
+                // Custon kitalabel
+                if($custom_name) {
+                    $design_name = 'design_'.$index;
+                    if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
+                        $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
+                    }
+                    $output_file = $folder .'/'. $design_name.'.pdf';
+                    if( file_exists($output_file) ) {
+                        $output_file = $folder .'/'. $design_name.'_'.$key.'.pdf';
+                    }
+                }
+                //
                 $pdf->Output($output_file, 'F');
                 $result[] = $output_file;
             }
@@ -2943,10 +2958,10 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
 
     return $result;
 }
-function nbd_cloud_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $showBleed = 'no', $extra = null, $need_pw = false ){
+function nbd_cloud_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $showBleed = 'no', $extra = null, $need_pw = false, $custom_name = false ){
     require_once( NBDESIGNER_PLUGIN_DIR.'includes/class-output.php' );
 
-    Nbdesigner_Output::export_pdfs( $nbd_item_key, $watermark, $force, $showBleed, $extra, $need_pw );
+    Nbdesigner_Output::export_pdfs( $nbd_item_key, $watermark, $force, $showBleed, $extra, $need_pw, $custom_name );
 }
 function nbd_convert_files( $nbd_item, $type = 'jpg', $dpi = 300 ){
     $path = NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item;

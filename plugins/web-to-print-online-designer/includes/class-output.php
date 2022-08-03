@@ -5,7 +5,7 @@ use setasign\Fpdi;
 
 if( !class_exists('Nbdesigner_Output') ){
     class Nbdesigner_Output{
-        public static function export_pdfs( $nbd_item_key, $watermark = false, $force = false, $showBleed = 'no', $extra = null, $need_pw = false ){
+        public static function export_pdfs( $nbd_item_key, $watermark = false, $force = false, $showBleed = 'no', $extra = null, $need_pw = false, $custom_name = false ){
             $path           = NBDESIGNER_CUSTOMER_DIR .'/' . $nbd_item_key;
             $folder         = $path . '/customer-pdfs';
             $result         = array();
@@ -22,8 +22,10 @@ if( !class_exists('Nbdesigner_Output') ){
             $dpi        = $dpi > 0 ? $dpi : 300;
             $unit       = isset( $option['unit'] ) ? $option['unit'] : nbdesigner_get_option( 'nbdesigner_dimensions_unit', 'cm' );
             $unit_ratio = self::get_unit_ratio( $dpi, $unit );
-
+            // custom kitalabel
+            $product_config = array();
             if( isset( $config->product ) && count( $config->product ) ){
+                $product_config = $config->product;
                 $datas = array();
                 foreach( $config->product as $side ){
                     $datas[] = (array)$side;
@@ -146,10 +148,25 @@ if( !class_exists('Nbdesigner_Output') ){
                         'height'        => $data['product_height'] * $unit_ratio . 'in'
                     ) ) );
 
+                    // Custon kitalabel
+                    $output_file = '';
+                    if($custom_name) {
+                        $design_name = 'design_'.$index;
+                        if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
+                            $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
+                        }
+                        $output_file = $folder .'/'. $design_name.'.pdf';
+                        if( file_exists($output_file) ) {
+                            $output_file = $folder .'/'. $design_name.'_'.$key.'.pdf';
+                        }
+                    }
+                    //
+
                     $requests[] = array(
                         'index'         => $key,
                         'url'           => 'https://api.cloud2print.net/pdf/' . $url_segment . '/' . $settings_segment,
-                        'part_index'    => false
+                        'part_index'    => false,
+                        'output_file'   => $output_file,
                     );
                 }
 
@@ -195,7 +212,8 @@ if( !class_exists('Nbdesigner_Output') ){
                                 $requests[] = array(
                                     'index'         => $key,
                                     'url'           => 'https://api.cloud2print.net/pdf/' . $url_segment . '/' . $settings_segment,
-                                    'part_index'    => $pos
+                                    'part_index'    => $pos,
+                                    'output_file'   => '',
                                 );
 
                                 $pages[$key]['stack'][] = array(
@@ -431,6 +449,9 @@ if( !class_exists('Nbdesigner_Output') ){
                 $return         = true;
                 if( $requests[$k]['part_index'] === false ){
                     $output_file    = $folder . '/' . $nbd_item_key . '_' . $requests[$k]['index'] . '.pdf';
+                    if( isset($requests[$k]) && isset($requests[$k]['output_file']) && $requests[$k]['output_file'] != '' ) {
+                        $output_file = $requests[$k]['output_file'];
+                    }
                 }else{
                     $output_file    = $folder . '/part/' . $requests[$k]['index'] . '_part_' . $requests[$k]['part_index'] . '.pdf';
                     $return         = false;

@@ -31,45 +31,90 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
              $this->kitalabel_ajax();
         }
 
-        public function kitalabel_download_all($order_id) {
-            if( isset( $_GET['download-all'] ) && ( $_GET['download-all'] == 'true' ) ){
-                $products = $order->get_items();
-                foreach( $products AS $order_item_id => $product ){
-                    if( wc_get_order_item_meta( $order_item_id, '_nbd' ) || wc_get_order_item_meta( $order_item_id, '_nbu' ) ){
-                        $nbd_item_key = wc_get_order_item_meta( $order_item_id, '_nbd' );
-                        $nbu_item_key = wc_get_order_item_meta( $order_item_id, '_nbu' );
-                        if( $nbd_item_key ){
-                            $list_images = Nbdesigner_IO::get_list_images( NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key, 1 );
-                            if( count( $list_images ) > 0 ){
-                                foreach( $list_images as $key => $image ){
-                                    $zip_files[] = $image;
-                                }
-                            }
-                        }
-                        if( $nbu_item_key ){
-                            $files = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR .'/'. $nbu_item_key );
-                            $files = apply_filters( 'nbu_download_upload_files', $files, $product );
-                            if( count( $files ) > 0 ){
-                                foreach( $files as $key => $file ){
-                                    $zip_files[] = $file;
-                                }
-                            }
-                        }
-                    }
+        public function zip_files( $file_names, $archive_file_name, $nameZip ){
+            if(file_exists($archive_file_name)){
+                unlink($archive_file_name);
+            }
+            if ( class_exists( 'ZipArchive' ) ) {
+                $zip = new ZipArchive();
+                if ( $zip->open( $archive_file_name, ZIPARCHIVE::CREATE ) !== TRUE ) {
+                  exit( "cannot open <$archive_file_name>\n" );
                 }
-                if( !count( $zip_files ) ){
-                    exit();
-                }else{
-                    $pathZip = NBDESIGNER_DATA_DIR . '/download/' . $order_id . '.zip';
-                    $nameZip =  $order_id . '.zip';
-                    nbd_zip_files_and_download( $zip_files, $pathZip, $nameZip );
+                foreach( $file_names as $key => $file ) {
+                    $path_arr = explode( '/', $file );
+                    $name = basename( $file );
+                    $zip->addFile( $file, $name );
+                }
+                $zip->close();
+            }else{
+                require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
+                $archive = new PclZip($archive_file_name);
+                foreach($file_names as $file){
+                    $path_arr = explode('/', $file);
+                    $dir = dirname($file).'/';
+                    $archive->add($file, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $path_arr[count($path_arr) - 2]);
                 }
             }
         }
 
+        public function kitalabel_download_all() {
+            $urlZip = '';
+            if( isset( $_POST['order_id'] ) && $_POST['order_id'] ){
+                $order_id = $_POST['order_id'];
+                $order = wc_get_order($order_id);
+                if($order) {
+                    $products = $order->get_items();
+                    foreach( $products AS $order_item_id => $product ){
+                        if( wc_get_order_item_meta( $order_item_id, '_nbd' ) || wc_get_order_item_meta( $order_item_id, '_nbu' ) ){
+                            $nbd_item_key = wc_get_order_item_meta( $order_item_id, '_nbd' );
+                            $nbu_item_key = wc_get_order_item_meta( $order_item_id, '_nbu' );
+                            $origin_order  = wc_get_order_item_meta( $order_item_id, '_order_again' );
+                            if( $nbd_item_key ){
+                                $list_pdf = Nbdesigner_IO::get_list_files_by_type(NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key .'/customer-pdfs' , 1, 'pdf');
+                                if( count( $list_pdf ) > 0 ){
+                                    foreach( $list_pdf as $key => $pdf ){
+                                        $zip_files[] = $pdf;
+                                    }
+                                }
+                            }
+                            if( $nbu_item_key ){
+                                $files = Nbdesigner_IO::get_list_files( NBDESIGNER_UPLOAD_DIR .'/'. $nbu_item_key );
+                                $files = apply_filters( 'nbu_download_upload_files', $files, $product );
+                                if( count( $files ) > 0 ){
+                                    foreach( $files as $key => $file ){
+                                        $zip_files[] = $file;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if( count( $zip_files ) > 0 ){
+                        if($nbd_item_key && $origin_order) {
+                            $file_blank = NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key .'/'.$origin_order.'.txt';
+                            file_put_contents($file_blank, '');
+                            $zip_files[] = $file_blank;
+                        }
+                        
+                        $pathZip = NBDESIGNER_DATA_DIR . '/download/' . $order_id . '.zip';
+                        $urlZip = NBDESIGNER_DATA_URL . '/download/' . $order_id . '.zip';
+                        $nameZip =  $order_id . '.zip';
+                        $this->zip_files( $zip_files, $pathZip, $nameZip);
+                    }
+                }
+            }
+
+            $result = array(
+                'url' => $urlZip,
+            );
+            
+            wp_send_json_success($result);
+            die();
+        }
+
         public function kitalabel_ajax() {
             $ajax_events = array(
-                'kitalbel_convert_pdf_item' => true
+                'kitalbel_convert_pdf_item' => true,
+                'kitalabel_download_all' => true
             );
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -82,15 +127,22 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
         }
 
         public function kitalbel_convert_pdf_item() {
-            $nbd_item_key = isset($_POST['item_key']) ? $_POST['item_key'] : array();
+            $nbd_item_key = isset($_POST['item_key']) ? $_POST['item_key'] : '';
             $files = array();
 
             if($nbd_item_key) {
-                $files = nbd_export_pdfs( $nbd_item_key, false, false, 'no' );
+                $files = nbd_export_pdfs( $nbd_item_key, false, false, 'no', null, true );
             }
-
+            $has_file = true;
+            if( is_array($files)) {
+                foreach($files as $file) {
+                    if( !$file && !file_exists($file)) {
+                        $has_file = false;
+                    }
+                }
+            }
             $result = array(
-                'created' => count($files) == 0 ? true : false,
+                'created' => $has_file ? true : false,
             );
             
             wp_send_json_success($result);
@@ -219,7 +271,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary kitalabel-convert-pdf-all">Convert all</button>
-                            <button type="button" class="btn btn-primary kitalabel-download-pdf-all" <?php echo esc_attr(!$can_download_all ? 'disabled': ''); ?>>Download all</button>
+                            <button type="button" data-order-id="<?php echo esc_attr($order_id); ?>" class="btn btn-primary kitalabel-download-pdf-all" <?php echo esc_attr(!$can_download_all ? 'disabled': ''); ?>>Download all</button>
                         </div>
                     </div>
                 </div>

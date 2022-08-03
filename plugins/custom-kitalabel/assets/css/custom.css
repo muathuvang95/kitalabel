@@ -625,6 +625,10 @@ label.coming-soon:hover .data-tip{
 .nb-custom-option-wrapper .heading {
 	text-align:center;
 }
+.quick-view-content .quantity,
+.quick-view-content .et-or-wrapper {
+	display: none!important;
+}
 #nb-custom-design-quick-view .heading .heading-kita-title {
     padding: 25px 15px;
     text-align: center;
