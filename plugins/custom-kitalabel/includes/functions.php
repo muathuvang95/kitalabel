@@ -449,8 +449,8 @@ function nb_button_custom_design( $pid ) {
             <div class="row nbd-actions-wrap">
                 <?php if( $is_nbdesign ): ?>
                 <div class="col-md-6 nbd-action-wrap">
-                    <div class="button alt nbdesign-button start-design">
-                        <span ng-click="NbCustomDesign('start_design')"><?php echo $label_design; ?></span>
+                    <div ng-click="NbCustomDesign('start_design')" class="button alt nbdesign-button start-design">
+                        <span><?php echo $label_design; ?></span>
                         <span class="nb-cs-help-tip">
                             <span class="data-tip"><?php echo nbdesigner_get_option('nbd_desc_button_design'); ?></span>
                         </span>
@@ -460,27 +460,24 @@ function nb_button_custom_design( $pid ) {
                     <div ng-if="showDescDesign['design']" class="desc"><?php echo $desc_design; ?></div>
                 </div>
                 <div class="col-md-6 nbd-action-wrap">
-                    <div class="button alt nbdesign-button upload-design">
-                        <span ><a class="kita-link-upload" data-url="<?php echo home_url().'/upload-file'; ?>" href="<?php echo home_url().'/upload-file'; ?>"><?php echo $label_upload ; ?></a></span>
+                    <a data-url="<?php echo home_url().'/upload-file'; ?>" href="<?php echo home_url().'/upload-file'; ?>" class="button alt nbdesign-button upload-design kita-link-upload">
+                        <span ><?php echo $label_upload ; ?></span>
                         <span class="nb-cs-help-tip">
                             <span class="data-tip"><?php echo nbdesigner_get_option('nbd_desc_button_upload'); ?></span>
                         </span>
                         <!-- <span class="show-desc" ng-click="showDescDesign('upload')" ><span ng-show="!showDescDesign['upload']" class="dashicons dashicons-arrow-down"></span><span ng-show="showDescDesign['upload']" class="dashicons dashicons-arrow-up"></span></span> -->
-                    </div>
+                    </a>
                     <div ng-if="showDescDesign['upload']" class="desc"><?php echo $desc_upload; ?></div>
                 </div>
                 <script type="text/javascript">
                     jQuery(document).ready(function($) {
-                        $('.nb_button_custom_design .nb-cs-help-tip').click(function() {
+                        $('.nb_button_custom_design .nb-cs-help-tip').mouseover(function() {
                             $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
                             $(this).addClass('active');
                         })
-                        $(document).click(function (e) {
-                            var container = $(".nb_button_custom_design .nb-cs-help-tip");
-                            if (!container.is(e.target) && container.has(e.target).length === 0) {
-                                $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
-                            }
-                        });
+                        $('.nb_button_custom_design .nb-cs-help-tip').mouseleave(function() {
+                            $('.nb_button_custom_design .nb-cs-help-tip').removeClass('active');
+                        })
                     })
                 </script>
                 <?php endif; ?>

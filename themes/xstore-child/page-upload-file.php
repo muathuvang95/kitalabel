@@ -187,7 +187,7 @@ if($option_id) {
 																			if($area_name) {
 																			?>
 																				<tr>
-																					<td><label for="" class="nbd-label"><?php echo $area_name; ?></label></td>
+																					<td><label for="" class="nbd-label"><?php echo $area_title; ?></label></td>
 																					<td class="nbd-option-selected">
 																						: <span class="name"><?php echo $area_name; ?></span>
 																						<input value="<?php echo $area_val; ?>" name="nbd-field[<?php echo $area_id; ?>]" type="hidden" >

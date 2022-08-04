@@ -258,12 +258,13 @@ div.td {
 	margin-bottom: 50px;
 }
 .nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button {
-	border-radius: 10px;
+	border-radius: 20px;
 	padding:  15px 0;
 	font-size: 14px;
 	line-height: 1.5;
 	height: auto;
 	width: 100%;
+	border: none;
 }
 .nb_button_custom_design .nbd-action-wrap {
 	padding: 0 10px;
@@ -276,11 +277,14 @@ div.td {
 .nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button.start-design {
 	background: #EF8C04;
 }
+.nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button:hover {
+	border: none!important;
+}
 .nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button.upload-design {
 	background: #333333 ;
 }
-.nb_button_custom_design .nbd-actions-wrap .nbd-action-wrap .nbdesign-button.upload-design .kita-link-upload {
-	color: #ffffff ;
+.nb_button_custom_design .kita-link-upload>span {
+	color: #ffffff!important ;
 }
 .nb_button_custom_design .nbd-actions-wrap .nbd-action-between {
 	color:  #777777;
@@ -735,6 +739,9 @@ ul.list-options-area> li.option-area.activate {
 	background: #3B3B3B;
 	color: #fff;
 }
+.nb-main-container .heading {
+	text-align: center;
+}
 .kita-custom-page-upload .kita-options-selected {
 	margin-top: 30px;
 	margin-bottom: 50px;
@@ -1113,7 +1120,7 @@ body.woocommerce-checkout table.order_details td.product-total {
 }
 
 #nbd-custom-design {
-	margin-top: 80px;
+	/*margin-top: 80px;*/
 }
 #nb-custom-design-quick-view #nbd-custom-design {
 	margin-top: 0;
