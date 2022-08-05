@@ -2882,6 +2882,9 @@ if( $cart_item_key != ''){ ?>
                                     is_selected = true;
                                 }
                             })
+                            if(_fields.general.data_type == 'i' && _fields.general.input_type != 'a' && _fields.nbd_type == 'page') {
+                                is_selected = true;
+                            }
                             $scope.options_selected_copy[id] = {
                                 enable : val.enable,
                                 selected : is_selected,
