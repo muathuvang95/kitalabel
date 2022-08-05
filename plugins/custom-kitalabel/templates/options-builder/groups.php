@@ -30,7 +30,7 @@
     <div class="col-md-6 nbo-group-right">
         <div class="nbo-group-timeline-container nb-group-timeline-container" ng-class="totalGroupPage > 1 ? 'paged' : ''">
             <div class="nbo-group-timeline-wrap">
-                <div class="nbo-group-timeline-line" style="transform: translateX(-50%);left: 50%; display: flex; justify-content: space-between; width: calc(100% - 56px);">
+                <div class="nbo-group-timeline-line" style="transform: translateX(-50%);left: 50%; display: flex; justify-content: space-between; width: calc(100% - 80px);">
                     <?php foreach( $nbo_groups as $g_index => $nbo_group ): ?>
                         <div class="nbo-group-timeline-step" 
                             ng-class="{ 'active': current_group_panel == <?php echo $g_index; ?>, 'over': current_group_panel > <?php echo $g_index; ?>}" 

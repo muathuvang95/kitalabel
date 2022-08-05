@@ -2877,7 +2877,7 @@ if( $cart_item_key != ''){ ?>
                         angular.forEach( $scope.nbd_fields , function( val , id) {
                             $scope.options_selected_copy[id] = {
                                 enable : val.enable,
-                                selected : false,
+                                selected : val.value ? true : false,
                                 published: val.published,
                                 show_in_group: val.show_in_group,
                                 id: id,
@@ -2924,14 +2924,14 @@ if( $cart_item_key != ''){ ?>
                     } 
                 }
                 // disabled checkbox label
-                if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
-                    angular.forEach($scope.nbd_fields, function(field, field_id){
-                        let _nbd_type = $scope.get_field(field_id).nbd_type;
-                        if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || _nbd_type == 'orientation' || typeof _nbd_type == 'undefined' ) {
-                            $scope.nbd_fields[field_id].value = 0;
-                        }
-                    })
-                }
+                // if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
+                //     angular.forEach($scope.nbd_fields, function(field, field_id){
+                //         let _nbd_type = $scope.get_field(field_id).nbd_type;
+                //         if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || _nbd_type == 'orientation' || typeof _nbd_type == 'undefined' ) {
+                //             $scope.nbd_fields[field_id].value = 0;
+                //         }
+                //     })
+                // }
                 $scope.enable_design = false;
                 var check_ed = true;
                 angular.forEach( $scope.options_selected_copy , function( val , key ) {
@@ -2940,6 +2940,7 @@ if( $cart_item_key != ''){ ?>
                     if(_nbd_filed.general.data_type == 'i' && _nbd_filed.general.input_type != 'a' && _nbd_filed.nbd_type == 'page') {
                         maybe_check_field = true;
                     }
+                    // console.log(val);
                     if( val.enable && val.published && val.show_in_group) { 
                         if( ( val.selected || maybe_check_field ) && check_ed ) {
                             $scope.enable_design = true;
@@ -3009,7 +3010,7 @@ if( $cart_item_key != ''){ ?>
                     setTimeout( function() {
                         var link_upload = jQuery('a.kita-link-upload').data('url');
                         link_upload += '?product_id=9853&area='+area_val+'&size='+size_val+'&material='+material_val+'&finishing='+finishing_val+'&variant='+variant_value;
-                        jQuery('.upload-design a.kita-link-upload').attr('href' , link_upload);
+                        jQuery('a.kita-link-upload').attr('href' , link_upload);
                     })
                 }
                 //end
