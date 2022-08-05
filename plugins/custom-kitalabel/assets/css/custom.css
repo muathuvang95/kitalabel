@@ -147,11 +147,10 @@ div.td {
 	color:  #fff!important;
 }
 .nb-custom-option-wrapper .nbo-group-wrap .nbo-group-body .nbd-option-field .nbd-field-content .nbd-label-wrap label.nbd-label {
-	padding-top: 10px;
-	padding-bottom: 10px;
+	padding: 10px;
 	width:  calc(33% - 10px);
-	font-size: 23px;
-	line-height: 31px;
+	font-size: 18px;
+	line-height: 24px;
 	font-weight: bold;
 	text-align: center;
 	height: auto;
@@ -1093,8 +1092,8 @@ body.woocommerce-checkout table.order_details td.product-total {
 .nb_group_panel_next {
     box-sizing: border-box;
     height: 34px;
-    border-radius: 5px;
-    padding: 0 20px;
+    border-radius: 20px;
+    padding: 0 30px;
     cursor: pointer;
     background: #ECECEC;
     display: flex;
@@ -1527,24 +1526,6 @@ body.woocommerce-checkout table.order_details td.product-total {
 .nb-group-timeline-container {
 	display: block;
 }
-@media only screen and (max-width: 768px) {
-	.page-template-default .nbd-sidebar-con-inner ul {
-		max-height: 300px;
-	}
-	.nb-main-container {
-	    padding: 0 25px;
-	}
-	.nb-main-container>.row {
-		background: #ffffff;
-		padding: 10px;
-	}
-	.nb-col-modile-hiden {
-		display: none!important;
-	}
-	.nb-group-timeline-container {
-		display: none;
-	}
-}
 .nb-tabs-wrapper {
 	margin-top: 200px!important;
 }
@@ -1575,4 +1556,43 @@ body.woocommerce-checkout table.order_details td.product-total {
 .nb-tabs-wrapper .tab-content {
 	background: #ECECEC;
     padding: 20px;
+}
+
+@media only screen and (max-width: 768px) {
+	.page-template-default .nbd-sidebar-con-inner ul {
+		max-height: 300px;
+	}
+	.nb-main-container {
+	    padding: 0 25px;
+	}
+	.nb-main-container>.row {
+		background: #ffffff;
+		padding: 10px;
+	}
+	.nb-col-modile-hiden {
+		display: none!important;
+	}
+	.nb-group-timeline-container {
+		display: none;
+	}
+	.nb-tabs-wrapper .wc-tabs li {
+		width: 100%;
+    	margin-bottom: 5px!important;
+	}
+	.nb-tabs-wrapper .wc-tabs li.active a:before {
+		height: 0;
+	}
+	.nb-tabs-wrapper .wc-tabs li a.tab-title {
+		border-radius: 15px;
+	}
+	.nb-title-page {
+		margin-top: 50px;
+		margin-bottom: 20px;
+	}
+	.nb-custom-option-wrapper .heading-kita-title .title {
+		font-size: 35px;
+	}
+	.heading .heading-kita-title::after {
+		left: 30px;
+	}
 }

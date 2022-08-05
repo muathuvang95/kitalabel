@@ -11,7 +11,7 @@
                     $max_len = strlen($_attr['name']);
                 }
             }
-            if($max_len > 12 ) {
+            if($max_len > 9 ) {
                 $class_cs = 'nb-col-2';
             }
             foreach ($field['general']['attributes']["options"] as $key => $attr): 
