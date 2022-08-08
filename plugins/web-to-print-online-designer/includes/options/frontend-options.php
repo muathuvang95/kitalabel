@@ -869,18 +869,23 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 }else{
                     if( !empty($_FILES) && isset($_FILES["nbd-field"]) ) {
                         foreach( $_FILES["nbd-field"]['name'] as $field_id => $file ){
-
                             // kita upload file
                             if( !isset($nbd_field[$field_id]) || (isset($nbd_field[$field_id]) && isset($nbd_field[$field_id]['variant']) ) ){
                                 $nbd_upload_field = $this->upload_file( $_FILES["nbd-field"], $field_id );
-                                if( !empty($nbd_upload_field) ){
-                                    $nbd_field[$field_id] = array(
-                                        'files' => $nbd_upload_field[$field_id],
-                                        'variants' => $nbd_field[$field_id]['variant'],
-                                        'qtys' => $nbd_field[$field_id]['qty'],
-                                        'min_qty' => $nbd_field[$field_id]['min_qty'],
-                                    );
-                                }
+                                if( isset($nbd_field[$field_id]) && isset($nbd_field[$field_id]['variant']) ) {
+                                    if( !empty($nbd_upload_field) ){
+                                        $nbd_field[$field_id] = array(
+                                            'files' => $nbd_upload_field[$field_id],
+                                            'variants' => $nbd_field[$field_id]['variant'],
+                                            'qtys' => $nbd_field[$field_id]['qty'],
+                                            'min_qty' => $nbd_field[$field_id]['min_qty'],
+                                        );
+                                    }
+                                } else if(!isset($nbd_field[$field_id])) {
+                                    if( !empty($nbd_upload_field) ){
+                                        $nbd_field[$field_id] = $nbd_upload_field[$field_id];
+                                    }
+                                } 
                             }
                         }
                     }
