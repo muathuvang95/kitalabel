@@ -372,8 +372,8 @@ if($option_id) {
 		    event.preventDefault();  
 		    event.stopPropagation();
 		    var file = event.originalEvent.dataTransfer.files[0];
-		    var extension = file.type.split("/").pop();
-		    var accept = '<?php echo $allowed_type; ?>'
+		    var extension = file.type.split("/").pop() == 'postscript' ? 'ai' : file.type.split("/").pop();
+		    var accept = '<?php echo $allowed_type; ?>';
 
 		    if(accept.indexOf(extension) < 0) {
 		    	alert('Invalid file');
