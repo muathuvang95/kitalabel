@@ -1296,7 +1296,17 @@ class Woongkir_Shipping_Method extends WC_Shipping_Method {
 
 			// Validate cart item weight value.
 			$item_weight = is_numeric( $item['data']->get_weight() ) ? $item['data']->get_weight() : 0;
-			array_push( $weight, $item_weight * $item_quantity );
+
+			// custom kitalabel 
+	        $product_id = $item['product_id'];
+	        $total_weight = $item_weight * $item_quantity;
+	        $base_weight = absint( $this->get_option( 'base_weight' ) );
+	        if(get_post_meta($product_id, '_nbo_enable', true)) {
+	            $total_weight = $base_weight ? $base_weight : 5000;
+	        }
+	        // end
+
+			array_push( $weight, $total_weight );
 
 			// Validate cart item width value.
 			$item_width = is_numeric( $item['data']->get_width() ) ? $item['data']->get_width() : 0;
@@ -1331,11 +1341,11 @@ class Woongkir_Shipping_Method extends WC_Shipping_Method {
 		}
 
 		// Set the package weight to based on base_weight setting value.
-		$base_weight = absint( $this->get_option( 'base_weight' ) );
+		// $base_weight = absint( $this->get_option( 'base_weight' ) );
 
-		if ( $base_weight && $data['weight'] < $base_weight ) {
-			$data['weight'] = $base_weight;
-		}
+		// if ( $base_weight && $data['weight'] < $base_weight ) {
+		// 	$data['weight'] = $base_weight;
+		// }
 
 		return $data;
 	}
