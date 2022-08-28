@@ -234,7 +234,7 @@
                     <th><?php _e('Material', 'web-to-print-online-designer'); ?></th>
                     <th><?php _e('Price', 'web-to-print-online-designer'); ?></th>
                     <th><?php _e('Min Qty', 'web-to-print-online-designer'); ?></th>
-                    <th><?php _e('Weight / 1', 'web-to-print-online-designer'); ?></th>
+                    <th><?php _e('Weight/1', 'web-to-print-online-designer'); ?></th>
                     <th><?php _e('Show more', 'web-to-print-online-designer'); ?></th>
                 </tr>
             </thead>

@@ -31,7 +31,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
              $this->kitalabel_ajax();
         }
 
-        public function zip_files( $file_names, $archive_file_name, $nameZip ){
+        public function zip_files( $file_names, $archive_file_name, $nameZip, $order_id, $products_name ){
             if(file_exists($archive_file_name)){
                 unlink($archive_file_name);
             }
@@ -41,8 +41,12 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                   exit( "cannot open <$archive_file_name>\n" );
                 }
                 foreach( $file_names as $key => $file ) {
-                    $path_arr = explode( '/', $file );
-                    $name = basename( $file );
+                    $pre_name = $order_id . '_';
+                    if( isset($products_name[$key]) && $products_name[$key] ) {
+                        $product_name = $products_name[$key];
+                        $pre_name .= $product_name . '_';
+                    }
+                    $name = $pre_name . basename( $file );
                     $zip->addFile( $file, $name );
                 }
                 $zip->close();
@@ -64,6 +68,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 $order = wc_get_order($order_id);
                 if($order) {
                     $products = $order->get_items();
+                    $zip_files = array();
+                    $products_name = array();
                     foreach( $products AS $order_item_id => $product ){
                         if( wc_get_order_item_meta( $order_item_id, '_nbd' ) || wc_get_order_item_meta( $order_item_id, '_nbu' ) ){
                             $nbd_item_key = wc_get_order_item_meta( $order_item_id, '_nbd' );
@@ -74,6 +80,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 if( count( $list_pdf ) > 0 ){
                                     foreach( $list_pdf as $key => $pdf ){
                                         $zip_files[] = $pdf;
+                                        $products_name[] = $product->get_name();
                                     }
                                 }
                             }
@@ -83,6 +90,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 if( count( $files ) > 0 ){
                                     foreach( $files as $key => $file ){
                                         $zip_files[] = $file;
+                                        $products_name[] = $product->get_name();
                                     }
                                 }
                             }
@@ -98,7 +106,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                         $pathZip = NBDESIGNER_DATA_DIR . '/download/' . $order_id . '.zip';
                         $urlZip = NBDESIGNER_DATA_URL . '/download/' . $order_id . '.zip';
                         $nameZip =  $order_id . '.zip';
-                        $this->zip_files( $zip_files, $pathZip, $nameZip);
+                        $this->zip_files( $zip_files, $pathZip, $nameZip, $order_id, $products_name);
                     }
                 }
             }
