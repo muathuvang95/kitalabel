@@ -1331,10 +1331,12 @@ class Woongkir_Shipping_Method extends WC_Shipping_Method {
                 }
             }
             if( isset($area_name) && isset($size_name) && isset($material_name) ) {
-                $combination_option = $combination_options[$area_name][$size_name][$material_name];
-                if( isset($combination_option['weight']) && $combination_option['weight'] ) {
-                	$item_weight = (float) $combination_option['weight'];
-                }
+            	if( isset($combination_options[$area_name]) && isset($combination_options[$area_name][$size_name]) && isset($combination_options[$area_name][$size_name][$material_name])) {
+            		$combination_option = $combination_options[$area_name][$size_name][$material_name];
+	                if( isset($combination_option['weight']) && $combination_option['weight'] ) {
+	                	$item_weight = (float) $combination_option['weight'];
+	                }
+            	}
              }
 
 
