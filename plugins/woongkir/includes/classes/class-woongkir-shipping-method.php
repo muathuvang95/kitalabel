@@ -1296,7 +1296,57 @@ class Woongkir_Shipping_Method extends WC_Shipping_Method {
 
 			// Validate cart item weight value.
 			$item_weight = is_numeric( $item['data']->get_weight() ) ? $item['data']->get_weight() : 0;
-			array_push( $weight, $item_weight * $item_quantity );
+
+			// custom kitalabel 
+			$combination_options = array();
+			if( isset( $item['nbo_meta'] ) ) {
+                $fields = unserialize( base64_decode( $item['nbo_meta']['options']['fields']) ) ;
+                if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+                    $combination_options = $fields['combination']['options'];
+                }
+            }
+            if( isset( $item['nbo_meta'] ) && isset( $item['nbo_meta']['option_price'] ) && isset( $item['nbo_meta']['option_price']['fields'] ) ) {
+            	$option_fields = $item['nbo_meta']['option_price']['fields'];
+            	$area_name = '';
+            	$size_name = '';
+            	$material_name = '';
+                foreach($option_fields as $key => $field)  {
+                    if(isset($field['name'])) {
+                    	if($field['name'] == 'Shape') {
+                    		$_area_name = $field['value_name'];
+                    		if( $_area_name == 'Square' || $_area_name == 'Circle' ) {
+                                $area_name = 'Square + Circle';
+                            }
+                            if( $_area_name == 'Rectangle' || $_area_name == 'Oval' ) {
+                                $area_name = 'Rectangle + Oval';
+                            }
+                    	}
+                    	if($field['name'] == 'Size') {
+                    		$size_name = $field['value_name'];
+                    	}
+                    	if($field['name'] == 'Material') {
+                    		$material_name = $field['value_name'];
+                    	}
+                    }
+                }
+            }
+            if( isset($area_name) && isset($size_name) && isset($material_name) ) {
+                $combination_option = $combination_options[$area_name][$size_name][$material_name];
+                if( isset($combination_option['weight']) && $combination_option['weight'] ) {
+                	$item_weight = (float) $combination_option['weight'];
+                }
+             }
+
+
+	        $product_id = $item['product_id'];
+	        $total_weight = $item_weight * $item_quantity;
+	        $base_weight = absint( $this->get_option( 'base_weight' ) );
+	        $base_weight = $base_weight ? $base_weight : 0;
+	        if(get_post_meta($product_id, '_nbo_enable', true)) {
+	            $total_weight = $total_weight ? $total_weight : $base_weight;
+	        }
+	        // end
+			array_push( $weight, $total_weight );
 
 			// Validate cart item width value.
 			$item_width = is_numeric( $item['data']->get_width() ) ? $item['data']->get_width() : 0;
@@ -1331,11 +1381,11 @@ class Woongkir_Shipping_Method extends WC_Shipping_Method {
 		}
 
 		// Set the package weight to based on base_weight setting value.
-		$base_weight = absint( $this->get_option( 'base_weight' ) );
+		// $base_weight = absint( $this->get_option( 'base_weight' ) );
 
-		if ( $base_weight && $data['weight'] < $base_weight ) {
-			$data['weight'] = $base_weight;
-		}
+		// if ( $base_weight && $data['weight'] < $base_weight ) {
+		// 	$data['weight'] = $base_weight;
+		// }
 
 		return $data;
 	}
