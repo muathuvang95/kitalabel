@@ -2574,6 +2574,14 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
     }
     require_once( NBDESIGNER_PLUGIN_DIR . 'includes/fpdi/autoload.php' );
 
+    // custom kita clean file pdf before create
+    $list_pdf       = Nbdesigner_IO::get_list_files_by_type( NBDESIGNER_CUSTOMER_DIR .'/'. $nbd_item_key. '/customer-pdfs', 1, 'pdf' );
+    if(count($list_pdf) > 0) {
+        foreach( $list_pdf as $file ) {
+            unlink($file);
+        }
+    }
+
     $path           = NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_item_key;
     $_watermark     = $watermark ? '-watermark' : '';
     $_force         = $force ? '-force' : '';
@@ -2935,15 +2943,13 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
             if( !$force ){
                 $output_file = $folder .'/'. $nbd_item_key .'_'.$key.'.pdf';
                 // Custon kitalabel
-                if($custom_name) {
-                    $design_name = 'design_'.$index;
-                    if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
-                        $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
-                    }
-                    $output_file = $folder .'/'. $design_name.'.pdf';
-                    if( file_exists($output_file) ) {
-                        $output_file = $folder .'/'. $design_name.'_'.$key.'.pdf';
-                    }
+                $design_name = 'design_'.$index;
+                if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
+                    $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
+                }
+                $output_file = $folder .'/'. strtoupper($design_name).'.pdf';
+                if( file_exists($output_file) ) {
+                    $output_file = $folder .'/'. strtoupper($design_name) .'_'.$key.'.pdf';
                 }
                 //
                 $pdf->Output($output_file, 'F');
