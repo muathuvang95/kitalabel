@@ -944,6 +944,8 @@ function nb_custom_order_item_meta_end_1( $item_id, $item ){
                         foreach ( $custom_upload['val']['files'] as $key => $file ) {
                             $_file = explode('/', $file);
                             $file_name = isset($_file[1]) ? $_file[1]: $file;
+                            $file_name_ext = isset($_file[1]) ? $_file[1]: '';
+                            $folder = isset($_file[0]) ? $_file[0]: '';
                             if(strlen($file_name) > 20) {
                                $file_name = '...'.substr($file_name, strlen($file_name) - 20);
                             }
@@ -957,8 +959,10 @@ function nb_custom_order_item_meta_end_1( $item_id, $item ){
                             } else {
                                $quantity = $qty; 
                             }
-
-                            $html  .= '<div class="tr"><div class="td"><a class="nbd_cart_item_upload_preview" href="' . $file_url . '">'.$file_name.'</a></div><div class="td">'.$variant_name.'</div><div class="td">'.$quantity.'</div></div>';        
+                            $file_name_download = $item['order_id'] . '_' . $item->get_name() . '_' . $file_name_ext;
+                            if($file_name_ext) {
+                                $html  .= '<div class="tr"><div class="td"><a class="nbd_cart_item_upload_preview" href="' . $file_url . '" download="' . $file_name_download . '">'.$file_name.'</a></div><div class="td">'.$variant_name.'</div><div class="td">'.$quantity.'</div></div>'; 
+                            }     
                         }
                     }
 

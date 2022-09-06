@@ -150,15 +150,13 @@ if( !class_exists('Nbdesigner_Output') ){
 
                     // Custon kitalabel
                     $output_file = '';
-                    if($custom_name) {
-                        $design_name = 'design_'.$index;
-                        if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
-                            $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
-                        }
-                        $output_file = $folder .'/'. $design_name.'.pdf';
-                        if( file_exists($output_file) ) {
-                            $output_file = $folder .'/'. $design_name.'_'.$key.'.pdf';
-                        }
+                    $design_name = 'design_'.$index;
+                    if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
+                        $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
+                    }
+                    $output_file = $folder .'/'. strtoupper($design_name).'.pdf';
+                    if( file_exists($output_file) ) {
+                        $output_file = $folder .'/'. strtoupper($design_name) .'_'.$key.'.pdf';
                     }
                     //
 
