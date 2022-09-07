@@ -872,7 +872,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
 
                             // kita upload file
                             if( !isset($nbd_field[$field_id]) || (isset($nbd_field[$field_id]) && isset($nbd_field[$field_id]['variant']) ) ){
-                                $nbd_upload_field = $this->upload_file( $_FILES["nbd-field"], $field_id, $nbd_field[$field_id]['variant'] );
+                                $nbd_upload_field = $this->upload_file( $_FILES["nbd-field"], $field_id );
                                 if( !empty($nbd_upload_field) ){
                                     $nbd_field[$field_id] = array(
                                         'files' => $nbd_upload_field[$field_id],
@@ -979,7 +979,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
             }
             return $cart_item_data;
         }
-        public function upload_file( $files, $field_id, $variants = array() ){
+         public function upload_file( $files, $field_id ){
             $nbd_upload_fields = array();
             global $woocommerce;
             $user_folder = md5( $woocommerce->session->get_customer_id() );
@@ -991,13 +991,6 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     if( isset($files['error'][$field_id][$key]) && $files['error'][$field_id][$key] == 0 ){
                         $ext = pathinfo( $f, PATHINFO_EXTENSION );
                         $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
-                        if(isset($variants[$key]) && $variants[$key] && is_string($variants[$key])) {
-                            $new_name = strtoupper($variants[$key]) . '.' . $ext;
-                            $check_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
-                            if( file_exists($check_path) ) {
-                                $new_name = strtoupper($variants[$key]) .'_'.$key. '.' . $ext;
-                            }
-                        }
                         $new_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
                         $mkpath = wp_mkdir_p( NBDESIGNER_UPLOAD_DIR . '/' .$user_folder);
                         if( $mkpath && isset($files['tmp_name'][$field_id][$key]) ){
