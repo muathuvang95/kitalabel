@@ -155,9 +155,6 @@ if( !class_exists('Nbdesigner_Output') ){
                         $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
                     }
                     $output_file = $folder .'/'. strtoupper($design_name).'.pdf';
-                    if( file_exists($output_file) ) {
-                        $output_file = $folder .'/'. strtoupper($design_name) .'_'.$key.'.pdf';
-                    }
                     //
 
                     $requests[] = array(
@@ -449,6 +446,9 @@ if( !class_exists('Nbdesigner_Output') ){
                     $output_file    = $folder . '/' . $nbd_item_key . '_' . $requests[$k]['index'] . '.pdf';
                     if( isset($requests[$k]) && isset($requests[$k]['output_file']) && $requests[$k]['output_file'] != '' ) {
                         $output_file = $requests[$k]['output_file'];
+                        if( file_exists($output_file) ) {
+                            $output_file = str_replace('.pdf', $k.'.pdf',  $output_file);
+                        }
                     }
                 }else{
                     $output_file    = $folder . '/part/' . $requests[$k]['index'] . '_part_' . $requests[$k]['part_index'] . '.pdf';
