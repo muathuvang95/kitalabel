@@ -28,6 +28,10 @@ function nb_custom_render_cart( $title = null, $cart_item = null, $cart_item_key
     } 
     $nbd_session = WC()->session->get($cart_item_key . '_nbd');
     $nbu_session = WC()->session->get($cart_item_key . '_nbu');
+    if( isset($cart_item['nbd_item_meta_ds']) ){
+        if( isset($cart_item['nbd_item_meta_ds']['nbd']) ) $nbd_session = $cart_item['nbd_item_meta_ds']['nbd'];
+        if( isset($cart_item['nbd_item_meta_ds']['nbu']) ) $nbu_session = $cart_item['nbd_item_meta_ds']['nbu'];
+    }
     $layout = nbd_get_product_layout( $product_id );
     $redirect       = is_cart() ? 'cart' : 'checkout';
     $_product                       = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
