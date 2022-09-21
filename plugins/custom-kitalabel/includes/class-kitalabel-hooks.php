@@ -70,7 +70,14 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     $products = $order->get_items();
                     $zip_files = array();
                     $products_name = array();
+                    $index = 0;
+                    $list_products_name = array();
                     foreach( $products AS $order_item_id => $product ){
+                        $product_name = $product->get_name();
+                        if(in_array($product->get_name(), $list_products_name)) {
+                            $product_name = $product->get_name() . $index;
+                        }
+                        $list_products_name[] = $product_name;
                         if( wc_get_order_item_meta( $order_item_id, '_nbd' ) || wc_get_order_item_meta( $order_item_id, '_nbu' ) ){
                             $nbd_item_key = wc_get_order_item_meta( $order_item_id, '_nbd' );
                             $nbu_item_key = wc_get_order_item_meta( $order_item_id, '_nbu' );
@@ -80,7 +87,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 if( count( $list_pdf ) > 0 ){
                                     foreach( $list_pdf as $key => $pdf ){
                                         $zip_files[] = $pdf;
-                                        $products_name[] = $product->get_name();
+                                        $products_name[] = $product_name;
                                     }
                                 }
                             }
@@ -90,11 +97,13 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 if( count( $files ) > 0 ){
                                     foreach( $files as $key => $file ){
                                         $zip_files[] = $file;
-                                        $products_name[] = $product->get_name();
+                                        $products_name[] = $product_name;
                                     }
                                 }
                             }
                         }
+
+                        $index++;
                     }
                     if( count( $zip_files ) > 0 ){
                         if($nbd_item_key && $origin_order) {
