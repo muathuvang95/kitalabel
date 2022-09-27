@@ -2942,16 +2942,6 @@ function nbd_export_pdfs( $nbd_item_key, $watermark = true, $force = false, $sho
             do_action( 'after_nbd_pdf', $pdf, $_pdf, $nbd_item_key, $extra );
             if( !$force ){
                 $output_file = $folder .'/'. $nbd_item_key .'_'.$key.'.pdf';
-                // Custon kitalabel
-                $design_name = 'design_'.$index;
-                if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
-                    $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
-                }
-                $output_file = $folder .'/'. strtoupper($design_name).'.pdf';
-                if( file_exists($output_file) ) {
-                    $output_file = $folder .'/'. strtoupper($design_name) .'_'.$key.'.pdf';
-                }
-                //
                 $pdf->Output($output_file, 'F');
                 $result[] = $output_file;
             }
