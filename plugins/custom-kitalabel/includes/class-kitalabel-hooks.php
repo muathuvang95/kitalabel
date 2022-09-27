@@ -40,15 +40,17 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 if ( $zip->open( $archive_file_name, ZIPARCHIVE::CREATE ) !== TRUE ) {
                   exit( "cannot open <$archive_file_name>\n" );
                 }
+                
                 foreach( $file_names as $key => $file ) {
-                    $file_name = basename( $file );
+                    $name = basename( $file );
                     if( isset($output_names[$key]) && $output_names[$key] ) {
-                        $file_name = $files_name[$key];
+                        $file_name = $output_names[$key];
                         $ext = pathinfo($file, PATHINFO_EXTENSION);
                         $name = $file_name . '.' . $ext;
                     }
                     $zip->addFile( $file, $name );
                 }
+
                 $zip->close();
             }else{
                 require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
