@@ -147,21 +147,10 @@ if( !class_exists('Nbdesigner_Output') ){
                         'width'         => $data['product_width'] * $unit_ratio . 'in',
                         'height'        => $data['product_height'] * $unit_ratio . 'in'
                     ) ) );
-
-                    // Custon kitalabel
-                    $output_file = '';
-                    $design_name = 'design_'.$index;
-                    if( isset($product_config[$key]) && isset($product_config[$key]->orientation_name) && $product_config[$key]->orientation_name ) {
-                        $design_name = str_replace(' ', '_', $product_config[$key]->orientation_name);
-                    }
-                    $output_file = $folder .'/'. strtoupper($design_name).'.pdf';
-                    //
-
                     $requests[] = array(
                         'index'         => $key,
                         'url'           => 'https://api.cloud2print.net/pdf/' . $url_segment . '/' . $settings_segment,
                         'part_index'    => false,
-                        'output_file'   => $output_file,
                     );
                 }
 
@@ -208,7 +197,6 @@ if( !class_exists('Nbdesigner_Output') ){
                                     'index'         => $key,
                                     'url'           => 'https://api.cloud2print.net/pdf/' . $url_segment . '/' . $settings_segment,
                                     'part_index'    => $pos,
-                                    'output_file'   => '',
                                 );
 
                                 $pages[$key]['stack'][] = array(
@@ -444,12 +432,6 @@ if( !class_exists('Nbdesigner_Output') ){
                 $return         = true;
                 if( $requests[$k]['part_index'] === false ){
                     $output_file    = $folder . '/' . $nbd_item_key . '_' . $requests[$k]['index'] . '.pdf';
-                    if( isset($requests[$k]) && isset($requests[$k]['output_file']) && $requests[$k]['output_file'] != '' ) {
-                        $output_file = $requests[$k]['output_file'];
-                        if( file_exists($output_file) ) {
-                            $output_file = str_replace('.pdf', $k.'.pdf',  $output_file);
-                        }
-                    }
                 }else{
                     $output_file    = $folder . '/part/' . $requests[$k]['index'] . '_part_' . $requests[$k]['part_index'] . '.pdf';
                     $return         = false;
