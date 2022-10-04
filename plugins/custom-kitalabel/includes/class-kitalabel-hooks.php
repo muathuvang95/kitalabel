@@ -74,6 +74,11 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     $output_names = array();
                     $product_index = 1;
                     foreach( $products AS $order_item_id => $product ){
+                        $product_name = $product->get_name();
+                        if(in_array($product->get_name(), $list_products_name)) {
+                            $product_name = $product->get_name() . $index;
+                        }
+                        $list_products_name[] = $product_name;
                         if( wc_get_order_item_meta( $order_item_id, '_nbd' ) || wc_get_order_item_meta( $order_item_id, '_nbu' ) ){
                             $nbd_item_key = wc_get_order_item_meta( $order_item_id, '_nbd' );
                             $nbu_item_key = wc_get_order_item_meta( $order_item_id, '_nbu' );

@@ -147,7 +147,6 @@ if( !class_exists('Nbdesigner_Output') ){
                         'width'         => $data['product_width'] * $unit_ratio . 'in',
                         'height'        => $data['product_height'] * $unit_ratio . 'in'
                     ) ) );
-
                     $requests[] = array(
                         'index'         => $key,
                         'url'           => 'https://api.cloud2print.net/pdf/' . $url_segment . '/' . $settings_segment,

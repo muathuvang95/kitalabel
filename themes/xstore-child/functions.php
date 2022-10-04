@@ -28,11 +28,20 @@ function nb_custom_render_cart( $title = null, $cart_item = null, $cart_item_key
     } 
     $nbd_session = WC()->session->get($cart_item_key . '_nbd');
     $nbu_session = WC()->session->get($cart_item_key . '_nbu');
+    if( isset($cart_item['nbd_item_meta_ds']) ){
+        if( isset($cart_item['nbd_item_meta_ds']['nbd']) ) $nbd_session = $cart_item['nbd_item_meta_ds']['nbd'];
+        if( isset($cart_item['nbd_item_meta_ds']['nbu']) ) $nbu_session = $cart_item['nbd_item_meta_ds']['nbu'];
+    }
     $layout = nbd_get_product_layout( $product_id );
     $redirect       = is_cart() ? 'cart' : 'checkout';
     $_product                       = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
     $product_permalink              = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
+
     if( isset( $cart_item['nbo_meta'] ) ) {
+        $is_order_again = false;
+        if(isset($cart_item['nbo_meta']['order_again']) && $cart_item['nbo_meta']['order_again']) {
+            $is_order_again = true;
+        }
         $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) );
         $hiden_edit_design = false;
         $buton = '';
@@ -68,7 +77,9 @@ function nb_custom_render_cart( $title = null, $cart_item = null, $cart_item_key
                 if($cart_item['variation_id'] > 0){
                     $link_edit_design .= '&variation_id=' . $cart_item['variation_id'];
                 }
-                $buton = '<a class="button nbd-edit-design" href="'.$link_edit_design.'">'. esc_html__('Edit design', 'web-to-print-online-designer') .'</a>';
+                if(!$is_order_again) {
+                    $buton = '<a class="button nbd-edit-design" href="'.$link_edit_design.'">'. esc_html__('Edit design', 'web-to-print-online-designer') .'</a>';
+                }
             }
             
         }
