@@ -20,6 +20,10 @@
 .woocommerce-form-login-toggle .woocommerce-info {
   margin-bottom: 0.43em;
 }
+.woocommerce-form-coupon .form-row-last {
+  padding-left: 0;
+  padding-right: 0;
+}
 .form-row-first,
 .form-row-last {
   float: left;
@@ -154,6 +158,18 @@ table.shop_table_responsive.customer_details th {
 .order-review thead {
   display: none;
 }
+.order-review .cart_item .product-name img {
+  max-width: 80px;
+  -webkit-margin-end: 10px;
+          margin-inline-end: 10px;
+  float: left;
+}
+@media only screen and (min-width: 768px) {
+  .order-review .cart_item .product-name-info {
+    display: block;
+    overflow: hidden;
+  }
+}
 small.includes_tax {
   font-size: 0.85rem;
 }
@@ -281,7 +297,9 @@ label[for="payment_method_stripe"] img {
     margin-left: 10px;
   }
   .form-row-first,
-  .form-row-last {
+  .form-row-last,
+  .rtl .form-row-first,
+  .rtl .form-row-last {
     width: 100%;
     padding: 0;
   }
@@ -324,12 +342,20 @@ label[for="payment_method_stripe"] img {
     font-size: 0.9rem;
   }
 }
-/*-----  End of Checkout Page  ------*/
-.woocommerce-form-login-toggle .woocommerce-info:before,
-.woocommerce-form-coupon-toggle .woocommerce-info:before {
-  margin-right: 0;
-  margin-left: 5px;
+.elementor-widget-woocommerce-checkout-page .woocommerce-info {
+  border: none;
 }
+.elementor-widget-woocommerce-checkout-page .woocommerce .e-checkout__container button.woocommerce-button {
+  padding: 0.75rem 2.2rem;
+}
+.elementor-widget-woocommerce-checkout-page .order-review {
+  background: var(--sections-background-color, #fff);
+  border-radius: var(--sections-border-radius, 3px);
+  padding: var(--sections-padding, 16px 30px);
+  margin: var(--sections-margin, 0 0 24px 0);
+  border: 1px var(--sections-border-type, solid) var(--sections-border-color, #d4d4d4);
+}
+/*-----  End of Checkout Page  ------*/
 .form-row-first,
 .form-row-last {
   float: right;
@@ -353,6 +379,10 @@ label[for="payment_method_stripe"] img {
 .payment_box {
   padding-left: 0;
   padding-right: 22px;
+}
+.order-review .cart_item .product-name img,
+.woocommerce-order-details tbody .product-name img {
+  float: right;
 }
 @media only screen and (max-width: 768px) {
   .form-row.terms label {

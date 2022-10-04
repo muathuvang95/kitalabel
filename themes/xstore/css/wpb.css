@@ -156,6 +156,17 @@
 .wpb_wpb_button i {
   margin-right: 0;
 }
+.etheme-icons-list {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  margin: 0 calc(var(--icons-cols-gap, 5px) * -1) calc(var(--icons-rows-gap, 5px) * -1);
+}
+.etheme-icons-list > div {
+  margin: 0 var(--icons-cols-gap, 5px) var(--icons-rows-gap, 5px);
+}
 .vc_col-sm-9 .product-slide .product-view-mask .footer-product,
 .vc_col-sm-8 .product-slide .product-view-mask .footer-product,
 .vc_col-sm-9 .product-slide .product-view-info .footer-product,

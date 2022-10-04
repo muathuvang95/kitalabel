@@ -187,28 +187,28 @@ jQuery(document).ready(function ($) {
         });
 
         // Remove item
-        $("a.item-delete").addClass('custom-remove-item');
-        $("a.custom-remove-item").removeClass('item-delete');
-
-        $(document).on('click', '.custom-remove-item', function (e) {
-            e.preventDefault();
-            button = $(this);
-            delid = button.attr('id');
-            var itemID = parseInt(button.attr('id').replace('delete-', ''), 10);
-            button.addClass('item-delete');
-            ajaxdelurl = button.attr('href');
-            $.ajax({
-                type: 'GET',
-                url: ajaxdelurl,
-                beforeSend: function (xhr) {
-                    button.text('Removing...');
-                },
-                success: function (data) {
-                    button.text('Remove');
-                    $("#" + delid).trigger("click");
-                }
-            });
-            return false;
-        });
+        // $("a.item-delete").addClass('custom-remove-item');
+        // $("a.custom-remove-item").removeClass('item-delete');
+        //
+        // $(document).on('click', '.custom-remove-item', function (e) {
+        //     e.preventDefault();
+        //     button = $(this);
+        //     delid = button.attr('id');
+        //     var itemID = parseInt(button.attr('id').replace('delete-', ''), 10);
+        //     button.addClass('item-delete');
+        //     ajaxdelurl = button.attr('href');
+        //     $.ajax({
+        //         type: 'GET',
+        //         url: ajaxdelurl,
+        //         beforeSend: function (xhr) {
+        //             button.text('Removing...');
+        //         },
+        //         success: function (data) {
+        //             button.text('Remove');
+        //             $("#" + delid).trigger("click");
+        //         }
+        //     });
+        //     return false;
+        // });
     }
 });

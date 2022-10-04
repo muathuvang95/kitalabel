@@ -124,6 +124,8 @@ wc_print_notice( wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_pr
         </tr>
     </tbody>
 </table>
+
+<?php do_action('etheme_product_added_to_cart_section_01'); ?>
     
 <?php $element_options['product_section_01'] = ob_get_clean();
 
@@ -132,6 +134,8 @@ ob_start(); ?>
     <a class="flex-inline btn light big et-close-mfp mob-hide"><i class="et-icon et_b-icon et-left-arrow-2"></i><span><?php esc_html_e('Back to shop','xstore'); ?></span></a>
 <a class="flex-inline btn light big" href="<?php echo wc_get_cart_url(); ?>"><?php esc_html_e('View Cart','xstore'); ?></a>
 <a class="flex-inline btn black big" href="<?php echo wc_get_checkout_url(); ?>"><?php esc_html_e('Checkout','xstore'); ?></a>
+
+<?php do_action('etheme_product_added_to_cart_section_02'); ?>
 
 <?php $element_options['product_section_02'] = ob_get_clean();
 
@@ -192,7 +196,10 @@ $woocommerce_loop['product_view'] = 'disable';
             )
     );
 unset($woocommerce_loop['product_view']);
- $element_options['product_section_03'] = str_replace('carousel-area', '', ob_get_clean());
+
+do_action( 'etheme_product_added_to_cart_section_03' );
+
+$element_options['product_section_03'] = str_replace('carousel-area', '', ob_get_clean());
 
     echo json_encode(
         array(

@@ -363,6 +363,13 @@ return array(
         'file'=> '/js/modules/cartCheckoutCountdown.min.js',
         'in_footer'=> true
     ),
+	// cart/checkout advanced layout
+	'cart_checkout_advanced_layout' => array(
+		'title' => esc_html__('Cart/Checkout advanced layout', 'xstore'),
+		'name' => 'cart_checkout_advanced_layout',
+		'file'=> '/js/modules/cartCheckoutAdvancedLayout.min.js',
+		'in_footer'=> true
+	),
 	// filters area
 	'filters_area' => array(
 		'title' => esc_html__('Filters area', 'xstore'),

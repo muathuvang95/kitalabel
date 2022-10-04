@@ -16,6 +16,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+if ( get_query_var('et_is-cart-checkout-advanced', false ) ) {
+	wc_get_template(
+		'checkout/thankyou-advanced.php',
+		array( 'order' => $order )
+	);
+	return;
+}
+
 ?>
 
 <div class="woocommerce-order">

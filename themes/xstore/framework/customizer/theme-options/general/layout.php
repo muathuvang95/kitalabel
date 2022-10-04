@@ -276,6 +276,16 @@ add_filter( $hook, function ( $fields ) {
 		'default'     => 1,
 	);
 
+	$args['et_seo_noindex'] = array(
+		'name'		  => 'et_seo_noindex',
+		'type'        => 'toggle',
+		'settings'    => 'et_seo_noindex',
+		'label'       => esc_html__( 'SEO: "noindex" tag for url\'s', 'xstore' ),
+		'description' => esc_html__( 'Enable this option if you want to use "noindex" tag for shop url\'s with parameters.', 'xstore' ),
+		'section'     => 'general',
+		'default'     => 0,
+	);
+
 
 	return array_merge( $fields, $args );
 

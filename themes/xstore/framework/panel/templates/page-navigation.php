@@ -147,14 +147,14 @@ if ( in_array('plugins', $show_pages) ) {
 	);
 }
 
-if ( in_array('generator', $show_pages) ) {
-	$generator = sprintf(
-		( ! $theme_active ) ? '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-social">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>' : '<li><a href="%s" class="et-nav%s et-nav-general">%s</a></li>',
-		( $theme_active ) ? admin_url( 'admin.php?page=et-panel-generator' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
-		( $_GET['page'] == 'et-panel-generator' ) ? ' active' : '',
-		esc_html__( 'Files Generator', 'xstore' ) //. $new_label
-	);
-}
+//if ( in_array('generator', $show_pages) ) {
+//	$generator = sprintf(
+//		( ! $theme_active ) ? '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-social">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>' : '<li><a href="%s" class="et-nav%s et-nav-general">%s</a></li>',
+//		( $theme_active ) ? admin_url( 'admin.php?page=et-panel-generator' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
+//		( $_GET['page'] == 'et-panel-generator' ) ? ' active' : '',
+//		esc_html__( 'Files Generator', 'xstore' ) //. $new_label
+//	);
+//}
 
 $out = '';
 if ( in_array('welcome', $show_pages) ) {

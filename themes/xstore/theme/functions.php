@@ -201,12 +201,12 @@ if(!function_exists('etheme_theme_styles')) {
 						        etheme_enqueue_style( 'content-product-custom' );
 					        }
 					
-					        if ( get_query_var('et_is-quick-view', false) ) {
-						        etheme_enqueue_style( "quick-view" );
-						        if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
-							        etheme_enqueue_style( "off-canvas" );
-						        }
-					        }
+//					        if ( get_query_var('et_is-quick-view', false) ) {
+//						        etheme_enqueue_style( "quick-view" );
+//						        if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
+//							        etheme_enqueue_style( "off-canvas" );
+//						        }
+//					        }
 					        
 					        etheme_enqueue_style( 'no-products-found' );
 					        if ( class_exists( 'SB_WooCommerce_Infinite_Scroll' ) || class_exists('SBWIS_WooCommerce_Infinite_Scroll') ) {
@@ -221,8 +221,13 @@ if(!function_exists('etheme_theme_styles')) {
 					        etheme_enqueue_style( 'no-products-found' );
 					
 					        etheme_enqueue_style( 'checkout-page' );
-					
-					        etheme_enqueue_style( 'thank-you-page' );
+
+                            if ( get_theme_mod('cart_checkout_advanced_layout', false) ) {
+                                etheme_enqueue_style( 'cart-checkout-advanced-layout' );
+                            }
+                            else {
+	                            etheme_enqueue_style( 'thank-you-page' );
+                            }
 				        }
 				
 				        if ( class_exists( 'YITH_Woocompare_Frontend' ) ) {
@@ -557,8 +562,10 @@ if ( !function_exists('etheme_enqueue_style')) {
 			return;
 		}
 		
-		// always enqueue styles but if include inline then the code below will make the deal
-		wp_enqueue_style( 'etheme-'.$filename );
+		if ( $include_globally ) {
+			// always enqueue styles but if include inline then the code below will make the deal
+			wp_enqueue_style( 'etheme-' . $filename );
+		}
 		
 		if ( !$force_enqueue ) {
 			if ( $did_wp_head_action && $include_globally ) {
@@ -592,7 +599,7 @@ if ( !function_exists('etheme_enqueue_style')) {
 
 if ( !function_exists('etheme_enqueue_all_styles')) {
     function etheme_enqueue_all_styles() {
-	    $theme = wp_get_theme();
+//	    $theme = wp_get_theme();
 	    $config = etheme_config_css_files();
 	    foreach ($config as $filedata) {
 	        if (in_array($filedata['name'], array('fixed-footer', 'header-vertical'))) continue;
@@ -600,6 +607,9 @@ if ( !function_exists('etheme_enqueue_all_styles')) {
 		        continue;
             }
 		    elseif ( in_array($filedata['name'], array('single-product-builder') ) && !get_query_var( 'etheme_single_product_builder', false ) ) {
+		        continue;
+            }
+            elseif ( in_array($filedata['name'], array('thank-you-page') ) && get_query_var('et_is-cart-checkout-advanced', false) ) {
 		        continue;
             }
 	        

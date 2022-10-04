@@ -30,6 +30,10 @@
   -webkit-animation: 3s et-request-svg-shadow 8s infinite;
           animation: 3s et-request-svg-shadow 8s infinite;
 }
+.rtl .et-request-quote.mtips {
+  right: auto;
+  left: 30px;
+}
 .et-request-quote.mtips:before {
   position: absolute;
   content: '';
@@ -60,6 +64,10 @@
 @media only screen and (max-width: 480px) {
   .et-request-quote.mtips {
     right: 15px;
+  }
+  .rtl .et-request-quote.mtips {
+    right: auto;
+    left: 15px;
   }
 }
 .et-request-quote-popup:not(.active),

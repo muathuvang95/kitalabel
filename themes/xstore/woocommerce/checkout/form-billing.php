@@ -12,15 +12,19 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <div class="woocommerce-billing-fields">
-	<?php if ( wc_ship_to_billing_address_only() && WC()->cart->needs_shipping() ) : ?>
-
-		<h3 class="step-title"><span><?php esc_html_e( 'Billing &amp; Shipping', 'xstore' ); ?></span></h3>
-
-	<?php else : ?>
-
-		<h3 class="step-title"><span><?php esc_html_e( 'Billing Details', 'xstore' ); ?></span></h3>
-
-	<?php endif; ?>
+	<?php
+    if ( apply_filters('etheme_form_billing_title', true) ) {
+        if ( wc_ship_to_billing_address_only() && WC()->cart->needs_shipping() ) : ?>
+    
+            <h3 class="step-title"><span><?php esc_html_e( 'Billing &amp; Shipping', 'xstore' ); ?></span></h3>
+    
+        <?php else : ?>
+    
+            <h3 class="step-title"><span><?php esc_html_e( 'Billing Details', 'xstore' ); ?></span></h3>
+    
+        <?php endif;
+    }
+	?>
 
 	<?php do_action( 'woocommerce_before_checkout_billing_form', $checkout ); ?>
 

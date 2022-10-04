@@ -107,7 +107,8 @@
 }
 @media only screen and (max-width: 992px) {
   .cart-checkout-nav a,
-  .cart-checkout-nav a:not(:last-child):after {
+  .cart-checkout-nav a:not(:last-child):after,
+  .cart-checkout-nav .et-icon {
     display: none;
   }
   .cart-checkout-nav a.active.no-click {

@@ -187,9 +187,15 @@ global $post;
             $title_at_end = '<a href="' . $portfolioLink . '">' . $title_at_end . '</a>' . $args['delimiter'];
         } elseif ( ! is_single() && ! is_page() && get_post_type() != 'post' && ! is_404() ) {
             $post_type    = get_post_type_object( get_post_type() );
-            $title_at_end = $post_type->labels->singular_name;
-
-            $html .= $args['before'] . $title_at_end . $args['after'];
+//            $title_at_end = $post_type->labels->singular_name;
+	        // code below was left after one client asked about php notices in debug log with unfound link/page but only error
+	        if ( is_object($post_type) && property_exists($post_type, 'labels') ) {
+		        if ( property_exists($post_type->labels, 'singular_name') ) {
+			        $title_at_end = $post_type->labels->singular_name;
+			        $html .= $args['before'] . $title_at_end . $args['after'];
+		        }
+	        }
+	        
         } elseif ( is_attachment() ) {
             $parent        = get_post( $post->post_parent );
             $xstore_title  = get_the_title();

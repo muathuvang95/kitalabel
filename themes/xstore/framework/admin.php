@@ -423,7 +423,7 @@ function et_add_product_bought_together_panel_tab() {
 				$label = $xstore_branding_settings['control_panel']['label'];
         }
         ?>
-        <li class="et_bought_together_options et_bought_together_tab show_if_simple show_if_variable">
+        <li class="et_bought_together_options et_bought_together_tab show_if_simple show_if_external">
             <a href="#et_bought_together_product_data"><span>
             <?php echo esc_html__( 'Bought together', 'xstore' ); ?>
             <?php echo '<span class="et-brand-label" style="margin: 0; margin-inline-start: 5px; background: var(--et_admin_main-color, #A4004F); letter-spacing: 1px; font-weight: 400; display: inline-block; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">'.$label.'</span>'; ?>
@@ -501,6 +501,7 @@ add_filter('woocommerce_account_settings', function($settings) {
                         'default'     => esc_html__( 'Default', 'xstore' ),
                         'new'         => esc_html__( 'New', 'xstore' ),
                     ),
+                'autoload'      => false
                 );
     
               $updated_settings[] = array(
@@ -523,6 +524,7 @@ add_filter('woocommerce_account_settings', function($settings) {
                         'none' => esc_html__( 'None', 'xstore' ),
                         'random'       => esc_html__( 'Random', 'xstore' ),
                     ),
+                'autoload'      => false
                 );
                 $updated_settings[] = array(
                     'title'    => __( 'Navigation icons', 'xstore' ),

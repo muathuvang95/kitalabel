@@ -12,6 +12,7 @@
 global $product;
 
 if ( !$product->is_in_stock() ) return;
+if ( !in_array($product->get_type(), array('simple', 'external')) ) return;
 
 $current_product_id = $product->get_id();
 $current_product_permalink = $product->get_permalink();
@@ -26,6 +27,7 @@ if ( get_query_var( 'etheme_single_product_builder', false ) ) {
             $redirect_link = $current_product_permalink;
             break;
     }
+	$title = get_theme_mod('single_product_bought_together_products_title', $title);
 }
 if ( sizeof( $et_bought_together_ids ) === 0 && !array_filter( $et_bought_together_ids ) ) {
     return;
@@ -65,7 +67,12 @@ $price_args = apply_filters(
         'price_format'       => get_woocommerce_price_format(),
     )
 );
-if ( $products->have_posts() ) : ?>
+if ( $products->have_posts() ) :
+    
+    // filters separators to make it work ok with script
+    $wc_get_price_thousand_separator = wc_get_price_thousand_separator();
+    $wc_get_price_decimal_separator = wc_get_price_decimal_separator();
+    ?>
 <div class="bought-together-products-wrapper">
     <div class="bought-together-products">
         <?php if ( $title ) echo '<h3 class="title products-title text-left"><span>'.$title.'</span></h3>'; ?>
@@ -177,8 +184,17 @@ if ( $products->have_posts() ) : ?>
 //
 //                            if ( apply_filters( 'woocommerce_price_trim_zeros', false ) && $price_args['decimals'] > 0 ) {
 //                                $total_price_attr = wc_trim_zeros( $total_price );
-//                            } ?>
-                            <div class="total-price-wrapper" data-total="<?php echo esc_attr( $total_price ); ?>">
+//                            }
+                            if ( $total_price >= 1000) {
+	                            add_filter('wc_get_price_thousand_separator', function ($old) {
+		                            return '.';
+	                            });
+	                            add_filter('wc_get_price_decimal_separator', function ($old) {
+		                            return ',';
+	                            });
+                            }
+                            ?>
+                            <div class="total-price-wrapper" data-force-format="<?php echo 1000 < $total_price ? 'yes' : ''; ?>" data-total="<?php echo esc_attr( $total_price ); ?>">
                                 <?php
                                 $total_price_html = '<div class="total-price">' . wc_price( $total_price ) . '</div>';
                                 $total_price = sprintf( __( '%s <div class="total-products">For %s item(s)</div>', 'xstore' ), $total_price_html, $count );
@@ -200,6 +216,15 @@ if ( $products->have_posts() ) : ?>
 </div>
 <?php
 
+if ( $total_price >= 1000) {
+    // reset to old values
+	add_filter( 'wc_get_price_thousand_separator', function ( $old ) use ( $wc_get_price_thousand_separator ) {
+		return $wc_get_price_thousand_separator;
+	} );
+	add_filter( 'wc_get_price_decimal_separator', function ( $old ) use ( $wc_get_price_decimal_separator ) {
+		return $wc_get_price_decimal_separator;
+	} );
+}
 endif;
 
 wp_reset_postdata();

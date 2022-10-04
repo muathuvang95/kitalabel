@@ -59,6 +59,12 @@ if ( ! function_exists( 'etheme_enqueue_scripts' ) ) {
  				if ( get_query_var('et_is-cart', false) ) {
 				    wp_enqueue_script( 'cart_page');
 			    }
+				
+				if ( get_query_var('et_is-cart-checkout-advanced', false) ) {
+//					if ( get_query_var('et_cart-checkout-layout', 'default') != 'default')
+						wp_enqueue_script( 'sticky-kit' );
+					wp_enqueue_script( 'cart_checkout_advanced_layout');
+				}
  				
  				if ( class_exists('YITH_Woocompare_Frontend')) {
 				    wp_enqueue_script( 'et_yith_compare');
@@ -309,24 +315,41 @@ if ( ! function_exists( 'etheme_enqueue_scripts' ) ) {
 				'fancy_select_categories' => get_theme_mod('search_category_fancy_select_et-desktop', false), //
 			);
 			
-			ob_start();
+			if ( get_query_var('et_is-quick-view', false) ) {
+				$quickView_css_list = array(
+					'quick-view',
+				);
+				if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
+					$quickView_css_list[] = 'off-canvas';
+				}
+				$quickView_css_list = array_merge($quickView_css_list, array(
+					'skeleton',
+					'single-product',
+					'single-product-elements',
+					'single-post-meta'
+				));
+				
+				foreach ( $quickView_css_list as $quickView_css_list_item ) {
+					ob_start();
+					etheme_enqueue_style( $quickView_css_list_item, true, false );
+					$etConf['quickView']['css'][ $quickView_css_list_item ] = ob_get_clean();
+				}
+			}
 			
-			etheme_enqueue_style('skeleton', true, false);
-			etheme_enqueue_style('single-product', true, false );
-			etheme_enqueue_style('single-product-elements', true, false );
-			etheme_enqueue_style('single-post-meta', true, false );
-			
-			$etConf['quickView']['css'] = ob_get_clean();
-			
-			ob_start();
-			
-			etheme_enqueue_style('skeleton', true, false);
-			etheme_enqueue_style('popup-added-to-cart', true, false);
-//			etheme_enqueue_style('single-product', true, false );
-//			etheme_enqueue_style('single-product-elements', true, false );
-//			etheme_enqueue_style('single-post-meta', true, false );
-			
-			$etConf['popupAddedToCart']['css'] = ob_get_clean();
+			if ( get_theme_mod( 'ajax_added_product_notify_type', 'alert' ) == 'popup' ) {
+				$popupAddedToCart_css_list = array(
+					'skeleton',
+					'popup-added-to-cart',
+					'single-product',
+					'single-product-elements',
+					'single-post-meta'
+				);
+				foreach ( $popupAddedToCart_css_list as $popupAddedToCart_css_list_item ) {
+					ob_start();
+					etheme_enqueue_style( $popupAddedToCart_css_list_item, true, false );
+					$etConf['popupAddedToCart']['css'][ $popupAddedToCart_css_list_item ] = ob_get_clean();
+				}
+			}
 			
 			$etConf['noSuggestionNoticeWithMatches'] = $etConf['noresults'] . '<p>' . __( 'No items matched your search {{search_value}}.', 'xstore' ) . '</p>';
 

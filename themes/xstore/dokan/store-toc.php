@@ -148,13 +148,7 @@ get_header( 'shop' );
                 </div><!-- #secondary .widget-area -->
             <?php
             }else {
-                ?>
-                <div class="<?php echo esc_attr( $l['sidebar-class'] ); ?>">
-                    <?php
-                        get_sidebar( 'store' );
-                    ?>
-                </div>
-                <?php
+                get_sidebar( 'store' );
             }?>
         </div>
     </div>

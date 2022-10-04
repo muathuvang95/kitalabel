@@ -170,11 +170,6 @@ class EthemeAdmin{
 				$this->page['template'] = 'plugins';
 				$this->page['class'] = 'plugins';
 				break;
-			case 'et-panel-generator':
-				$this->page['script'] = 'generator.min';
-				$this->page['template'] = 'generator';
-				$this->page['class'] = 'generator';
-				break;
 			case 'et-panel-email-builder':
 				$this->page['script'] = 'email_builder.min';
 				$this->page['template'] = 'email-builder';
@@ -217,16 +212,6 @@ class EthemeAdmin{
 	public function et_panel_ajax(){
 		if ( isset($_POST['action_type']) ){
 			switch ( $_POST['action_type'] ) {
-				case 'et_generator':
-					$this->require_class('generator');
-					$class = new Etheme_Generator;
-					$class->generator();
-					break;
-				case 'et_generator_remover':
-					$this->require_class('generator');
-					$class = new Etheme_Generator;
-					$class->generator_remover();
-					break;
 				case 'et_instagram_user_add':
 					$this->require_class('instagram');
 					$class = new Instagram();
@@ -313,7 +298,6 @@ class EthemeAdmin{
 			'demos',
 			'plugins',
 			'customize',
-			'generator',
 			'email_builder',
 			'sales_booster',
 			'custom_fonts',
@@ -341,6 +325,8 @@ class EthemeAdmin{
 		}
 		
 		$is_update_support = 'active';
+
+		$is_subscription = false;
 		
 		if (
 		$is_activated
@@ -356,6 +342,8 @@ class EthemeAdmin{
 				$check_update = new ETheme_Version_Check();
 				$is_update_available = $check_update->is_update_available();
 				$is_update_support = 'active'; //$check_update->get_support_status();
+
+				$is_subscription = $check_update->is_subscription;
 			}
 			
 		} else {
@@ -436,17 +424,6 @@ class EthemeAdmin{
 					esc_html__( 'Plugins Installer', 'xstore' ),
 					'manage_options',
 					'et-panel-plugins',
-					array( $this, 'etheme_panel_page' )
-				);
-			}
-			
-			if ( in_array('generator', $show_pages) ) {
-				add_submenu_page(
-					'et-panel-welcome',
-					esc_html__( 'Files Generator', 'xstore' ),
-					esc_html__( 'Files Generator', 'xstore' ),
-					'manage_options',
-					'et-panel-generator',
 					array( $this, 'etheme_panel_page' )
 				);
 			}
@@ -666,6 +643,17 @@ class EthemeAdmin{
 				'https://www.siteground.com/index.htm?afcode=37f764ca72ceea208481db0311041c62',
 				''
 			);
+            if (!$is_subscription){
+                add_submenu_page(
+                    'et-panel-welcome',
+                    esc_html__( 'Go Unlimited', 'xstore' ),
+                    esc_html__( 'Go Unlimited', 'xstore' ),
+                    'manage_options',
+                    'https://www.8theme.com/#price-section-anchor',
+                    ''
+                );
+            }
+
 
 //	        add_submenu_page(
 //		        'et-panel-welcome',

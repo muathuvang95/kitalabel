@@ -5,7 +5,7 @@
  * Template "Header" for 8theme dashboard.
  *
  * @since   6.0.2
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 $theme                = wp_get_theme();
@@ -323,10 +323,14 @@ $check_update = new ETheme_Version_Check();
 			<?php if ( $is_activated ): ?>
                 <span class="activate-note activated"><?php esc_html_e( 'Activated', 'xstore' ); ?>
                     <?php if ( count( $xstore_branding_settings ) < 1) { ?>
-                        <span class="activated-info">
-                            <h4 class="text-left"><?php echo esc_html__('Your theme is activated!', 'xstore'); ?></h4>
-                            <p><?php esc_html_e('Now you have lifetime updates, top-notch 24/7 live support and much more. One standard license is valid only for 1 project (1 live and 1 staging websites of the same project). ', 'xstore'); ?></p>
-                        </span>
+	                    <?php if ( ! $check_update->is_subscription) :?>
+                            <span class="activated-info">
+                                <h4 class="text-left"><?php echo esc_html__('Your theme is activated!', 'xstore'); ?></h4>
+                                    <p><?php esc_html_e('Now you have lifetime updates, top-notch 24/7 live support and much more. One standard license is valid only for 1 project.', 'xstore'); ?></p>
+                                    <br>
+                                    <p>If you want to use this theme more than one project or unlimited, please check our <a href="https://www.8theme.com/woocommerce-themes/#price-section-anchor" target="_blank">8theme's subscription plan.</a></p>
+                            </span>
+	                    <?php endif; ?>
                     <?php } ?>
                 </span>
 			<?php else: ?>

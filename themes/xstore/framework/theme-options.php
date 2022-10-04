@@ -78,8 +78,13 @@
                     'partial' => 'top_header_style_separator',
                 ),
                 array(
-                    'selector' => '.header-main',
+                    'selector' => 'body:not(.cart-checkout-advanced-layout) .header-main',
                     'partial' => 'main_header_style_separator',
+                ),
+                // cart checkout advanced layout use-case
+                array(
+                    'selector' => 'body.cart-checkout-advanced-layout .header-main',
+                    'partial' => 'cart_checkout_layout_header_separator',
                 ),
                 array(
                     'selector' => '.header-bottom',
@@ -104,8 +109,12 @@
                     'partial' => 'button_content_separator',
                 ),
                 array(
-                    'selector' => '.site-header .et_b_header-logo.et_element-top-level',
+                    'selector' => 'body:not(.cart-checkout-advanced-layout) .site-header .et_b_header-logo.et_element-top-level',
                     'partial' => 'logo_content_separator',
+                ),
+                array(
+                    'selector' => 'body.cart-checkout-advanced-layout .site-header .et_b_header-logo.et_element-top-level',
+                    'partial' => 'cart_checkout_logo_img_et-desktop',
                 ),
                 // all departments menu 
                 array(

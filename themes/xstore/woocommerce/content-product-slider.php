@@ -61,6 +61,13 @@ else {
 	$show_quick_view = get_query_var('et_is-quick-view', false);
 }
 
+
+if ( get_theme_mod('product_variable_price_from', false)) {
+	add_filter( 'woocommerce_format_price_range', function ( $price, $from, $to ) {
+		return sprintf( '%s %s', esc_html__( 'From:', 'xstore' ), wc_price( $from ) );
+	}, 10, 3 );
+}
+
 $size            = 'shop_catalog';
 $show_stock      = false;
 $show_counter = false;

@@ -85,13 +85,6 @@ div.mobile-menu-content .et_b_header-menu .menu li a {
 div.mobile-menu-content .et_b_header-menu .menu li a:before {
   display: none;
 }
-div.mobile-menu-content .et_b_header-menu .menu li a.type-img {
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-}
-div.mobile-menu-content .et_b_header-menu .menu li a.type-img img {
-  margin: 10px 0 0;
-}
 .mobile-menu-content.justify-content-center .et_b_header-menu .menu li.menu-item-has-children > a,
 .mobile-menu-content.justify-content-center .et_b_header-menu .menu li a,
 .mobile-menu-content.justify-content-center .et_b-tab-content .widget .cat-item a {

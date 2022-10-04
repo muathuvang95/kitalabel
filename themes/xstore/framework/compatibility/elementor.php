@@ -72,13 +72,43 @@ add_action( "elementor/theme/before_do_footer", function() {
 });
 
 add_action('wp', function () {
-	if ( Elementor\Plugin::$instance->preview->is_preview_mode() ) {
-	    // disable mega menu lazy load if in Elementor edit mode
-		add_filter( 'menu_dropdown_ajax', '__return_false' );
-		// disable mobile optimization in editor/preview mode
+    $is_preview = Elementor\Plugin::$instance->preview->is_preview_mode();
+    if ( $is_preview ) {
+        // disable mega menu lazy load if in Elementor edit mode
+        add_filter( 'menu_dropdown_ajax', '__return_false' );
+        // disable mobile optimization in editor/preview mode
         // to make Elementor resize work normally
-		set_query_var('et_mobile-optimization', false);
-	}
+        set_query_var('et_mobile-optimization', false);
+    }
+    if ( defined('ELEMENTOR_PRO_VERSION') && ( get_query_var('et_is-cart', false) || get_query_var('et_is-checkout', false) ) ) {
+
+        if ( $is_preview ) {
+            add_filter('etheme_elementor_cart_page', '__return_true');
+            add_filter('etheme_elementor_checkout_page', '__return_true');
+        }
+        else {
+
+            $document = \Elementor\Plugin::$instance->documents->get( get_query_var('et_page-id', array('id' => 0))['id'] );
+
+            if ( is_object( $document ) ) {
+                $data = $document->get_elements_data();
+                \Elementor\Plugin::$instance->db->iterate_data( $data, function( $element ) {
+                    if (
+                        isset( $element['widgetType'] )
+                    )  {
+                        switch($element['widgetType']) {
+                            case 'woocommerce-cart':
+                                add_filter('etheme_elementor_cart_page', '__return_true');
+                                break;
+                            case 'woocommerce-checkout-page':
+                                add_filter('etheme_elementor_checkout_page', '__return_true');
+                                break;
+                        }
+                    }
+                });
+            }
+        }
+    }
 });
 
 add_action( 'elementor/frontend/after_enqueue_scripts', function () {
@@ -141,7 +171,9 @@ add_action( 'elementor/frontend/before_register_styles', function() {
 
 // filters/action for product grid Elementor widget
 add_filter('etheme_product_filters_taxonomies', function ($elements) {
-    $elements['brand'] = esc_html__('Brand', 'xstore');
+	if ( etheme_get_option( 'enable_brands', 1 ) ) {
+		$elements['brand'] = esc_html__( 'Brand', 'xstore' );
+	}
     return $elements;
 });
 
@@ -319,6 +351,12 @@ add_filter('etheme_product_grid_list_product_hover_elements_render', function ($
 	return $elements;
 }, 10, 3);
 
+add_filter('etheme_product_grid_list_product_taxonomies', function ($taxonomies) {
+	if ( etheme_get_option( 'enable_brands', 1 ) ) {
+		$taxonomies['brand'] = esc_html__( 'Brands', 'xstore' );
+	}
+    return $taxonomies;
+});
 // insert quick view in specific position after cart
 //	add_filter('etheme_product_grid_list_product_hover_elements_render', function ($elements) {
 //	    if ( array_key_exists('quick_view', $elements) && count($elements) > 1 ) {

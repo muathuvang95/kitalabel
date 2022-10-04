@@ -57,7 +57,7 @@
 			'.header-banner-widget' : { 'title': 'Header banner widget', 'section' : '' },
 			'.copyrights-widget[data-customize-partial-id]' : { 'title': 'Copyrights widget', 'section' : '' },
 
-			// single product elements 
+			// single product elements
 			'.single-product-builder h1.product_title' : { 'title' : 'Product title', 'section' : 'product_title' },
 			'.product-content p.price:not(.price-in-nav), .et_product-block > .price, .et_element > .price' : { 'title' : 'Product price', 'section' : 'product_price' },
 			'.single-product-builder .product_meta' : { 'title' : 'Product meta', 'section' : 'product_meta' },
@@ -76,6 +76,11 @@
 			// woocommerce
 			'.woocommerce-cart .cross-sell-products' : { 'title' : 'Cross-sell products', 'section' : 'cart-cross-sell' },
 		};
+
+		if ( jQuery('body').hasClass('cart-checkout-advanced-layout') ) {
+			jQuery('.et_b_header-logo').attr('data-element', 'cart-checkout-layout');
+			elements['.footer'].section = 'cart-checkout-layout';
+		}
 
 		jQuery.each(elements, function(el, item) {
 			jQuery(document).on( 'mouseenter', el, function(e){
@@ -126,6 +131,9 @@
 				if (!section_id) {
 					if ( $(this).parent().hasClass('header-main') ) {
 						section_id = 'main_header';
+						if ( $('body').hasClass('cart-checkout-advanced-layout') ) {
+							section_id = 'cart-checkout-layout';
+						}
 					}					
 					if ( $(this).parent().hasClass('header-top') ) {
 						section_id = 'top_header';

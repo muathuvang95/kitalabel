@@ -153,7 +153,8 @@
   margin-right: 20px;
 }
 .open-filters-btn a {
-  padding-left: 23px;
+  -webkit-padding-start: 23px;
+          padding-inline-start: 23px;
 }
 .open-filters-btn a i {
   position: absolute;

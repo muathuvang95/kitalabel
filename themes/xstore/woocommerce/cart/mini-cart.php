@@ -22,7 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $count = etheme_get_option('mini-cart-items-count', 3);
-
 ?>
 
 <?php do_action( 'woocommerce_before_mini_cart' ); ?>

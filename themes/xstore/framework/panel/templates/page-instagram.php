@@ -191,7 +191,13 @@ $no_users_class = ' hidden';
         <p>
             <input id="load_social_avatar" type="checkbox" value="<?php echo get_theme_mod( 'load_social_avatar_value', 'off' ); ?>" <?php echo (get_theme_mod( 'load_social_avatar_value', 'off' ) === 'on') ? ' checked' : ''; ?>>
             <label for="load_social_avatar"><?php esc_attr_e('Load user avatar', 'xstore'); ?></label>
-            <input type="hidden" id="load_social_avatar_value" name="load_social_avatar_value" value="">
+            <input type="hidden" id="load_social_avatar_value" name="load_social_avatar_value" value="<?php echo get_theme_mod( 'load_social_avatar_value', 'off' ); ?>">
+        </p>
+
+        <p>
+            <input id="social_login_on_checkout" type="checkbox" value="<?php echo get_theme_mod( 'social_login_on_checkout_value', 'off' ); ?>" <?php echo (get_theme_mod( 'social_login_on_checkout_value', 'off' ) === 'on') ? ' checked' : ''; ?>>
+            <label for="social_login_on_checkout"><?php esc_attr_e('Use social login on checkout', 'xstore'); ?></label>
+            <input type="hidden" id="social_login_on_checkout_value" name="social_login_on_checkout_value" value="<?php echo get_theme_mod( 'social_login_on_checkout_value', 'off' ); ?>">
         </p>
         <p>
             <input class="etheme-network-save et-button no-loader" data-network="facebook" type="submit" value="save">

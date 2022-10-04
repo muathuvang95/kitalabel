@@ -488,12 +488,12 @@ if( ! function_exists( 'etheme_slider' ) ) {
 					    etheme_enqueue_style( 'content-product-custom' );
 				    }
 				
-				    if ( get_query_var('et_is-quick-view', false) ) {
-					    etheme_enqueue_style( "quick-view" );
-					    if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
-						    etheme_enqueue_style( "off-canvas" );
-					    }
-				    }
+//				    if ( get_query_var('et_is-quick-view', false) ) {
+//					    etheme_enqueue_style( "quick-view" );
+//					    if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
+//						    etheme_enqueue_style( "off-canvas" );
+//					    }
+//				    }
 			    }
 			}
 			$autoheight = ( $autoheight ) ? 'data-autoheight="1"' : '';

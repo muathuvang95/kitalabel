@@ -111,15 +111,16 @@ if ( post_password_required() ) {
 		if(etheme_get_option('tabs_location', 'after_content') == 'after_content' && $layout != 'large') {
 			do_action( 'woocommerce_after_single_product_summary' );
 		}
+		else {
+		    // it is enqueued by default for woocommerce_after_single_product_summary but in any other case
+            // let's load it directly
+			etheme_bought_together();
+		}
 		?>
 		
 		<?php if(etheme_get_option('product_posts_links', 1) && function_exists('etheme_project_links')): ?>
 			<?php etheme_project_links(array()); ?>
 		<?php endif; ?>
-		
-		<?php if(etheme_get_option('upsell_location', 'sidebar') == 'after_content') woocommerce_upsell_display(); ?>
-		
-		<?php if(etheme_get_option('cross_sell_location', 'none') == 'after_content') etheme_cross_sell_display(); ?>
 		
 		<?php
 		if(etheme_get_custom_field('additional_block') != '') {
@@ -128,6 +129,10 @@ if ( post_password_required() ) {
 			echo '</div>';
 		}
 		?>
+  
+		<?php if(etheme_get_option('upsell_location', 'sidebar') == 'after_content') woocommerce_upsell_display(); ?>
+		
+		<?php if(etheme_get_option('cross_sell_location', 'none') == 'after_content') etheme_cross_sell_display(); ?>
 		
 		<?php if(etheme_get_option('show_related', 1)) woocommerce_output_related_products(); ?>
 	

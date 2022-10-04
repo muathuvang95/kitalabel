@@ -28,8 +28,8 @@ define('ETHEME_API', 'https://www.8theme.com/themes/api/');
 
 define('ETHEME_PREFIX', '_et_');
 
-define( 'ETHEME_THEME_VERSION', '8.2' );
-define( 'ETHEME_CORE_MIN_VERSION', '4.2' );
+define( 'ETHEME_THEME_VERSION', '8.2.4' );
+define( 'ETHEME_CORE_MIN_VERSION', '4.2.4' );
 define( 'ETHEME_MIN_CSS', get_theme_mod( 'et_load_css_minify', true ) ? '.min' : '' );
 // **********************************************************************// 
 // ! Helper Framework functions
@@ -351,6 +351,15 @@ function etheme_customizer_js() {
                         }
                     } );
                 } );
+
+                wp.customize.section( 'cart-checkout-layout', function( section ) {
+                    section.expanded.bind( function( isExpanded ) {
+                        if ( isExpanded ) {
+                            wp.customize.previewer.previewUrl.set( '<?php echo esc_js( wc_get_page_permalink( 'cart' ) ); ?>' );
+                        }
+                    } );
+                } );
+                
                 <?php if ( $product_link ) { ?>
                     wp.customize.panel( 'single_product_builder', function( section ) {
                         section.expanded.bind( function( isExpanded ) {

@@ -35,7 +35,7 @@ class Instagram{
 	public function etheme_update_network(){
 		$response = array(
 			'status' =>'error',
-			'msg'=>''
+			'msg' => ''
 		);
 
 		if (! isset($_POST['form']) || ! count($_POST['form'])){
@@ -122,12 +122,12 @@ class Instagram{
 		$user_url = 'https://graph.instagram.com/me?fields=id,username,account_type&access_token=' . $_POST['token'];
 		$user_data = wp_remote_get($user_url);
 
-		$user_url = 'https://graph.facebook.com/v6.0/me/accounts?access_token=' . $_POST['token'];
+		$user_url = 'https://graph.facebook.com/v14.0/me/accounts?access_token=' . $_POST['token'];
 		$data     = wp_remote_get($user_url);
 		$data     = wp_remote_retrieve_body( $data );
 		$data     = json_decode( $data, true );
 		$id       = $data['data'][0]['id'];// page id
-		$user_url = 'https://graph.facebook.com/v6.0/'.$id.'?fields=instagram_business_account,username&access_token=' . $_POST['token'];
+		$user_url = 'https://graph.facebook.com/v14.0/'.$id.'?fields=instagram_business_account,username&access_token=' . $_POST['token'];
 
 		$user_data = wp_remote_get($user_url);
 
@@ -180,7 +180,7 @@ class Instagram{
 	public function et_instagram_save_settings() {
 		$response = array(
 			'status' =>'error',
-			'msg'=>''
+			'msg' => ''
 		);
 		if ( isset( $_POST['time'] ) && isset( $_POST['time_type'] ) ) {
 			$api_settings = get_option( 'etheme_instagram_api_settings' );
@@ -246,7 +246,7 @@ class Instagram{
 			'business' => add_query_arg( array(
 				'client_id' => $this->business_id,
 				'redirect_uri' => $this->api_url,
-				'scope' => 'pages_show_list,instagram_basic',
+				'scope' => 'pages_show_list,instagram_basic,pages_read_engagement',
 				'response_type' => 'code',
 				'state' => urlencode( admin_url('admin.php?et-panel-social') . '&business=true' )
 			), 'https://www.facebook.com/dialog/oauth' )
@@ -333,90 +333,91 @@ class Instagram{
 	public function connect_user(){
 		$api_data = $this->get_api_data();
 
-			if ( ! is_array( $api_data ) ) {
-				$api_data = array();
-			}
+		if ( ! is_array( $api_data ) ) {
+			$api_data = array();
+		}
 
-			$token = $_GET['token'];
+		$token = $_GET['token'];
 
-			if ( isset( $_GET['business'] ) && $_GET['business'] ) {
-				// Get business user
-				$user_url = 'https://graph.facebook.com/v6.0/me/accounts?access_token=' . $token;
-				$data     = wp_remote_get($user_url);
-				$data     = wp_remote_retrieve_body( $data );
-				$data     = json_decode( $data, true );
-				$id       = $data['data'][0]['id'];// page id
-				$user_url = 'https://graph.facebook.com/v6.0/'.$id.'?fields=instagram_business_account,username,name&access_token=' . $token;
+		if ( isset( $_GET['business'] ) && $_GET['business'] ) {
+			// Get business user
+			$user_url = 'https://graph.facebook.com/v14.0/me/accounts?access_token=' . $token;
+			$data     = wp_remote_get($user_url);
+			$data     = wp_remote_retrieve_body( $data );
+			$data     = json_decode( $data, true );
+			$id       = $data['data'][0]['id'];// page id
+			$user_url = 'https://graph.facebook.com/v14.0/'.$id.'?fields=instagram_business_account,username,name&access_token=' . $token;
 
-				foreach ($data['data'] as $key => $value) {
+			foreach ($data['data'] as $key => $value) {
 
-					$user_url = 'https://graph.facebook.com/v6.0/'.$value['id'].'?fields=instagram_business_account,username,name&access_token=' . $token;
+				$user_url = 'https://graph.facebook.com/v14.0/'.$value['id'].'?fields=instagram_business_account,username,name&access_token=' . $token;
 
-					$user_data = wp_remote_get($user_url);
-					$user_data = wp_remote_retrieve_body( $user_data );
+				$user_data = wp_remote_get($user_url);
+				$user_data = wp_remote_retrieve_body( $user_data );
 
-					$user_data = $user_data_clear = json_decode($user_data, true);
+				$user_data = $user_data_clear = json_decode($user_data, true);
 
-					if (isset($_GET['expires_in']) && $_GET['expires_in']) {
-						$user_data['expires_in'] = ( time() + $_GET['expires_in'] );
-					}
-
-					if ( isset($user_data['instagram_business_account']['id']) ) {
-						$user_data['account_type'] = 'BUSINESS';
-						$user_data['id'] = $user_data['instagram_business_account']['id'];
-						$user_data['connection_type'] = 'BUSINESS';
-					} else {
-						$user_data['account_type'] = 'PERSONAL';
-						$user_data['id'] = $user_data['id'];
-						$user_data['connection_type'] = 'BUSINESS';
-					}
-
-					$user_data['token'] = $token;
-
-					$user_data['username'] = $value['name'];
-
-					$user_data = json_encode($user_data);
-					if ( ! isset( $api_data[$value['access_token']] ) ) {
-						$api_data[$value['access_token']] = $user_data;
-					}
-
+				if (isset($_GET['expires_in']) && $_GET['expires_in']) {
+					$user_data['expires_in'] = ( time() + $_GET['expires_in'] );
 				}
 
-				update_option('etheme_instagram_api_data',json_encode($api_data));
-				header('Location: '.admin_url( 'admin.php?page=et-panel-social' ) );
-				return;
-			} else {
-				$user_url = 'https://graph.instagram.com/me?fields=id,username,account_type&access_token=' . $token;
-			}
+				if ( isset($user_data['instagram_business_account']['id']) ) {
+					$user_data['account_type'] = 'BUSINESS';
+					$user_data['id'] = $user_data['instagram_business_account']['id'];
+					$user_data['connection_type'] = 'BUSINESS';
+				} else {
+					continue;
+					$user_data['account_type'] = 'PERSONAL';
+					$user_data['id'] = $user_data['id'];
+					$user_data['connection_type'] = 'BUSINESS';
+				}
 
-			$user_data = wp_remote_get($user_url);
-			$user_data = wp_remote_retrieve_body( $user_data );
+				$user_data['token'] = $token;
 
-			$user_data = $user_data_clear = json_decode($user_data, true);
+				$user_data['username'] = $value['name'];
 
-			if (isset($_GET['expires_in']) && $_GET['expires_in']) {
-				$user_data['expires_in'] = ( time() + $_GET['expires_in'] );
-			}
+				$user_data = json_encode($user_data);
+				if ( ! isset( $api_data[$value['access_token']] ) ) {
+					$api_data[$value['access_token']] = $user_data;
+				}
 
-
-
-			if ( $user_data['account_type'] === 'BUSINESS' ) {
-
-				$user_data['account_type'] = $user_data['account_type'];
-				$user_data['connection_type'] = 'PERSONAL';
-			} else {
-				$user_data['connection_type'] = 'BUSINESS';
-			}
-
-			$user_data = json_encode($user_data);
-
-			if ( ! isset( $api_data[$_GET['token']] ) ) {
-				$api_data[$_GET['token']] = $user_data;
 			}
 
 			update_option('etheme_instagram_api_data',json_encode($api_data));
-
 			header('Location: '.admin_url( 'admin.php?page=et-panel-social' ) );
+			return;
+		} else {
+			$user_url = 'https://graph.instagram.com/me?fields=id,username,account_type&access_token=' . $token;
+		}
+
+		$user_data = wp_remote_get($user_url);
+		$user_data = wp_remote_retrieve_body( $user_data );
+
+		$user_data = $user_data_clear = json_decode($user_data, true);
+
+		if (isset($_GET['expires_in']) && $_GET['expires_in']) {
+			$user_data['expires_in'] = ( time() + $_GET['expires_in'] );
+		}
+
+
+
+		if ( $user_data['account_type'] === 'BUSINESS' ) {
+
+			$user_data['account_type'] = $user_data['account_type'];
+			$user_data['connection_type'] = 'PERSONAL';
+		} else {
+			$user_data['connection_type'] = 'BUSINESS';
+		}
+
+		$user_data = json_encode($user_data);
+
+		if ( ! isset( $api_data[$_GET['token']] ) ) {
+			$api_data[$_GET['token']] = $user_data;
+		}
+
+		update_option('etheme_instagram_api_data',json_encode($api_data));
+
+		header('Location: '.admin_url( 'admin.php?page=et-panel-social' ) );
 
 
 	}

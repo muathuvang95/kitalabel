@@ -9,7 +9,8 @@ jQuery(document).ready(function ($) {
         '[href="https://overflowcafe.com/am/aff/go/8theme"], ' +
         '[href="http://www.bluehost.com/track/8theme"], ' +
         '[href="https://yithemes.com/product-category/plugins/?refer_id=1028760"], ' +
-        '[href="https://www.siteground.com/index.htm?afcode=37f764ca72ceea208481db0311041c62"]'
+        '[href="https://www.siteground.com/index.htm?afcode=37f764ca72ceea208481db0311041c62"], ' +
+        '[href="https://www.8theme.com/#price-section-anchor"]'
     ).attr('target', '_blank');
 
     $('[href="themes.php?page=install-required-plugins"]').remove();

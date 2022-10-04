@@ -127,11 +127,15 @@
 }
 .etheme-product-list-image:not(:only-child):first-child,
 .type-list.etheme-product-grid-item .etheme-product-grid-image:not(:only-child):first-child {
-  margin: 0 var(--image-space, 20px) 0 0;
+  margin: 0;
+  -webkit-margin-end: var(--image-space, 20px);
+          margin-inline-end: var(--image-space, 20px);
 }
 .etheme-product-list-image:not(:only-child):last-child,
 .type-list.etheme-product-grid-item .etheme-product-grid-image:not(:only-child):last-child {
-  margin: 0 0 0 var(--image-space, 20px);
+  margin: 0;
+  -webkit-margin-start: var(--image-space, 20px);
+          margin-inline-start: var(--image-space, 20px);
 }
 .etheme-product-list-image img,
 .type-list.etheme-product-grid-item .etheme-product-grid-image img {

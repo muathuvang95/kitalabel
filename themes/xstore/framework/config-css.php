@@ -794,6 +794,12 @@ return array(
 		'file'=> '/css/modules/woocommerce/no-products-found',
 	),
 	
+	'cart-checkout-advanced-layout' => array(
+		'title' => esc_html__('Cart/checkout advanced layout', 'xstore'),
+		'name' => 'cart-checkout-advanced-layout',
+		'file'=> '/css/modules/woocommerce/pages/cart-checkout-advanced-layout',
+	),
+	
 	// product hovers
 	'product-view-default' => array(
 		'title' => esc_html__('Product view default', 'xstore'),

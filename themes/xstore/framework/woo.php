@@ -262,12 +262,6 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 			return $classes . ' container';
 		});
 		
-		if ( etheme_get_option('product_variable_price_from', false)) {
-			add_filter( 'woocommerce_format_price_range', function ( $price, $from, $to ) {
-				return sprintf( '%s %s', esc_html__( 'From:', 'xstore' ), wc_price( $from ) );
-			}, 10, 3 );
-		}
-		
 		add_action('etheme_page_heading', 'et_cart_checkout_breadcrumbs', 20);
 		
 		add_filter('woocommerce_breadcrumb_main_term', 'etheme_breadcrumbs_primary_category', 10, 2);
@@ -325,104 +319,91 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 
             $rendered_string = etheme_set_fake_live_viewing_count(get_the_ID());
 
-            add_action( 'etheme_woocommerce_template_single_excerpt', function ($id) use ($rendered_string) {
+            $single_product_builder_hook_for_fake_live_viewing = apply_filters('single_product_builder_hook_for_fake_live_viewing', 'etheme_woocommerce_template_single_excerpt');
+            add_action( $single_product_builder_hook_for_fake_live_viewing, function ($id) use ($rendered_string) {
                 echo '<div class="sales-booster-live-viewing">' . $rendered_string . '</div>';
-            }, 5);
+            }, apply_filters('single_product_builder_hook_priority_for_fake_live_viewing', 5));
             add_action( 'woocommerce_single_product_summary', function ($id) use ($rendered_string) {
                 echo '<div class="sales-booster-live-viewing">' . $rendered_string . '</div>';
             }, 21 );
         }
+		
+		$car_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
 
         if ( get_option('xstore_sales_booster_settings_cart_checkout_progress_bar') ) {
-            add_action('woocommerce_before_cart_table', 'etheme_cart_checkout_progress_bar', 1);
+//            $car_checkout_class = Etheme_WooCommerce_Cart_Checkout::get_instance();
+            $action = 'woocommerce_before_cart_table';
+            if ( get_query_var('et_is-cart-checkout-advanced', false) )
+                $action = 'etheme_woocommerce_before_cart_form';
+            add_action($action, array($car_checkout, 'sales_booster_progress_bar'), 3);
+        }
+
+        add_action( 'woocommerce_proceed_to_checkout', 'etheme_woocommerce_continue_shopping', 21 );
+        
+        add_filter('woocommerce_order_button_html', function ($button_html) use ($car_checkout) {
+            if ( !(get_theme_mod('cart_checkout_advanced_layout', false) && get_theme_mod('cart_checkout_layout_type', 'default') != 'default') )
+                return $button_html;
+		    ob_start();
+		    ?>
+            <div class="etheme-checkout-multistep-footer-links">
+				<?php
+				$car_checkout->return_to_shop('payment');
+            return ob_get_clean() . str_replace('</button>', ' <i class="et-icon et-' . ( get_query_var( 'et_is-rtl', false ) ? 'left' : 'right' ) . '-arrow"></i></button>', $button_html) . '</div>';
+        });
+        
+//		$car_checkout->advanced_layout();
+
+        if ( get_query_var('et_is-cart-checkout-advanced', false) ) {
+
+            if ( get_query_var('et_cart-checkout-layout', 'default') != 'default' )
+                add_filter('etheme_form_billing_title', '__return_false');
+//            $car_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
+            $car_checkout->advanced_layout();
+//            remove_action( 'etheme_header', 'etheme_vertical_header', 1 );
+//            remove_action( 'etheme_header', 'etheme_header_top', 10 );
+//            remove_action( 'etheme_header', 'etheme_header_main', 20 );
+//            remove_action( 'etheme_header', 'etheme_header_bottom', 30 );
+//
+//            remove_action( 'etheme_header', 'etheme_header_banner', 2 );
+//
+//            remove_all_actions( 'etheme_header_mobile' );
+//            remove_all_actions( 'etheme_prefooter' );
+//            remove_all_actions( 'etheme_footer' );
+//            remove_action( 'after_page_wrapper', 'etheme_mobile_panel', 1 );
+//            remove_action('after_page_wrapper', 'etheme_btt_button', 30);
+//            remove_action('et_after_body', 'etheme_bordered_layout');
+//            remove_action('after_page_wrapper', 'etheme_photoswipe_template', 30);
+//            remove_action('after_page_wrapper', 'et_notify', 40);
+//            remove_action('after_page_wrapper', 'et_buffer', 40);
+
+//            add_action('etheme_header_start', function () {
+//                $sticky_header = get_theme_mod( 'cart_checkout_main_header_sticky_et-desktop', '1' );
+//                add_filter('theme_mod_top_header_sticky_et-mobile', '__return_false');
+//                add_filter('theme_mod_main_header_sticky_et-mobile', function($value) use ($sticky_header) {
+//                    return $sticky_header;
+//                });
+//                add_filter('theme_mod_bottom_header_sticky_et-mobile', '__return_false');
+//
+//                add_filter('theme_mod_top_header_sticky_et-desktop', '__return_false');
+//                add_filter('theme_mod_main_header_sticky_et-desktop', function($value) use ($sticky_header) {
+//                    return $sticky_header;
+//                });
+//                add_filter('theme_mod_bottom_header_sticky_et-desktop', '__return_false');
+//
+//                add_filter('theme_mod_header_sticky_type_et-desktop', function () {
+//                    return 'sticky';
+//                });
+//            }, 3);
+        
         }
 	}
 }
 
-if ( !function_exists('etheme_cart_checkout_progress_bar') ) {
-    function etheme_cart_checkout_progress_bar() {
-
-        // in case it was on different hood added where not refreshing by woocomerce ajax
-        // wp_enqueue_script( 'cart_progress_bar');
-
-        $element_options = array();
-        $element_options['xstore_sales_booster_settings'] = (array)get_option( 'xstore_sales_booster_settings', array() );
-        $element_options['xstore_sales_booster_settings_default'] = array(
-            'progress_bar_message_text' => get_theme_mod( 'booster_progress_content_et-desktop', esc_html__('Spend {{et_price}} to get free shipping', 'xstore') ),
-            'progress_bar_process_icon' => get_theme_mod( 'booster_progress_icon_et-desktop', 'et_icon-delivery' ),
-            'progress_bar_process_icon_position' => get_theme_mod('booster_progress_icon_position_et-desktop', 'before') != 'after' ? 'before' : 'after',
-            'progress_bar_price' => get_theme_mod( 'booster_progress_price_et-desktop', 350 ),
-            'progress_bar_message_success_text' => get_theme_mod( 'booster_progress_content_success_et-desktop', esc_html__('Congratulations! You\'ve got free shipping.', 'xstore') ),
-            'progress_bar_success_icon' => get_theme_mod( 'booster_progress_success_icon_et-desktop', 'et_icon-star' ),
-            'progress_bar_success_icon_position' => get_theme_mod('booster_progress_success_icon_position_et-desktop', 'before'),
-        );
-
-        $element_options['xstore_sales_booster_settings_cart_checkout'] = $element_options['xstore_sales_booster_settings_default'];
-
-        if ( count($element_options['xstore_sales_booster_settings']) && isset($element_options['xstore_sales_booster_settings']['cart_checkout'])) {
-            $element_options['xstore_sales_booster_settings'] = wp_parse_args( $element_options['xstore_sales_booster_settings']['cart_checkout'],
-                $element_options['xstore_sales_booster_settings_default'] );
-
-            $element_options['xstore_sales_booster_settings_cart_checkout'] = $element_options['xstore_sales_booster_settings'];
-        }
-
-        $element_options['cart_options'] = array(
-            'booster_progress_content' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_message_text'],
-            'booster_progress_icon' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_process_icon'],
-            'booster_progress_icon_position' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_process_icon_position'],
-            'booster_progress_content_success' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_message_success_text'],
-            'booster_progress_success_icon' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_success_icon'],
-            'booster_progress_success_icon_position' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_success_icon_position'],
-            'booster_progress_price' => $element_options['xstore_sales_booster_settings_cart_checkout']['progress_bar_price']
-        );
-
-        $amount = '';
-        if ( ! wc_tax_enabled() ) {
-            $amount = WC()->cart->cart_contents_total;
-        } else {
-            $amount = WC()->cart->cart_contents_total + WC()->cart->tax_total;
-        }
-
-        $element_options['cart_options']['price_diff'] = $element_options['cart_options']['booster_progress_price'] - $amount;
-        $element_options['cart_options']['price_diff'] = $element_options['cart_options']['price_diff'] > 0 ? $element_options['cart_options']['price_diff'] : 0;
-        $element_options['cart_options']['cart_progress_bar_content'] = '<span class="et-cart-progress-amount" data-amount="'.$element_options['cart_options']['booster_progress_price'].'" data-currency="' . get_woocommerce_currency_symbol() . '">'.wc_price($element_options['cart_options']['price_diff']).'</span>';
-
-        $percent_sold = ($amount/$element_options['cart_options']['booster_progress_price'])*100;
-        $finished = false;
-        if ( $amount >= $element_options['cart_options']['booster_progress_price'] )
-            $finished = true;
-        ?>
-            <div class="et-cart-progress flex justify-content-start align-items-center" data-percent-sold="<?php if ( $finished ) : echo '100'; else: echo (int)number_format($percent_sold, 3); endif; ?>">
-                <span class="et-cart-in-progress">
-                    <?php
-                    $element_options['cart_options']['booster_progress_content'] = '<span>' . str_replace(array('{{et_price}}'), array($element_options['cart_options']['cart_progress_bar_content']), $element_options['cart_options']['booster_progress_content']) . '</span>';
-                    if ( $element_options['cart_options']['booster_progress_icon'] != 'none') {
-                        if ( $element_options['cart_options']['booster_progress_icon_position'] == 'before')
-                            $element_options['cart_options']['booster_progress_content'] = '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_icon']).'"></span>'. $element_options['cart_options']['booster_progress_content'];
-                        else
-                            $element_options['cart_options']['booster_progress_content'] .= '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_icon']).'"></span>';
-                    }
-                    echo $element_options['cart_options']['booster_progress_content'];
-                    ?>
-                </span>
-                <span class="et-cart-progress-success">
-                    <?php
-                    $element_options['cart_options']['booster_progress_content_success'] = '<span>'.$element_options['cart_options']['booster_progress_content_success'].'</span>';
-                    if ( $element_options['cart_options']['booster_progress_success_icon'] != 'none') {
-                        if ( $element_options['cart_options']['booster_progress_success_icon_position'] == 'before')
-                            $element_options['cart_options']['booster_progress_content_success'] = '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_success_icon']).'"></span>'. $element_options['cart_options']['booster_progress_content_success'];
-                        else
-                            $element_options['cart_options']['booster_progress_content_success'] .= '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_success_icon']).'"></span>';
-                    }
-                    echo $element_options['cart_options']['booster_progress_content_success'];
-                    ?>
-                </span>
-                <progress class="et_cart-progress-bar" max="100" value="<?php if ( $finished ) : echo '100'; else: echo (int)number_format($percent_sold, 3); endif; ?>"></progress>
-                <span class="hidden cart-widget-subtotal-ghost" data-amount="<?php echo esc_attr($amount); ?>"></span>
-            </div>
-        <?php
-    }
-}
+$car_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
+add_filter('woocommerce_update_order_review_fragments', function ($fragments) use ($car_checkout)  {
+	$fragments['.etheme-shipping-fields'] = $car_checkout->cart_totals_shipping_html(true);
+	return $fragments;
+});
 
 if ( !function_exists('et_get_product_bought_together_ids') ) {
     function et_get_product_bought_together_ids($product) {
@@ -1244,88 +1225,13 @@ if ( !function_exists('et_cart_checkout_breadcrumbs') ) {
 		}
 		
 		if ( !($is_checkout || $is_cart || $is_order) ) return;
-
-
-        $countdown = array();
+		
+		$countdown = array();
 
         if ( get_option('xstore_sales_booster_settings_cart_checkout_countdown') && !WC()->cart->is_empty() ) {
 
-            $xstore_sales_booster_settings = (array)get_option( 'xstore_sales_booster_settings', array() );
-
-            $xstore_sales_booster_settings_default = array(
-                'countdown_loop' => false,
-                'countdown_message' => esc_html__('{fire} Hurry up, these products are limited, checkout within {timer}', 'xstore'),
-                'countdown_expired_message' => esc_html__('You are out of time! Checkout now to avoid losing your order!', 'xstore'),
-                'countdown_minutes' => 5,
-            );
-
-            $xstore_sales_booster_settings_cart_checkout_countdown = $xstore_sales_booster_settings_default;
-
-            if (count($xstore_sales_booster_settings) && isset($xstore_sales_booster_settings['cart_checkout'])) {
-                $xstore_sales_booster_settings = wp_parse_args($xstore_sales_booster_settings['cart_checkout'],
-                    $xstore_sales_booster_settings_default);
-
-                $xstore_sales_booster_settings_cart_checkout_countdown = $xstore_sales_booster_settings;
-            }
-
-            $xstore_sales_booster_settings_cart_checkout_countdown = array(
-                'countdown_loop' => $xstore_sales_booster_settings_cart_checkout_countdown['countdown_loop'],
-                'countdown_message' => $xstore_sales_booster_settings_cart_checkout_countdown['countdown_message'],
-                'countdown_expired_message' => $xstore_sales_booster_settings_cart_checkout_countdown['countdown_expired_message'],
-                'countdown_minutes' => $xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'],
-            );
-
-            $xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'] *= 60; // convert in secs
-            $default_countdown_time = $xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'];
-
-            $last_time_added = WC()->session->get( 'etheme_last_added_cart_time');
-
-            if ( !$last_time_added ) return;
-
-            $now = strtotime( 'now', current_time( 'timestamp' ) );
-
-            $finished = false;
-            $diff = $now - $last_time_added;
-            if ( $diff > $xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes']) {
-                if ( $xstore_sales_booster_settings_cart_checkout_countdown['countdown_loop'] ) {
-                    WC()->session->set( 'etheme_last_added_cart_time', $now);
-                }
-                else {
-                    $finished = true;
-                }
-            }
-            else {
-                $xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'] = (int)$xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'] - $diff;
-            }
-
-            $xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'] = gmdate("i:s", (int)$xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes']);
-
-            $attr = array();
-            $classes = array(
-                'sales-booster-cart-countdown'
-            );
-            if ( $finished )
-                $classes[] = 'finished';
-            if ( $xstore_sales_booster_settings_cart_checkout_countdown['countdown_loop'] ) {
-                $classes[] = 'infinite';
-                $attr[] = 'data-time="'.gmdate("i:s", (int)$default_countdown_time).'"';
-            }
-            $attr[] = 'class="'.implode(' ', $classes).'"';
-            $countdown['attributes'] = implode(' ', $attr);
-            ob_start();
-            echo '<span class="cart-countdown-message">'.str_replace(
-                    array('{timer}', '{fire}'),
-                    array(
-                        '<span class="cart-countdown-time">'.$xstore_sales_booster_settings_cart_checkout_countdown['countdown_minutes'].'</span>',
-                        '&#128293;'
-                    ),
-                    $xstore_sales_booster_settings_cart_checkout_countdown['countdown_message']).'</span>'.
-                '<span class="cart-countdown-expired-message">'.
-                str_replace(
-                    array('{fire}'),array('&#128293;'),$xstore_sales_booster_settings_cart_checkout_countdown['countdown_expired_message']).'</span>';
-            $countdown['content'] = ob_get_clean();
-
-            wp_enqueue_script( 'cart_checkout_countdown');
+            $cart_checkout_class = Etheme_WooCommerce_Cart_Checkout::get_instance();
+            $countdown = $cart_checkout_class->sales_booster_countdown();
 
         }
 		
@@ -1690,9 +1596,16 @@ if ( ! function_exists( 'et_wc_track_product_view' ) ) {
 		
 		// Store for session only.
 		wc_setcookie( 'woocommerce_recently_viewed', implode( '|', $viewed_products ) );
+
 	}
 }
 
+if ( !function_exists('etheme_woocommerce_continue_shopping') ) {
+    function etheme_woocommerce_continue_shopping() {
+        if ( wc_get_page_id( 'shop' ) > 0 )
+            echo '<a class="return-shop button btn bordered full-width" href="' . get_permalink(wc_get_page_id('shop')) . '">' . esc_html__('Continue shopping', 'xstore') . '</a>';
+    }
+}
 // because of btn-checkout class name
 function etheme_woocommerce_widget_shopping_cart_proceed_to_checkout() {
 	echo '<a href="' . esc_url( wc_get_checkout_url() ) . '" class="button btn-checkout wc-forward">' . esc_html__( 'Checkout', 'xstore' ) . '</a>';
@@ -2093,7 +2006,7 @@ add_action( 'after_switch_theme', 'etheme_woocommerce_image_dimensions', 1 );
 // popup added to cart
 add_action('woocommerce_add_to_cart','set_last_added_cart_item_key',10,6);
 function set_last_added_cart_item_key($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data) {
-	set_transient('etheme_last_added_cart_key', $cart_item_key, 10 * MINUTE_IN_SECONDS);
+	WC()->session->set('etheme_last_added_cart_key', $cart_item_key);
     WC()->session->set( 'etheme_last_added_cart_time', strtotime( 'now', current_time( 'timestamp' ) ));
 }
 
@@ -2102,13 +2015,12 @@ add_action( 'wp_ajax_nopriv_etheme_added_to_cart_popup', 'etheme_added_to_cart_p
 if ( !function_exists('etheme_added_to_cart_popup') ) {
     function etheme_added_to_cart_popup(){
 	
-        $cart_item_key = get_transient('etheme_last_added_cart_key');
+        $cart_item_key = WC()->session->get('etheme_last_added_cart_key');
 
 	    if(!$cart_item_key)
 		    return;
 
 	    // could remove but we may change quantity of product so keep it in transients
-        // delete_transient('etheme_last_added_cart_key');
 
 	    $args = array(
 		    'cart_current_item_key' => $cart_item_key
@@ -3304,10 +3216,11 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 		if ( ! $product_object->is_on_sale() ) {
 			return $sale_text;
 		}
+		$element_options['sale_label_text'] = $sale_text;
 		$sale_variables = etheme_get_option( 'sale_percentage_variable', 0 );
 		$product_type = $product_object->get_type();
 		if ( $product_type == 'variable' ) {
-			
+//			$element_options['sale_label_text'] = $sale_text;
 			if ( $sale_variables ) {
 				$element_options['variation_sale_prices'] = array();
 				foreach ( $product_object->get_available_variations() as $key ) {
@@ -3316,9 +3229,8 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 					}
 					$element_options['variation_sale_prices'][] = (float) round( ( ( $key['display_regular_price'] - $key['display_price'] ) / $key['display_regular_price'] ) * 100 );
 				}
-				$element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['variation_sale_prices'] ) . '%';
-			} else {
-				$element_options['sale_label_text'] = $sale_text;
+				if ( count($element_options['variation_sale_prices']) )
+				    $element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['variation_sale_prices'] ) . '%';
 			}
 		} elseif ( $product_type == 'grouped' ) {
 			if ( $sale_variables ) {
@@ -3344,11 +3256,12 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 					}
 				}
 				$element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['grouped_sale_prices'] ) . '%';
-			} else {
-				$element_options['sale_label_text'] = $sale_text;
 			}
+//			else {
+//				$element_options['sale_label_text'] = $sale_text;
+//			}
 		} else {
-			if ( etheme_get_option( 'sale_percentage', 0 ) ){
+			if ( apply_filters( 'etheme_sale_label_percentage', etheme_get_option( 'sale_percentage', 0 ) ) ){
 				if ( $product_type == 'bundle') {
 					$element_options['regular_price']   = (float) $product_object->min_raw_regular_price;
 					$element_options['sale_price']   = (float) $product_object->min_raw_price;
@@ -3357,7 +3270,7 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 					$element_options['regular_price'] = (float) $product_object->get_regular_price();
 					$element_options['sale_price']    = (float) $product_object->get_sale_price();
 				}
-				$element_options['sale_label_text'] = $sale_text;
+//				$element_options['sale_label_text'] = $sale_text;
 				if ( $element_options['regular_price'] && $element_options['sale_price'] ) {
 					$element_options['sale_label_text'] .= ' ' . round( ( ( $element_options['regular_price'] - $element_options['sale_price'] ) / $element_options['regular_price'] ) * 100 ) . '%';
 				}
@@ -3865,51 +3778,49 @@ add_action( 'wp_ajax_etheme_svp_cart', 'etheme_svp_cart' );
 add_action( 'wp_ajax_nopriv_etheme_svp_cart', 'etheme_svp_cart' );
 if ( ! function_exists( 'etheme_svp_cart' ) ) {
 	function etheme_svp_cart() {
-		
-		$product_id   = apply_filters('woocommerce_add_to_cart_product_id', absint($_POST['product_id']));
-		$quantity     = empty($_POST['quantity']) ? 1 : wc_stock_amount($_POST['quantity']);
-		$variation_id = absint($_POST['variation_id']);
+
+		$product_id   = apply_filters( 'woocommerce_add_to_cart_product_id', absint( $_POST['product_id'] ) );
+		$quantity     = empty( $_POST['quantity'] ) ? 1 : apply_filters( 'woocommerce_stock_amount', $_POST['quantity'] );
+		$variation_id = $_POST['variation_id'];
 		$variation    = array();
 		$data         = array();
-		$cart         = $_POST;
-		unset($cart['quantity']);
-		
+		$cart = $_POST;
+		$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity );
+
 		foreach ($cart as $key => $value) {
 			if (preg_match("/^attribute*/", $key)) {
 				$variation[$key] = $value;
 			}
 		}
-		
+
 		foreach ($variation as $key=>$value) {
 			$variation[$key] = stripslashes($value);
 		}
-		
-		$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity );
-		
-		if ( $passed_validation && WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation, $cart ) ) {
-			
+
+		if ( $passed_validation && WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation ) ) {
+
 			do_action( 'woocommerce_ajax_added_to_cart', $product_id );
-			
+
 			remove_action('woocommerce_widget_shopping_cart_total', 'woocommerce_widget_shopping_cart_subtotal', 10);
 			add_action('woocommerce_widget_shopping_cart_total', 'etheme_woocommerce_widget_shopping_cart_subtotal', 10);
-			
+
 			if ( get_option( 'woocommerce_cart_redirect_after_add' ) == 'yes' ) {
 				wc_add_to_cart_message( $product_id );
 			}
-			
+
 			$data = WC_AJAX::get_refreshed_fragments();
 		} else {
-			
-			if (class_exists('WC_AJAX')&& defined('WC_AJAX') && method_exists(WC_AJAX,'json_headers')){
+
+			if (class_exists('WC_AJAX') && defined('WC_AJAX') && method_exists(WC_AJAX,'json_headers')){
 				WC_AJAX::json_headers();
 			}
-			
+
 			$data = array(
 				'error'       => true,
 				'product_url' => apply_filters( 'woocommerce_cart_redirect_after_error', get_permalink( $product_id ), $product_id )
 			);
 		}
-		
+
 		wp_send_json( $data );
 		wp_die();
 	}
@@ -4220,6 +4131,7 @@ function etheme_product_variations_excluded($args = array()) {
 	$query         = http_build_query( $query_args );
 	$query_hash    = md5( $query );
 	$variation_ids = (array) get_transient( 'et_variations_ids' );
+	$hide_outofstock = get_option( 'woocommerce_hide_out_of_stock_items' ) == 'yes';
 	if ( isset( $variation_ids[ $query_hash ] ) ) {
 		$ids = $variation_ids[ $query_hash ];
 	}
@@ -4239,7 +4151,39 @@ function etheme_product_variations_excluded($args = array()) {
 				}
             }
         }
-		$variation_ids[ $query_hash ] = $ids;
+		// new - hide out of stock variations if woocommerce option is enabled
+		if ( $hide_outofstock && !$args['only_parent'] ) {
+			$query_args = array(
+				'post_type' => 'product',
+				'numberposts'      => -1,
+				'tax_query' => array(
+					'relation' => 'AND',
+					array(
+						'taxonomy' => 'product_type',
+						'field'    => 'slug',
+						'terms'    => 'variable',
+						'operator' => 'IN',
+					),
+				)
+			);
+			$query         = http_build_query( $query_args );
+//			$query_hash    = md5( $query );
+			$results = get_posts( $query );
+			foreach ( $results as $key => $post ) {
+				$product = wc_get_product( $post->ID );
+				$variations = $product->get_children();
+				if ( count( $variations ) ) {
+					foreach ( $variations as $variation_id ) {
+						$variation_product = wc_get_product( $variation_id );
+						if ( ! $variation_product->is_in_stock() || !$variation_product->variation_is_visible() ){
+							$ids[] = $variation_id;
+						}
+					}
+				}
+            }
+        }
+		
+		$variation_ids[ $query_hash ] = array_unique($ids);
 		set_transient( 'et_variations_ids', $variation_ids, DAY_IN_SECONDS );
     }
 	return $ids;
@@ -4613,12 +4557,12 @@ function etheme_woocommerce_product_loop_start_filter($html) {
 			etheme_enqueue_style( "swatches-style", true );
 		}
 		
-		if ( get_query_var('et_is-quick-view', false) ) {
-			etheme_enqueue_style( "quick-view", true );
-			if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
-				etheme_enqueue_style( "off-canvas", true );
-			}
-		}
+//		if ( get_query_var('et_is-quick-view', false) ) {
+//			etheme_enqueue_style( "quick-view", true );
+//			if ( get_query_var('et_is-quick-view-type', 'popup') == 'off_canvas' ) {
+//				etheme_enqueue_style( "off-canvas", true );
+//			}
+//		}
 	}
 	
 	return $html;

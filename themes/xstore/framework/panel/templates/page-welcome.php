@@ -291,6 +291,9 @@ if ( count($xstore_branding_settings) && isset($xstore_branding_settings['contro
             <h4 class="text-uppercase"><?php esc_html_e( 'Where can I find my purchase code?', 'xstore' ); ?></h4>
     
             <ul>
+                <li><b><?php esc_html_e( 'If you bought theme on  ', 'xstore' ); ?> <a
+                            href="https://themeforest.net/">https://themeforest.net/ : </a></b>
+                </li>
                 <li>1. <?php esc_html_e( 'Please enter your Envato account and find ', 'xstore' ); ?> <a
                             href="https://themeforest.net/downloads"><?php esc_html_e( 'Downloads tab', 'xstore' ); ?></a>
                 </li>
@@ -302,6 +305,16 @@ if ( count($xstore_branding_settings) && isset($xstore_branding_settings['contro
                 </li>
                 <li>4. <?php esc_html_e( 'Copy the', 'xstore' ); ?>
                     <span><?php esc_html_e( 'Item Purchase Code', 'xstore' ); ?> </span><?php esc_html_e( 'from the downloaded document', 'xstore' ); ?>
+                </li>
+                <br/>
+                <li><b><?php esc_html_e( 'If you bought a subscription on  ', 'xstore' ); ?> <a
+                            href="https://www.8theme.com/">https://www.8theme.com/ :</a></b>
+                </li>
+                <li>1. <?php esc_html_e( 'Please enter your 8theme account and find the Subscription License Key section', 'xstore' ); ?>
+                </li>
+                <li>2. <?php esc_html_e( 'Copy the existing code or generate the new one if you already used previously generated code. You need to generate separate codes for every single activation on different domains.', 'xstore' ); ?>
+                </li>
+                <li>3. <?php esc_html_e( 'Use it to activate the theme', 'xstore' ); ?>
                 </li>
             </ul>
             <br/>

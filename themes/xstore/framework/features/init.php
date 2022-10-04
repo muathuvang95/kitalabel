@@ -30,3 +30,10 @@ require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/lazyload.
 * Optimization
 * ******************************************************************* */
 require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/optimization.php') );
+
+/*
+* WooCommerce
+* ******************************************************************* */
+if ( class_exists('WooCommerce') ) {
+	require_once( apply_filters( 'etheme_file_url', ETHEME_CODE . 'features/woocommerce/init.php' ) );
+}

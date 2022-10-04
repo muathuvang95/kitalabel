@@ -12,15 +12,18 @@ class ETheme_Version_Check {
     public $url = 'http://8theme.com/demo/xstore/change-log.php';
     public $notices;
     private $theme_id = 15780546;
+    public $is_subscription = false;
+    public $activated_data = array();
 
 
     function __construct($update_transient = true) {
         $theme_data = wp_get_theme('xstore');
-        $activated_data = get_option( 'etheme_activated_data' );
+	    $this->activated_data = $activated_data = get_option( 'etheme_activated_data' );
         $this->current_version = $theme_data->get('Version');
         $this->theme_name = strtolower($theme_data->get('Name'));
         $this->api_url = ETHEME_API;
         $this->api_key = ( ! empty( $activated_data['api_key'] ) ) ? $activated_data['api_key'] : false;
+	    $this->is_subscription = ( isset($activated_data['item']) && isset($activated_data['item']['license']) && $activated_data['item']['license'] == '8theme-subscription' );
 
         add_action('admin_init', array($this, 'dismiss_notices'));
         add_action('admin_notices', array($this, 'show_notices'), 50 );
@@ -64,21 +67,28 @@ class ETheme_Version_Check {
                     $activated_data = get_option( 'etheme_activated_data' );
                     $purchase = ( isset( $activated_data['purchase'] ) && ! empty( $activated_data['purchase'] ) ) ? $activated_data['purchase'] : '';
 		            $supported_until = ( isset( $activated_data['item'] ) && isset( $activated_data['item']['supported_until'] ) && ! empty( $activated_data['item']['supported_until'] ) ) ? $activated_data['item']['supported_until'] : '';
-		    ?>
+
+		            ?>
 
                     <p><?php esc_html_e('Your theme is activated! Now you have lifetime updates, top-notch 24/7 live support and much more.', 'xstore'); ?></p>
                     <?php $this->process_form(); ?>
                     <p class="etheme-purchase"><i class="et-admin-icon et-key"></i> <span><?php echo substr($purchase, 0, -8) . '********'; ?></span></p>
-                    <span class="et-button et-button-semiactive  et_theme-deactivator no-loader last-button"><?php esc_html_e( 'Deactivate theme', 'xstore' ); ?></span>
+
+                    <?php //if (!$this->is_subscription): ?>
+                        <span class="et-button et-button-semiactive  et_theme-deactivator no-loader last-button"><?php esc_html_e( 'Deactivate theme', 'xstore' ); ?></span>
+                    <?php //endif; ?>
+
 
                         <?php $this->support_status($supported_until); ?>
-
-                        <p class="et-message et-info">
-                        <?php //esc_html_e('One standard license is valid only for 1 project (1 live and 1 staging websites of the same project). Running multiple projects on a single license is a copyright violation. When moving a site from one domain to another please deactivate theme first.', 'xstore'); ?>
-                        <?php esc_html_e('One standard license is valid only for 1 project (1 live and 1 staging websites of the same project).', 'xstore'); ?>
-                            <br>
-                            <?php esc_html_e('Running multiple projects on a single license is a copyright violation.', 'xstore');?>
-                        </p>
+		                <?php if (!$this->is_subscription): ?>
+                            <p class="et-message et-info">
+                            <?php //esc_html_e('One standard license is valid only for 1 project (1 live and 1 staging websites of the same project). Running multiple projects on a single license is a copyright violation. When moving a site from one domain to another please deactivate theme first.', 'xstore'); ?>
+                            <?php esc_html_e('Due to the Envato\'s license policy one standard license is valid only for 1 project.', 'xstore'); ?>
+                                <br>
+                                <?php esc_html_e('Running multiple projects on a single license is a copyright violation.', 'xstore');?>
+                                <br> If you want to use this theme more than one project or unlimited, please check our <a href="https://www.8theme.com/woocommerce-themes/#price-section-anchor" target="_blank">8theme's subscription plan.</a>
+                            </p>
+		                <?php endif; ?>
             <?php else: ?>
         
                 <p class="et-message et-warning"><?php echo sprintf(esc_html__('Your product should be activated so you may get the access to all the XStore %1$1sdemos%2$2s, auto theme %3$3s updates %4$4s and included premium %5$5splugins%6$6s. The instructions below in toggle format must be followed exactly.', 'xstore'), '<b>', '</b>', '<b>', '</b>', '<b>', '</b>'); ?></p>
@@ -443,9 +453,16 @@ class ETheme_Version_Check {
     }
 
     public function get_support_status(){
-	    $daysleft = $this->get_support_day_left();
 
-//	            $daysleft = 12;
+        if (
+                $this->is_subscription
+                && isset($this->activated_data['item'])
+                && isset($this->activated_data['item']['subscription_type'])
+                && $this->activated_data['item']['subscription_type'] == 'lifetime'){
+	        return 'lifetime';
+        }
+
+	    $daysleft = $this->get_support_day_left();
 
 	    if ($daysleft <= 30 && $daysleft > 0) {
 		    $status = 'expire-soon';
@@ -473,7 +490,10 @@ class ETheme_Version_Check {
 			$status = 'et-error';
 			$left = __('Expired', 'xstore');
 			$left .= $icon . '</br>' . $renew;
-		} else {
+		} else if($support == 'lifetime'){
+			$status = 'et-notice';
+			$left = 'lifetime' . $icon;
+        } else {
 			$status = 'et-notice';
 			$left .= $icon;
 		}
