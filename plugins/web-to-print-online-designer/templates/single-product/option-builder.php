@@ -3515,8 +3515,7 @@ if( $cart_item_key != ''){ ?>
                     $scope.status_fields[field_id][attr_index].sub_attributes = $scope.status_fields[field_id][attr_index].sub_attributes || [];
                     $scope.status_fields[field_id][attr_index].sub_attributes[sub_attr_index] = check;
                 }else{
-                    // $scope.status_fields[field_id][attr_index].enable = check;
-                    $scope.status_fields[field_id][attr_index].enable = angular.isDefined(currentOption.coming_soon) && currentOption.coming_soon == 'on' ? !check : check;
+                    $scope.status_fields[field_id][attr_index].enable = check;
                 }
             }
 

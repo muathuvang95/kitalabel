@@ -2875,9 +2875,19 @@ if( $cart_item_key != ''){ ?>
                     if( $scope.first_load ) {
                         $scope.options_selected_copy = {};
                         angular.forEach( $scope.nbd_fields , function( val , id) {
+                            let _fields = $scope.get_field(id);
+                            let is_selected = false;
+                            angular.forEach(_fields.general.attributes.options, function(_field) {
+                                if(angular.isDefined(_field.selected) && _field.selected == 'on') {
+                                    is_selected = true;
+                                }
+                            })
+                            if(_fields.general.data_type == 'i' && _fields.general.input_type != 'a' && _fields.nbd_type == 'page') {
+                                is_selected = true;
+                            }
                             $scope.options_selected_copy[id] = {
                                 enable : val.enable,
-                                selected : val.value ? true : false,
+                                selected : is_selected,
                                 published: val.published,
                                 show_in_group: val.show_in_group,
                                 id: id,
@@ -2902,9 +2912,6 @@ if( $cart_item_key != ''){ ?>
                             $scope.options_selected_copy[id].value = val.value;
                             $scope.options_selected_copy[cur_field_id].selected = true;
                         }
-                        // if( !$scope.options_selected_copy[id].enable ) {
-                        //     $scope.options_selected_copy[id].selected = false;
-                        // }
                     })
                 }
                 if( angular.isDefined(_groups[0]) && _groups[0].fields.length > 0 ) {
@@ -2924,14 +2931,14 @@ if( $cart_item_key != ''){ ?>
                     } 
                 }
                 // disabled checkbox label
-                // if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
-                //     angular.forEach($scope.nbd_fields, function(field, field_id){
-                //         let _nbd_type = $scope.get_field(field_id).nbd_type;
-                //         if(_nbd_type == 'area' || _nbd_type == 'size' || _nbd_type == 'color' || _nbd_type == 'orientation' || typeof _nbd_type == 'undefined' ) {
-                //             $scope.nbd_fields[field_id].value = 0;
-                //         }
-                //     })
-                // }
+                if( angular.isUndefined(cur_field_id) && $scope.first_load && $scope.type_page != "quick_view" ) {
+                    angular.forEach($scope.nbd_fields, function(field, field_id){
+                        let _nbd_type = $scope.get_field(field_id).nbd_type;
+                        if(angular.isDefined($scope.options_selected_copy[field_id]) && $scope.options_selected_copy[field_id].show_in_group && !$scope.options_selected_copy[field_id].selected) {
+                            $scope.nbd_fields[field_id].value = 0;
+                        }
+                    })
+                }
                 $scope.enable_design = false;
                 var check_ed = true;
                 angular.forEach( $scope.options_selected_copy , function( val , key ) {

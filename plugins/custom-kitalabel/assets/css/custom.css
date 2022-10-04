@@ -1335,7 +1335,7 @@ body.woocommerce-checkout table.order_details td.product-total {
     -o-transition: .3s;
     transition: .3s;
     cursor: pointer;
-    content: "î€š";
+    content: "";
     speak: none;
     font-style: normal;
     font-weight: normal;
