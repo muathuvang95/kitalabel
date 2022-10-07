@@ -73,6 +73,24 @@ jQuery(document).ready(function () {
             }
         }
     });
+    // add err lita huy
+    if(typeof eerr_lite != "undefined"){
+        jQuery('.woocommerce-Button.button.nb-primary-button').on("click",function(e){
+            var recaptcha = jQuery('textarea#g-recaptcha-response').val();
+            var recapcheckbox = jQuery('.recaptcha-checkbox');       
+            if(!recaptcha) {
+                alert('Please choose captcha register!!');
+                return false;
+            }
+        })
+        jQuery('.checkout-button').on("click",function(e){
+            var recaptcha = jQuery('textarea#g-recaptcha-response').val();    
+            if(!recaptcha) {
+                alert('Please choose captcha checkout!!');
+                return false;
+            }
+        })
+    }
     jQuery('#closeFrameDesign').on('click', function () {
         if( enableAdvancedUpload ){
             jQuery(document).triggerHandler('close_advanced_upload_popup');
