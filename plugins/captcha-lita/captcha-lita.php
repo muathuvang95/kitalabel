@@ -60,8 +60,8 @@ function captcha_check_car() {
     <?php
 }
 
-add_filter('nbdesigner_general_settings','test');
-function test($arr)
+add_filter('nbdesigner_general_settings','add_input_key_catcha_lita');
+function add_input_key_catcha_lita($arr)
 {
     $arr['application']['key-captcha-sitekey'] = [
         'title'         => esc_html__( 'Key Captcha Sitekey', 'web-to-print-online-designer'),
