@@ -31,6 +31,25 @@ jQuery(document).ready(function () {
     var h = -height;
     var nbd_append_iframe = false,
         enableAdvancedUpload = false;
+
+    // add err lita
+    if(typeof eerr_lite != "undefined"){
+        jQuery('.woocommerce-form-register__submit').on("click",function(e){
+            var recaptcha = jQuery('textarea#g-recaptcha-response').val();    
+            if(!recaptcha) {
+                alert('Please choose captcha!!');
+                return false;
+            }
+        })
+        jQuery('.checkout-button').on("click",function(e){
+            var recaptcha = jQuery('textarea#g-recaptcha-response').val();    
+            if(!recaptcha) {
+                alert('Please choose captcha!!');
+                return false;
+            }
+        })
+    }
+        
     var showDesignFrame = function(){
         jQuery('body, html').addClass('nbd-prevent-scroll');
         if( nbd_layout == 'c' ){
