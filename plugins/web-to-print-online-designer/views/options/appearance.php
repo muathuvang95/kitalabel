@@ -200,7 +200,7 @@
             <input type="checkbox" ng-model="options.combination.show_op" ng-click="update_no_combination(options.combination.show_op)" />
         </div>
     </div>
-    <div class="options-combination" ng-show="options.combination.show_op">
+    <div class="options-combination" ng-show="options.combination.show_op" style="overflow-x: auto; width: 100%;">
         <div class="option-default">
             <table>
                 <tbody>
@@ -260,7 +260,7 @@
                             </td>
                         </tr>
                         <tr ng-show="options.combination.options[op_area.name][op_size.name][op_material.name].show" ng-hide="op_area.coming_soon == 'on' || op_size.coming_soon == 'on' || op_material.coming_soon == 'on'">
-                            <td colspan="7" style="max-width: 850px; overflow-x: auto;">
+                            <td colspan="8" style="max-width: 850px; overflow-x: auto;">
                                 <style type="text/css">
                                     .custom-tab-qty-break td {
                                        padding: 5px 0px!important; 
