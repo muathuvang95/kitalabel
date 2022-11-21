@@ -34,15 +34,15 @@ jQuery(document).ready(function () {
 
     // add err lita
     if(typeof eerr_lite != "undefined"){
-        jQuery('.woocommerce-form-register__submit').on("click",function(e){
-            var recaptcha = jQuery('textarea#g-recaptcha-response').val();    
+        jQuery('.woocommerce-form-register button[name="register"]').on("click",function(e){
+            var recaptcha = jQuery('.woocommerce-form-register textarea.g-recaptcha-response').val();  
             if(!recaptcha) {
-                alert('Please choose captcha!!');
+                alert('Please choose captcha1!!');
                 return false;
             }
         })
         jQuery('.checkout-button').on("click",function(e){
-            var recaptcha = jQuery('textarea#g-recaptcha-response').val();    
+            var recaptcha = jQuery('.wc-proceed-to-checkout textarea.g-recaptcha-response').val();    
             if(!recaptcha) {
                 alert('Please choose captcha!!');
                 return false;
