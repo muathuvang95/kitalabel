@@ -104,6 +104,9 @@ if(!class_exists('NBD_ADMIN_PRINTING_OPTIONS')){
                 'image'     => array()
             );
             $url = $_POST['image'];
+            if( $_POST['image'] == 'false') {
+                $url = 'https://www.kitalabel.com/wp-content/uploads/2022/01/70-x-40-3.png';
+            }
             require_once(NBDESIGNER_PLUGIN_DIR.'includes/class.download.image.php');
             if( strpos( $url, get_site_url() ) > -1 ){
                 $result['image'] = array(

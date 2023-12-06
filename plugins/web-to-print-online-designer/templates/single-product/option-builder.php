@@ -2870,8 +2870,8 @@ if( $cart_item_key != ''){ ?>
                 var finishing_val = 0;
                 if($scope.options.combination.enabled == 'on') {
                     angular.forEach( $scope.nbd_fields , function( val , key) {
-                        if(val.enable) {
-                            var _origin_field = $scope.get_field(key);
+                        var _origin_field = $scope.get_field(key);
+                        if(val.enable && ( _origin_field.nbd_type == 'area' || _origin_field.nbd_type == 'size' || _origin_field.nbd_type == 'color' ) ) {
                             var selected_option = _origin_field.general.attributes.options[val.value].name;
                             switch(_origin_field.nbd_type) {
                                 case 'area':
