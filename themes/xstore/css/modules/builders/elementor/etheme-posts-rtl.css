@@ -26,6 +26,7 @@
      object-fit: cover;
 }
 .etheme-post-image-inner {
+  display: block;
   position: relative;
   width: 100%;
   height: 100%;
@@ -73,28 +74,30 @@
   -webkit-margin-end: -25px;
           margin-inline-end: -25px;
 }
-.etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess {
-  -webkit-box-ordinal-group: 2;
-      -ms-flex-order: 1;
-          order: 1;
-  -webkit-margin-start: var(--image-space, 20px);
-          margin-inline-start: var(--image-space, 20px);
-  -webkit-margin-end: 0;
-          margin-inline-end: 0;
-}
-.etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess ~ .etheme-post-content.inside {
-  -webkit-margin-start: 0;
-          margin-inline-start: 0;
-  -webkit-margin-end: -25px;
-          margin-inline-end: -25px;
-}
-.etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess .etheme-post-date-label {
-  left: auto;
-  right: var(--date-label-offset, 15px);
-}
-.etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess .etheme-post-terms-label {
-  left: auto;
-  right: 10px;
+@media only screen and (min-width: 480px) {
+  .etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess {
+    -webkit-box-ordinal-group: 2;
+        -ms-flex-order: 1;
+            order: 1;
+    -webkit-margin-start: var(--image-space, 20px);
+            margin-inline-start: var(--image-space, 20px);
+    -webkit-margin-end: 0;
+            margin-inline-end: 0;
+  }
+  .etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess ~ .etheme-post-content.inside {
+    -webkit-margin-start: 0;
+            margin-inline-start: 0;
+    -webkit-margin-end: -25px;
+            margin-inline-end: -25px;
+  }
+  .etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess .etheme-post-date-label {
+    left: auto;
+    right: var(--date-label-offset, 15px);
+  }
+  .etheme-posts-wrapper-list .etheme-post:nth-child(even) .etheme-post-image-chess .etheme-post-terms-label {
+    left: auto;
+    right: 10px;
+  }
 }
 .etheme-posts-wrapper-list .etheme-post-content {
   max-width: calc(100% - var(--image-width-proportion,35%));
@@ -136,6 +139,9 @@
     -webkit-box-flex: 1;
         -ms-flex: 1 1 100%;
             flex: 1 1 100%;
+    -webkit-box-ordinal-group: 0;
+        -ms-flex-order: -1;
+            order: -1;
     -webkit-margin-start: 0;
             margin-inline-start: 0;
     -webkit-margin-end: 0;

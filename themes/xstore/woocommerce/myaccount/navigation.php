@@ -32,8 +32,8 @@ $current_user = wp_get_current_user();
             <div class="MyAccount-user-info">
                 <?php echo get_avatar($current_user->ID); ?>
                 <div>
-                    <div class="MyAccount-user-name"><?php echo $current_user->display_name; ?></div>
-                    <div><?php echo $current_user->user_email; ?></div>
+                    <?php echo '<div class="MyAccount-user-name">' . $current_user->display_name . '</div>'; ?>
+                    <?php echo '<div>' . $current_user->user_email . '</div>'; ?>
                 </div>
             </div>
         <?php endif; ?>

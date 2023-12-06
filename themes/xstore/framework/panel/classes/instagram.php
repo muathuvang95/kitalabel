@@ -301,7 +301,7 @@ class Instagram{
 				'time_type'=> 'hour',
 				'escape_albums' => false,
 			);
-			update_option('etheme_instagram_api_settings',json_encode($api_settings));
+			update_option('etheme_instagram_api_settings',json_encode($api_settings), 'no');
 		}
 
 		return $api_settings;

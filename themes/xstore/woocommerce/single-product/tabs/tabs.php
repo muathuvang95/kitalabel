@@ -39,6 +39,8 @@ if ( ( ! empty( $product_tabs ) || $et_tabs['check'] ) && $tabs_type != 'disable
     <div class="woocommerce-tabs wc-tabs-wrapper tabs <?php etheme_option('tabs_type'); ?> <?php echo (etheme_get_option('tabs_scroll', 0) && $tabs_type == 'accordion') ? 'tabs-with-scroll' : ''; ?>">
         <ul class="wc-tabs tabs-nav">
             <?php foreach ( $product_tabs as $key => $product_tab ) : $i++; ?>
+	            <?php if( ! is_array($product_tab['callback']) && ( ! $product_tab['callback'] || ! function_exists($product_tab['callback']) ) ) continue; ?>
+
                 <li <?php if($i == 1 && $close_tab) echo 'class="tab_closed"'; ?>>
                     <a href="#tab_<?php echo esc_attr($key) ?>" id="tab_<?php echo esc_attr($key) ?>" class="tab-title <?php if($i == 1 && !$close_tab) echo 'opened'; ?>"><span><?php echo wp_kses_post( apply_filters( 'woocommerce_product_' . $key . '_tab_title', $product_tab['title'], $key ) ); ?></span></a>
                 </li>
@@ -59,6 +61,8 @@ if ( ( ! empty( $product_tabs ) || $et_tabs['check'] ) && $tabs_type != 'disable
         </ul>
 
         <?php $i = 0; foreach ( $product_tabs as $key => $product_tab ) : $i++; ?>
+	        <?php if( ! is_array($product_tab['callback']) && ( ! $product_tab['callback'] || ! function_exists($product_tab['callback']) ) ) continue; ?>
+
             <?php if ( $tabs_type == 'accordion' ) : ?>
                 <div class="accordion-title <?php if($i == 1 && $close_tab) echo 'tab_closed'; ?>"><a href="#tab_<?php echo esc_attr($key) ?>" id="tab_<?php echo esc_attr($key) ?>" class="tab-title <?php if($i == 1 && !$close_tab) echo 'opened'; ?>"><span><?php echo wp_kses_post( apply_filters( 'woocommerce_product_' . $key . '_tab_title', $product_tab['title'], $key ) ); ?></span></a></div>
             <?php endif; ?>

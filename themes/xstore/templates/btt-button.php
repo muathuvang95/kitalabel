@@ -14,8 +14,8 @@ if ( ! get_query_var('et_btt-mobile', false) ) {
 }
 
 if (get_query_var('et_btt', false) || get_query_var('et_btt-mobile', false) || get_query_var('et_is_customize_preview', false)): ?>
-    <div id="back-top" style="width: 46px;height: 46px;" class="<?php echo esc_attr( $class ); ?>"><?php // @todo remove style in 2-3 updates ?>
-        <span class="et-icon et-right-arrow-2" style="position: absolute; top: 50%; left: 50%;transform:translate(-50%, -50%) rotate(-90deg);animation: none;"></span>
+    <div id="back-top" class="<?php echo esc_attr( $class ); ?>">
+        <span class="et-icon et-right-arrow-2"></span>
         <svg width="100%" height="100%" viewBox="-1 -1 102 102">
             <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style="transition: stroke-dashoffset 10ms linear 0s; stroke-dasharray: 307.919, 307.919; stroke-dashoffset: 150.621;" fill="none"></path>
         </svg>

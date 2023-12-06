@@ -45,7 +45,13 @@ if ( get_query_var( 'et_portfolio-projects', false ) ) {
             <div class="content <?php echo esc_attr( get_query_var('et_content-class', 'col-md-9') ); ?>">
                 <?php if(have_posts()): while(have_posts()) : the_post(); ?>
 
-                    <?php the_content(); ?>
+                    <?php
+                    $mobile_content = etheme_get_custom_field('mobile_content', $post->ID);
+                    if ( get_query_var('is_mobile', false) && !empty( $mobile_content ) && $mobile_content != 'inherit')
+                        etheme_static_block($mobile_content, true);
+                    else
+                        the_content();
+                    ?>
 
                     <div class="post-navigation"><?php wp_link_pages(); ?></div>
 

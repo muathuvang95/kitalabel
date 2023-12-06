@@ -25,7 +25,6 @@
   padding-top: 0.95rem;
   padding-bottom: 0.95rem;
   background-color: var(--et_btn-dark-bg-color);
-  border: 1px solid var(--et_btn-dark-br-color);
   color: var(--et_btn-dark-color);
   -webkit-text-fill-color: currentColor;
   min-width: 190px;
@@ -46,6 +45,27 @@
 .et-quick-view-wrapper .add_to_cart_button:before {
   padding-right: 5px;
   font-family: 'xstore-icons';
+}
+.et-quick-view-wrapper .add_to_cart_button.loading,
+.et-quick-view-wrapper .add_to_cart_button.loading:before {
+  color: transparent !important;
+  -webkit-transition: none !important;
+  transition: none !important;
+}
+.et-quick-view-wrapper .add_to_cart_button.loading:before {
+  background: transparent !important;
+}
+.et-quick-view-wrapper .add_to_cart_button .et-loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+}
+.et-quick-view-wrapper .add_to_cart_button .loader-circular {
+  left: calc(50% - 15px);
+  top: calc(50% - 15px);
+  bottom: auto;
+  margin: 0;
 }
 .et-quick-view-wrapper .sten-reset-loop-variation {
   margin-top: 0;
@@ -154,6 +174,10 @@
 }
 .et-quick-view-wrapper .yith-wcwl-add-to-wishlist.wishlist-fragment {
   margin: 0;
+}
+.et-quick-view-wrapper .xstore-wishlist-single,
+.et-quick-view-wrapper .xstore-compare-single {
+  display: block;
 }
 .et-quick-view-wrapper .quantity-wrapper {
   display: block;
@@ -493,8 +517,4 @@ html.quick-view-open .mfp-wrap {
   }
 }
 /*-----  Quick for jumping btn  ------*/
-.et-popup-content .single_add_to_cart_button,
-.et-popup-content .product_type_variable.button {
-  border-style: none;
-}
 /*-----  End of Quick View Popup  ------*/

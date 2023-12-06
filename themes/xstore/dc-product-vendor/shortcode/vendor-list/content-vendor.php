@@ -26,7 +26,10 @@ $banner = $vendor->get_image('banner') ? $vendor->get_image('banner') : '';
 	<?php do_action('wcmp_vendor_lists_single_before_image', $vendor->term_id, $vendor->id); ?>
     <div class="wcmp-vendorblocks">
         <div class="wcmp-vendor-details">
-            <div class="wcmp-cover-picture" style="background-image: url('<?php if($banner) echo $banner; ?>');"></div>
+            <div class="wcmp-cover-picture"
+                 <?php if($banner) echo 'style="background-image: url('.$banner.');"'; ?>
+            >
+            </div>
             <div class="vendor-heading">
                 <div class="wcmp-store-picture">
                     <img class="vendor_img" src="<?php echo esc_url($image); ?>" id="vendor_image_display">
@@ -39,7 +42,13 @@ $banner = $vendor->get_image('banner') ? $vendor->get_image('banner') : '';
                     </div>
                     <div class="dashicons dashicons-location">
                         <div class="on-hover-cls">
-                            <p><?php echo $vendor->get_formatted_address() ? substr($vendor->get_formatted_address(), 0, 10) : __('No Address found', 'xstore'); ?></p>
+                            <p>
+                                <?php if($vendor->get_formatted_address()): ?>
+                                    <?php echo substr($vendor->get_formatted_address(), 0, 10); ?>
+	                            <?php else: ?>
+                                    <?php echo __('No Address found', 'xstore'); ?>
+                                <?php endif; ?>
+                            </p>
                         </div>
                     </div>
                 </div>

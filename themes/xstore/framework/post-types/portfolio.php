@@ -2,8 +2,7 @@
 
 // **********************************************************************// 
 // ! Portfolio Post Type functions
-// **********************************************************************// 
-
+// **********************************************************************//
 if(!function_exists('etheme_project_categories')) {
 	function etheme_project_categories($id) {
 		if ( etheme_xstore_plugin_notice() ) {

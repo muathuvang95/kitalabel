@@ -468,6 +468,11 @@ img.zoomImg {
 .stretch-add-to-cart-button .woocommerce-variation-add-to-cart {
   width: 100%;
 }
+.stretch-add-to-cart-button .single_add_to_cart_button + .single-wishlist,
+.stretch-add-to-cart-button .single_add_to_cart_button + .single-compare {
+  -webkit-margin-start: 5px;
+          margin-inline-start: 5px;
+}
 .single_add_to_cart_button.button .loader-path,
 .et-quick-view-wrapper .product_type_variable .loader-path,
 .et-quick-view-wrapper .product_type_variation .loader-path,
@@ -654,6 +659,14 @@ img.zoomImg {
   color: var(--et_dark-2-white);
   margin-bottom: 15px;
 }
+div.sales-booster-estimated-delivery {
+  color: var(--et_dark-2-white);
+  font-size: 1.14rem;
+  margin-bottom: 10px;
+}
+div.sales-booster-estimated-delivery .delivery-date {
+  color: var(--et_font-color);
+}
 .bought-together-products {
   margin-top: 60px;
   margin-bottom: 80px;
@@ -730,6 +743,54 @@ img.zoomImg {
 }
 .bought-together-button-wrapper button {
   height: auto;
+}
+.xstore-wishlist-single,
+.xstore-compare-single {
+  display: inline-block;
+  font-size: 1.14rem;
+}
+.et_column .xstore-compare-single {
+  display: inline-block;
+}
+form.cart ~ .single-wishlist .xstore-wishlist-single,
+form.cart ~ .single-compare .xstore-compare-single,
+form.cart .quantity ~ .single-compare .xstore-compare,
+form.cart .quantity ~ .single-wishlist .xstore-wishlist {
+  margin-bottom: 10px;
+}
+form.cart .single-wishlist ~ .single-compare .xstore-compare-single.xstore-compare-icon {
+  -webkit-margin-start: 5px;
+          margin-inline-start: 5px;
+}
+.st-swatch-in-loop ~ .single-wishlist .xstore-wishlist-single,
+.st-swatch-in-loop ~ .single-compare .xstore-compare-single {
+  margin-bottom: 10px;
+}
+.xstore-wishlist-single.xstore-wishlist-icon,
+.xstore-compare-single.xstore-compare-icon {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  line-height: 1;
+  font-size: 1.45rem;
+  padding: 11px;
+  background: var(--et_white-2-dark);
+  border: 1px solid var(--et_border-color);
+  border-radius: 50%;
+}
+.xstore-compare-single:not(.xstore-compare-icon) .et-icon {
+  color: currentColor !important;
+}
+#wcpay-payment-request-wrapper,
+#wcpay-payment-request-button-separator {
+  -ms-flex-preferred-size: 100%;
+      flex-basis: 100%;
 }
 /*-----  End of Single Product Elements  ------*/
 .product_meta .products-page-cats a,

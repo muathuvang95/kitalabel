@@ -1,34 +1,35 @@
-<?php  
+<?php
 /**
- * The template created for displaying style options 
+ * The template created for displaying style options
  *
  * @version 0.0.1
- * @since 6.0.0
+ * @since   6.0.0
  */
-add_filter( 'et/customizer/add/sections', function($sections)  use($priorities){
-
+add_filter( 'et/customizer/add/sections', function ( $sections ) use ( $priorities ) {
+	
 	$args = array(
-		'style'	 => array(
-			'name'        	=> 'style',
-			'title'         => esc_html__( 'Styling/Colors', 'xstore' ),
-			'icon' 			=> 'dashicons-admin-customizer',
-			'priority' 		=> $priorities['styling'],
-			'type'			=> 'kirki-lazy',
-			'dependency'    => array()
+		'style' => array(
+			'name'       => 'style',
+			'title'      => esc_html__( 'Styling/Colors', 'xstore' ),
+			'icon'       => 'dashicons-admin-customizer',
+			'priority'   => $priorities['styling'],
+			'type'       => 'kirki-lazy',
+			'dependency' => array()
 		)
 	);
+	
 	return array_merge( $sections, $args );
-});
+} );
 
 
-$hook = class_exists('ETC_Initial') ? 'et/customizer/add/fields/style' : 'et/customizer/add/fields';
-add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$borders_empty,$border_radius,$border_radius_labels,$border_styles,$bordered_sep_style,$bordered_buttons,$border_labels,$dark_buttons,$active_sep_style,$active_buttons,$dark_sep_style){
+$hook = class_exists( 'ETC_Initial' ) ? 'et/customizer/add/fields/style' : 'et/customizer/add/fields';
+add_filter( $hook, function ( $fields ) use ( $light_sep_style, $light_buttons, $borders_empty, $border_radius, $border_radius_labels, $border_styles, $bordered_sep_style, $bordered_buttons, $border_labels, $dark_buttons, $active_sep_style, $active_buttons, $dark_sep_style ) {
 	$args = array();
-
+	
 	// Array of fields
 	$args = array(
-		'dark_styles'	=>	 array(
-			'name'		  => 'dark_styles',
+		'dark_styles' => array(
+			'name'        => 'dark_styles',
 			'type'        => 'toggle',
 			'settings'    => 'dark_styles',
 			'label'       => esc_html__( 'Dark version', 'xstore' ),
@@ -36,30 +37,51 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 0,
 		),
-
-		'activecol'	=>	 array(
-			'name'		  => 'activecol',
+		
+		'activecol' => array(
+			'name'        => 'activecol',
 			'type'        => 'color',
 			'settings'    => 'activecol',
 			'label'       => esc_html__( 'Main Color', 'xstore' ),
 			'description' => esc_html__( 'Choose the main color for the site (color of links, active buttons and elements like pagination, sale price, portfolio project mask, blog image mask etc).', 'xstore' ),
 			'section'     => 'style',
 			'default'     => '#a4004f',
-			'choices'	  => array(
+			'choices'     => array(
 				'alpha' => false
 			),
-			'transport' => 'auto',
-			'output' => array(
+			'transport'   => 'auto',
+			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body',
 					'property' => '--et_active-color',
 				),
 			)
 		),
 
-		'background_img'	=>	 array(
-			'name'		  => 'background_img',
+        'browser_bar_color' => array(
+            'name'        => 'browser_bar_color',
+            'type'        => 'color',
+            'settings'    => 'browser_bar_color',
+            'label'       => esc_html__( 'Mobile browser bar color', 'xstore' ),
+            'description' => __( 'Set color for the browser top bar on mobile devices. <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/name/theme-color" target="_blank">Details</a>', 'xstore' ),
+            'section'     => 'style',
+            'default'     => '',
+            'choices'     => array(
+                'alpha' => false
+            ),
+            'transport'   => 'auto',
+            'output'      => array(
+                array(
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body',
+                    'property' => '--et_browser-bar-color',
+                ),
+            )
+        ),
+		
+		'background_img' => array(
+			'name'        => 'background_img',
 			'type'        => 'background',
 			'settings'    => 'background_img',
 			'label'       => esc_html__( 'Site Background', 'xstore' ),
@@ -76,117 +98,117 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context' => array( 'editor', 'front' ),
 					'element' => 'body',
 				),
 				array(
-					'choice' => 'background-color',
-					'context'   => array('editor', 'front'),
-					'element' => '.etheme-sticky-cart',
+					'choice'   => 'background-color',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => '.etheme-sticky-cart',
 					'property' => 'background-color'
 				),
 			),
 		),
-
-		'container_bg'	=>	 array(
-			'name'		  => 'container_bg',
+		
+		'container_bg'              => array(
+			'name'        => 'container_bg',
 			'type'        => 'color',
 			'settings'    => 'container_bg',
 			'label'       => esc_html__( 'Container Background Color', 'xstore' ),
 			'description' => esc_html__( 'Choose the background color of the template container. Template container covers the whole visible area if wide layout is enabled.', 'xstore' ),
 			'section'     => 'style',
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_container-bg-color'
 				),
 			),
 		),
 		
 		// search_zoom
-		'form_inputs_border_radius'	=> array(
-			'name'		  => 'form_inputs_border_radius',
-			'type'        => 'slider',
-			'settings'    => 'form_inputs_border_radius',
-			'label'       => esc_html__('Inputs border radius', 'xstore'),
-			'default'     => 0,
-			'choices'     => array(
+		'form_inputs_border_radius' => array(
+			'name'      => 'form_inputs_border_radius',
+			'type'      => 'slider',
+			'settings'  => 'form_inputs_border_radius',
+			'label'     => esc_html__( 'Inputs border radius', 'xstore' ),
+			'default'   => 0,
+			'choices'   => array(
 				'min'  => '0',
 				'max'  => '50',
 				'step' => '1',
 			),
-			'section'     => 'style',
+			'section'   => 'style',
 			'transport' => 'auto',
-			'output'      => array(
+			'output'    => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_inputs-border-radius',
-					'units' => 'px'
+					'units'    => 'px'
 				),
 			),
 		),
-
-		'forms_inputs_bg'	=>	 array(
-			'name'		  => 'forms_inputs_bg',
+		
+		'forms_inputs_bg' => array(
+			'name'        => 'forms_inputs_bg',
 			'type'        => 'color',
 			'settings'    => 'forms_inputs_bg',
 			'label'       => esc_html__( 'Inputs background color', 'xstore' ),
 			'description' => esc_html__( 'Controls the background color of the all the inputs.', 'xstore' ),
 			'section'     => 'style',
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_inputs-bg-color'
 				),
 			),
 		),
-
-		'forms_inputs_br'	=>	 array(
-			'name'		  => 'forms_inputs_br',
+		
+		'forms_inputs_br' => array(
+			'name'        => 'forms_inputs_br',
 			'type'        => 'color',
 			'settings'    => 'forms_inputs_br',
 			'label'       => esc_html__( 'Inputs border color', 'xstore' ),
 			'description' => esc_html__( 'Controls the border color of the all the inputs.', 'xstore' ),
 			'section'     => 'style',
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_inputs-border-color',
 				),
 			),
 		),
-
-		'slider_arrows_colors'	=>	array(
-			'name'        => 'slider_arrows_colors',
-			'type'        => 'select',
-			'settings'    => 'slider_arrows_colors',
-			'label'       => esc_html__( 'Make all slider\'s arrows without background or with your custom color', 'xstore' ),
-			'section'     => 'style',
-			'default'     => 'transparent',
-			'choices'     => array (
-				'transparent' => esc_html__('Transparent', 'xstore'),
-				'custom' => esc_html__('Custom', 'xstore'),
+		
+		'slider_arrows_colors' => array(
+			'name'     => 'slider_arrows_colors',
+			'type'     => 'select',
+			'settings' => 'slider_arrows_colors',
+			'label'    => esc_html__( 'Make all slider\'s arrows without background or with your custom color', 'xstore' ),
+			'section'  => 'style',
+			'default'  => 'transparent',
+			'choices'  => array(
+				'transparent' => esc_html__( 'Transparent', 'xstore' ),
+				'custom'      => esc_html__( 'Custom', 'xstore' ),
 			),
 		),
-
-		'slider_arrows_bg_color'	=>	 array(
-			'name'		  => 'slider_arrows_bg_color',
-			'type'        => 'color',
-			'settings'    => 'slider_arrows_bg_color',
-			'label'       => esc_html__( 'Slider arrows background color', 'xstore' ),
-			'section'     => 'style',
-			'transport'   => 'auto',
-			'output'      => array(
+		
+		'slider_arrows_bg_color' => array(
+			'name'            => 'slider_arrows_bg_color',
+			'type'            => 'color',
+			'settings'        => 'slider_arrows_bg_color',
+			'label'           => esc_html__( 'Slider arrows background color', 'xstore' ),
+			'section'         => 'style',
+			'transport'       => 'auto',
+			'output'          => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body',
 					'property' => '--et_arrows-bg-color',
 				),
 			),
@@ -198,25 +220,25 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 				),
 			)
 		),
-
-		'slider_arrows_color'	=>	 array(
-			'name'		  => 'slider_arrows_color',
-			'type'        => 'color',
-			'settings'    => 'slider_arrows_color',
-			'label'       => esc_html__( 'Slider arrows color', 'xstore' ),
-			'section'     => 'style',
+		
+		'slider_arrows_color' => array(
+			'name'      => 'slider_arrows_color',
+			'type'      => 'color',
+			'settings'  => 'slider_arrows_color',
+			'label'     => esc_html__( 'Slider arrows color', 'xstore' ),
+			'section'   => 'style',
 			'transport' => 'auto',
-			'output'      => array(
+			'output'    => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body',
 					'property' => '--et_arrows-color',
 				),
 			),
 		),
-
-		'bold_icons'	=>	 array(
-			'name'		  => 'bold_icons',
+		
+		'bold_icons' => array(
+			'name'        => 'bold_icons',
 			'type'        => 'toggle',
 			'settings'    => 'bold_icons',
 			'label'       => esc_html__( 'Bold weight for icons', 'xstore' ),
@@ -225,100 +247,228 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'default'     => 0,
 		),
 
-		'separator_of_light_btn'	=>	 array(
-			'name'		  => 'separator_of_light_btn',
-			'type'        => 'custom',
-			'settings'    => 'separator_of_light_btn',
-			'section'     => 'style',
-			'default'     => '<div style="'.$light_sep_style.'">' . esc_html__( 'Light buttons', 'xstore' ) . '</div>',
-		),
+        'separator_of_alerts_colors' => array(
+            'name'     => 'separator_of_alerts_colors',
+            'type'     => 'custom',
+            'settings' => 'separator_of_alerts_colors',
+            'section'  => 'style',
+            'default'  => '<div style="' . $light_sep_style . '"><span class="dashicons dashicons-info-outline"></span> <span style="padding-inline-start: 3px;">' . esc_html__( 'Alerts', 'xstore' ) . '</span></div>',
+        ),
 
-		'light_buttons_fonts'	=>	 array(
-			'name'		  => 'light_buttons_fonts',
-			'type'        => 'typography',
-			'settings'    => 'light_buttons_fonts',
-			'section'     => 'style',
-			'default'     => array(
-				 'font-family'    => '',
-				 'variant'        => '',
-				 'font-size'      => '',
-				 'line-height'    => '',
+//        'notice_bg_color' => array(
+//            'name'        => 'notice_bg_color',
+//            'type'        => 'color',
+//            'settings'    => 'notice_bg_color',
+//            'label'       => esc_html__( 'Notice Background color', 'xstore' ),
+//            'description' => esc_html__( 'Choose the background color for the site notices.', 'xstore' ),
+//            'section'     => 'style',
+//            'default'     => '#2e7d32',
+//            'choices'     => array(
+//                'alpha' => false
+//            ),
+//            'transport'   => 'auto',
+//            'output'      => array(
+//                array(
+//                    'context'  => array( 'editor', 'front' ),
+//                    'element'  => 'body',
+//                    'property' => '--et_notice-bg-color',
+//                ),
+//            )
+//        ),
+//
+//        'notice_color' => array(
+//            'name'        => 'notice_color',
+//            'type'        => 'color',
+//            'settings'    => 'notice_color',
+//            'label'       => esc_html__( 'Notice color', 'xstore' ),
+//            'description' => esc_html__( 'Choose the color for the site notices.', 'xstore' ),
+//            'section'     => 'style',
+//            'default'     => '#fff',
+//            'choices'     => array(
+//                'alpha' => false
+//            ),
+//            'transport'   => 'auto',
+//            'output'      => array(
+//                array(
+//                    'context'  => array( 'editor', 'front' ),
+//                    'element'  => 'body',
+//                    'property' => '--et_notice-color',
+//                ),
+//            )
+//        ),
+
+        'notices_bg' => array(
+            'name'      => 'notices_bg',
+            'type'      => 'multicolor',
+            'settings'  => 'notices_bg',
+            'label'     => esc_html__( 'Alerts background', 'xstore' ),
+            'section'   => 'style',
+            'choices'   => array(
+                'notice' => esc_html__( 'Success', 'xstore' ),
+                'info'   => esc_html__( 'Info', 'xstore' ),
+                'error'   => esc_html__( 'Error', 'xstore' ),
+            ),
+            'default'   => array(
+                'notice' => '',
+                'info'   => '',
+                'error'   => '',
+            ),
+            'transport' => 'auto',
+            'output'    => array(
+                array(
+                    'choice'   => 'notice',
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body, [data-mode="dark"]',
+                    'property' => '--et_notice-bg-color',
+                ),
+                array(
+                    'choice'   => 'info',
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body, [data-mode="dark"]',
+                    'property' => '--et_info-bg-color',
+                ),
+                array(
+                    'choice'   => 'error',
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body, [data-mode="dark"]',
+                    'property' => '--et_error-bg-color',
+                ),
+            ),
+        ),
+
+        'notices_color' => array(
+            'name'      => 'notices_color',
+            'type'      => 'multicolor',
+            'settings'  => 'notices_color',
+            'label'     => esc_html__( 'Alerts color', 'xstore' ),
+            'section'   => 'style',
+            'choices'   => array(
+                'notice' => esc_html__( 'Success', 'xstore' ),
+                'info'   => esc_html__( 'Info', 'xstore' ),
+                'error'   => esc_html__( 'Error', 'xstore' ),
+            ),
+            'default'   => array(
+                'notice' => '',
+                'info'   => '',
+                'error'   => '',
+            ),
+            'transport' => 'auto',
+            'output'    => array(
+                array(
+                    'choice'   => 'notice',
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body, [data-mode="dark"]',
+                    'property' => '--et_notice-color',
+                ),
+                array(
+                    'choice'   => 'info',
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body, [data-mode="dark"]',
+                    'property' => '--et_info-color',
+                ),
+                array(
+                    'choice'   => 'error',
+                    'context'  => array( 'editor', 'front' ),
+                    'element'  => 'body, [data-mode="dark"]',
+                    'property' => '--et_error-color',
+                ),
+            ),
+        ),
+
+		'separator_of_light_btn' => array(
+			'name'     => 'separator_of_light_btn',
+			'type'     => 'custom',
+			'settings' => 'separator_of_light_btn',
+			'section'  => 'style',
+			'default'  => '<div style="' . $light_sep_style . '">' . esc_html__( 'Light buttons', 'xstore' ) . '</div>',
+		),
+		
+		'light_buttons_fonts' => array(
+			'name'      => 'light_buttons_fonts',
+			'type'      => 'typography',
+			'settings'  => 'light_buttons_fonts',
+			'section'   => 'style',
+			'default'   => array(
+				'font-family'    => '',
+				'variant'        => '',
+				'font-size'      => '',
+				'line-height'    => '',
 				// 'letter-spacing' => '',
 				// 'color'          => '#555',
 				'text-transform' => '',
 			),
-			'transport'   => 'auto',
-			'output'      => array(
+			'transport' => 'auto',
+			'output'    => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context' => array( 'editor', 'front' ),
 					'element' => $light_buttons['regular'],
 				),
 			),
 		),
-
-		'light_buttons_bg'	=>	 array(
-			'name'		  => 'light_buttons_bg',
-			'type'        => 'multicolor',
-			'settings'    => 'light_buttons_bg',
-			'label'       => esc_html__( 'Light buttons background', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'light_buttons_bg' => array(
+			'name'      => 'light_buttons_bg',
+			'type'      => 'multicolor',
+			'settings'  => 'light_buttons_bg',
+			'label'     => esc_html__( 'Light buttons background', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bg-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bg-color-hover',
 				),
 			),
 		),
-
-		'light_buttons_color'	=>	 array(
-			'name'		  => 'light_buttons_color',
-			'type'        => 'multicolor',
-			'settings'    => 'light_buttons_color',
-			'label'       => esc_html__( 'Buttons text color', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'light_buttons_color' => array(
+			'name'      => 'light_buttons_color',
+			'type'      => 'multicolor',
+			'settings'  => 'light_buttons_color',
+			'label'     => esc_html__( 'Buttons text color', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-color-hover',
 				),
 			),
 		),
-
-		'light_buttons_border_color'	=>	 array(
+		
+		'light_buttons_border_color' => array(
 			'name'        => 'light_buttons_border_color',
 			'type'        => 'multicolor',
 			'settings'    => 'light_buttons_border_color',
@@ -326,31 +476,31 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'description' => esc_html__( 'Controls the light buttons border color', 'xstore' ),
 			'section'     => 'style',
 			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
 			'default'     => array(
-				'regular'    => '',
+				'regular' => '',
 				'hover'   => '',
 			),
-			'transport' => 'auto',
-			'output'    => array(
+			'transport'   => 'auto',
+			'output'      => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-br-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-br-color-hover',
 				),
 			),
 		),
-
-		'light_buttons_border_width'	=>	 array(
+		
+		'light_buttons_border_width' => array(
 			'name'        => 'light_buttons_border_width',
 			'type'        => 'dimensions',
 			'settings'    => 'light_buttons_border_width',
@@ -361,79 +511,79 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'light_buttons_border_radius'	=>	 array(
-			'name'        => 'light_buttons_border_radius',
-			'type'        => 'dimensions',
-			'settings'    => 'light_buttons_border_radius',
-			'label'    => esc_html__('Light buttons border radius', 'xstore'),
-			'section'     => 'style',
-			'default'     => $border_radius,
-			'choices'     => array(
+		
+		'light_buttons_border_radius' => array(
+			'name'      => 'light_buttons_border_radius',
+			'type'      => 'dimensions',
+			'settings'  => 'light_buttons_border_radius',
+			'label'     => esc_html__( 'Light buttons border radius', 'xstore' ),
+			'section'   => 'style',
+			'default'   => $border_radius,
+			'choices'   => array(
 				'labels' => $border_radius_labels,
 			),
 			'transport' => 'auto',
-			'output'      => array(
+			'output'    => array(
 				array(
-					'choice'      => 'border-top-left-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-top-left-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
-					'property'    => 'border-top-left-radius',
-			      	// 'suffix' => '!important'
+					'property' => 'border-top-left-radius',
+					// 'suffix' => '!important'
 				),
 				array(
-					'choice'      => 'border-top-right-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-top-right-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
-					'property'    => 'border-top-right-radius',
-			      	// 'suffix' => '!important'
+					'property' => 'border-top-right-radius',
+					// 'suffix' => '!important'
 				),
 				array(
-					'choice'      => 'border-bottom-right-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-bottom-right-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
-					'property'    => 'border-bottom-right-radius',
-			      	// 'suffix' => '!important'
+					'property' => 'border-bottom-right-radius',
+					// 'suffix' => '!important'
 				),
 				array(
-					'choice'      => 'border-bottom-left-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-bottom-left-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['regular'],
-					'property'    => 'border-bottom-left-radius',
-			      	// 'suffix' => '!important'
+					'property' => 'border-bottom-left-radius',
+					// 'suffix' => '!important'
 				),
 			),
 		),
-
-		'light_buttons_border_width_hover'	=>	 array(
+		
+		'light_buttons_border_width_hover' => array(
 			'name'        => 'light_buttons_border_width_hover',
 			'type'        => 'dimensions',
 			'settings'    => 'light_buttons_border_width_hover',
@@ -444,36 +594,36 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['hover'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['hover'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['hover'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['hover'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'light_buttons_border_style'	=>	 array(
+		
+		'light_buttons_border_style' => array(
 			'name'        => 'light_buttons_border_style',
 			'type'        => 'select',
 			'settings'    => 'light_buttons_border_style',
@@ -482,17 +632,17 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'none',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => $light_buttons['regular'],
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $light_buttons['regular'],
 					'property' => 'border-style'
 				),
 			),
 		),
-
-		'light_buttons_border_style_hover'	=>	array(
+		
+		'light_buttons_border_style_hover' => array(
 			'name'        => 'light_buttons_border_style_hover',
 			'type'        => 'select',
 			'settings'    => 'light_buttons_border_style_hover',
@@ -501,31 +651,31 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'none',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $light_buttons['hover'],
 					'property' => 'border-style'
 				),
 			),
 		),
-
-		'separator_sep_bordered'	=>	 array(
-			'name'        => 'separator_sep_bordered',
-			'type'        => 'custom',
-			'settings'    => 'separator_sep_bordered',
-			'section'     => 'style',
-			'default'     => '<div style="'.$bordered_sep_style.'">' . esc_html__( 'Bordered buttons', 'xstore' ) . '</div>',
-
+		
+		'separator_sep_bordered' => array(
+			'name'     => 'separator_sep_bordered',
+			'type'     => 'custom',
+			'settings' => 'separator_sep_bordered',
+			'section'  => 'style',
+			'default'  => '<div style="' . $bordered_sep_style . '">' . esc_html__( 'Bordered buttons', 'xstore' ) . '</div>',
+		
 		),
-
-		'bordered_buttons_fonts'	=>	 array(
-			'name'        => 'bordered_buttons_fonts',
-			'type'        => 'typography',
-			'settings'    => 'bordered_buttons_fonts',
-			'section'     => 'style',
-			'default'     => array(
+		
+		'bordered_buttons_fonts' => array(
+			'name'      => 'bordered_buttons_fonts',
+			'type'      => 'typography',
+			'settings'  => 'bordered_buttons_fonts',
+			'section'   => 'style',
+			'default'   => array(
 				'font-family'    => '',
 				'variant'        => '',
 				'font-size'      => '',
@@ -534,78 +684,78 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 				// 'color'          => '#555',
 				'text-transform' => '',
 			),
-			'transport'   => 'auto',
-			'output'      => array(
+			'transport' => 'auto',
+			'output'    => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context' => array( 'editor', 'front' ),
 					'element' => $bordered_buttons['regular'],
 				),
 			),
 		),
-
-		'bordered_buttons_bg'	=>	 array(
-			'name'        => 'bordered_buttons_bg',
-			'type'        => 'multicolor',
-			'settings'    => 'bordered_buttons_bg',
-			'label'       => esc_html__( 'Bordered buttons background', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'bordered_buttons_bg' => array(
+			'name'      => 'bordered_buttons_bg',
+			'type'      => 'multicolor',
+			'settings'  => 'bordered_buttons_bg',
+			'label'     => esc_html__( 'Bordered buttons background', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bordered-bg-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bordered-bg-color-hover',
 				),
 			),
 		),
-
-		'bordered_buttons_color'	=>	 array(
-			'name'        => 'bordered_buttons_color',
-			'type'        => 'multicolor',
-			'settings'    => 'bordered_buttons_color',
-			'label'       => esc_html__( 'Buttons text color', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'bordered_buttons_color' => array(
+			'name'      => 'bordered_buttons_color',
+			'type'      => 'multicolor',
+			'settings'  => 'bordered_buttons_color',
+			'label'     => esc_html__( 'Buttons text color', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bordered-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bordered-color-hover',
 				),
 			),
 		),
-
-		'bordered_buttons_border_color'	=>	 array(
+		
+		'bordered_buttons_border_color' => array(
 			'name'        => 'bordered_buttons_border_color',
 			'type'        => 'multicolor',
 			'settings'    => 'bordered_buttons_border_color',
@@ -613,31 +763,31 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'description' => esc_html__( 'Controls the bordered buttons border color', 'xstore' ),
 			'section'     => 'style',
 			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
 			'default'     => array(
-				'regular'    => '',
+				'regular' => '',
 				'hover'   => '',
 			),
-			'transport' => 'auto',
-			'output'    => array(
+			'transport'   => 'auto',
+			'output'      => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bordered-br-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-bordered-br-color-hover',
 				),
 			),
 		),
-
-		'bordered_buttons_border_width'	=>	 array(
+		
+		'bordered_buttons_border_width' => array(
 			'name'        => 'bordered_buttons_border_width',
 			'type'        => 'dimensions',
 			'settings'    => 'bordered_buttons_border_width',
@@ -645,87 +795,87 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'description' => esc_html__( 'Controls the bordered buttons border width', 'xstore' ),
 			'section'     => 'style',
 			'default'     => array(
-				'border-top'  => '1px',
+				'border-top'    => '1px',
 				'border-right'  => '1px',
 				'border-bottom' => '1px',
-				'border-left' => '1px',
+				'border-left'   => '1px',
 			),
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'bordered_buttons_border_radius'	=>	 array(
-			'name'        => 'bordered_buttons_border_radius',
-			'type'        => 'dimensions',
-			'settings'    => 'bordered_buttons_border_radius',
-			'label'    => esc_html__('Bordered buttons border radius', 'xstore'),
-			'section'     => 'style',
-			'default'     => $border_radius,
-			'choices'     => array(
+		
+		'bordered_buttons_border_radius' => array(
+			'name'      => 'bordered_buttons_border_radius',
+			'type'      => 'dimensions',
+			'settings'  => 'bordered_buttons_border_radius',
+			'label'     => esc_html__( 'Bordered buttons border radius', 'xstore' ),
+			'section'   => 'style',
+			'default'   => $border_radius,
+			'choices'   => array(
 				'labels' => $border_radius_labels,
 			),
 			'transport' => 'auto',
-			'output'      => array(
+			'output'    => array(
 				array(
-					'choice'      => 'border-top-left-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-top-left-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
-					'property'    => 'border-top-left-radius',
+					'property' => 'border-top-left-radius',
 					// 'suffix' => '!important'
 				),
 				array(
-					'choice'      => 'border-top-right-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-top-right-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
-					'property'    => 'border-top-right-radius',
+					'property' => 'border-top-right-radius',
 					// 'suffix' => '!important'
 				),
 				array(
-					'choice'      => 'border-bottom-right-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-bottom-right-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
-					'property'    => 'border-bottom-right-radius',
+					'property' => 'border-bottom-right-radius',
 					// 'suffix' => '!important'
 				),
 				array(
-					'choice'      => 'border-bottom-left-radius',
-					'context'   => array('editor', 'front'),
+					'choice'   => 'border-bottom-left-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['regular'],
-					'property'    => 'border-bottom-left-radius',
+					'property' => 'border-bottom-left-radius',
 					// 'suffix' => '!important'
 				),
 			),
 		),
-
-		'bordered_buttons_border_width_hover'	=>	 array(
+		
+		'bordered_buttons_border_width_hover' => array(
 			'name'        => 'bordered_buttons_border_width_hover',
 			'type'        => 'dimensions',
 			'settings'    => 'bordered_buttons_border_width_hover',
@@ -733,44 +883,44 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'description' => esc_html__( 'Controls the bordered buttons border width on hover', 'xstore' ),
 			'section'     => 'style',
 			'default'     => array(
-				'border-top'  => '1px',
+				'border-top'    => '1px',
 				'border-right'  => '1px',
 				'border-bottom' => '1px',
-				'border-left' => '1px',
+				'border-left'   => '1px',
 			),
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['hover'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['hover'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['hover'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $bordered_buttons['hover'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'bordered_buttons_border_style'	=>	 array(
+		
+		'bordered_buttons_border_style' => array(
 			'name'        => 'bordered_buttons_border_style',
 			'type'        => 'select',
 			'settings'    => 'bordered_buttons_border_style',
@@ -779,30 +929,30 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'solid',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => $bordered_buttons['regular'],
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $bordered_buttons['regular'],
 					'property' => 'border-style'
 				),
 			),
 		),
-
-		'separator_dark_sep'	=>	 array(
-			'name'        => 'separator_dark_sep',
-			'type'        => 'custom',
-			'settings'    => 'separator_dark_sep',
-			'section'     => 'style',
-			'default'     => '<div style="'.$dark_sep_style.'">' . esc_html__( 'Dark buttons', 'xstore' ) . '</div>',
+		
+		'separator_dark_sep' => array(
+			'name'     => 'separator_dark_sep',
+			'type'     => 'custom',
+			'settings' => 'separator_dark_sep',
+			'section'  => 'style',
+			'default'  => '<div style="' . $dark_sep_style . '">' . esc_html__( 'Dark buttons', 'xstore' ) . '</div>',
 		),
-
-		'dark_buttons_fonts'	=>	 array(
-			'name'        => 'dark_buttons_fonts',
-			'type'        => 'typography',
-			'settings'    => 'dark_buttons_fonts',
-			'section'     => 'style',
-			'default'     => array(
+		
+		'dark_buttons_fonts' => array(
+			'name'      => 'dark_buttons_fonts',
+			'type'      => 'typography',
+			'settings'  => 'dark_buttons_fonts',
+			'section'   => 'style',
+			'default'   => array(
 				'font-family'    => '',
 				'variant'        => '',
 				'font-size'      => '',
@@ -811,79 +961,79 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 				// 'color'          => '#555',
 				'text-transform' => '',
 			),
-			'transport'   => 'auto',
-			'output'      => array(
+			'transport' => 'auto',
+			'output'    => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context' => array( 'editor', 'front' ),
 					'element' => $dark_buttons['regular'],
 				),
 			),
 		),
-
-		'dark_buttons_bg'	=>	 array(
-			'name'        => 'dark_buttons_bg',
-			'type'        => 'multicolor',
-			'settings'    => 'dark_buttons_bg',
-			'label'       => esc_html__( 'Dark buttons background', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'dark_buttons_bg' => array(
+			'name'      => 'dark_buttons_bg',
+			'type'      => 'multicolor',
+			'settings'  => 'dark_buttons_bg',
+			'label'     => esc_html__( 'Dark buttons background', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-dark-bg-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-dark-bg-color-hover',
 				),
 			),
 		),
-
-		'dark_buttons_color'	=>	 array(
-			'name'        => 'dark_buttons_color',
-			'type'        => 'multicolor',
-			'settings'    => 'dark_buttons_color',
-			'label'       => esc_html__( 'Buttons text color', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'dark_buttons_color' => array(
+			'name'      => 'dark_buttons_color',
+			'type'      => 'multicolor',
+			'settings'  => 'dark_buttons_color',
+			'label'     => esc_html__( 'Buttons text color', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-dark-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-dark-color-hover',
 				),
 			),
-
+		
 		),
-
-		'dark_buttons_border_color'	=>	 array(
+		
+		'dark_buttons_border_color' => array(
 			'name'        => 'dark_buttons_border_color',
 			'type'        => 'multicolor',
 			'settings'    => 'dark_buttons_border_color',
@@ -891,31 +1041,31 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'description' => esc_html__( 'Controls the dark buttons border color', 'xstore' ),
 			'section'     => 'style',
 			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
 			'default'     => array(
-				'regular'    => '',
+				'regular' => '',
 				'hover'   => '',
 			),
-			'transport' => 'auto',
-			'output'    => array(
+			'transport'   => 'auto',
+			'output'      => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-dark-br-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-dark-br-color-hover',
 				),
 			),
 		),
-
-		'dark_buttons_border_width'	=>	 array(
+		
+		'dark_buttons_border_width' => array(
 			'name'        => 'dark_buttons_border_width',
 			'type'        => 'dimensions',
 			'settings'    => 'dark_buttons_border_width',
@@ -926,75 +1076,75 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['regular'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['regular'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['regular'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['regular'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'dark_buttons_border_radius'	=>	 array(
-			'name'        => 'dark_buttons_border_radius',
-			'type'        => 'dimensions',
-			'settings'    => 'dark_buttons_border_radius',
-			'label'    => esc_html__('Dark buttons border radius', 'xstore'),
-			'section'     => 'style',
-			'default'     => $border_radius,
-			'choices'     => array(
+		
+		'dark_buttons_border_radius' => array(
+			'name'      => 'dark_buttons_border_radius',
+			'type'      => 'dimensions',
+			'settings'  => 'dark_buttons_border_radius',
+			'label'     => esc_html__( 'Dark buttons border radius', 'xstore' ),
+			'section'   => 'style',
+			'default'   => $border_radius,
+			'choices'   => array(
 				'labels' => $border_radius_labels,
 			),
 			'transport' => 'auto',
-			'output'      => array(
+			'output'    => array(
 				array(
-			      	'choice'      => 'border-top-left-radius',
-			      	'context'   => array('editor', 'front'),
-			      	'element'  => $dark_buttons['regular'],
-			      	'property'    => 'border-top-left-radius',
-			    ),
-			    array(
-			      	'choice'      => 'border-top-right-radius',
-			      	'context'   => array('editor', 'front'),
-			      	'element'  => $dark_buttons['regular'],
-			      	'property'    => 'border-top-right-radius',
-			    ),
-			    array(
-			      	'choice'      => 'border-bottom-right-radius',
-			      	'context'   => array('editor', 'front'),
-			      	'element'  => $dark_buttons['regular'],
-			      	'property'    => 'border-bottom-right-radius',
-			    ),
-			    array(
-			      	'choice'      => 'border-bottom-left-radius',
-			      	'context'   => array('editor', 'front'),
+					'choice'   => 'border-top-left-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['regular'],
-			      	'property'    => 'border-bottom-left-radius',
-			    ),
+					'property' => 'border-top-left-radius',
+				),
+				array(
+					'choice'   => 'border-top-right-radius',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $dark_buttons['regular'],
+					'property' => 'border-top-right-radius',
+				),
+				array(
+					'choice'   => 'border-bottom-right-radius',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $dark_buttons['regular'],
+					'property' => 'border-bottom-right-radius',
+				),
+				array(
+					'choice'   => 'border-bottom-left-radius',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $dark_buttons['regular'],
+					'property' => 'border-bottom-left-radius',
+				),
 			),
 		),
-
-		'dark_buttons_border_width_hover'	=>	 array(
+		
+		'dark_buttons_border_width_hover' => array(
 			'name'        => 'dark_buttons_border_width_hover',
 			'type'        => 'dimensions',
 			'settings'    => 'dark_buttons_border_width_hover',
@@ -1005,36 +1155,36 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['hover'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['hover'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['hover'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['hover'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'dark_buttons_border_style'	=>	 array(
+		
+		'dark_buttons_border_style' => array(
 			'name'        => 'dark_buttons_border_style',
 			'type'        => 'select',
 			'settings'    => 'dark_buttons_border_style',
@@ -1043,17 +1193,17 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'none',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => $dark_buttons['regular'],
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $dark_buttons['regular'],
 					'property' => 'border-style'
 				),
 			),
 		),
-
-		'dark_buttons_border_style_hover'	=>	 array(
+		
+		'dark_buttons_border_style_hover' => array(
 			'name'        => 'dark_buttons_border_style_hover',
 			'type'        => 'select',
 			'settings'    => 'dark_buttons_border_style_hover',
@@ -1062,30 +1212,30 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'none',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $dark_buttons['hover'],
 					'property' => 'border-style'
 				),
 			),
 		),
-
-		'separator_active_sep'	=>	 array(
-			'name'        => 'separator_active_sep',
-			'type'        => 'custom',
-			'settings'    => 'separator_active_sep',
-			'section'     => 'style',
-			'default'     => '<div style="'.$active_sep_style.'">' . esc_html__( 'Active buttons', 'xstore' ) . '</div>',
+		
+		'separator_active_sep' => array(
+			'name'     => 'separator_active_sep',
+			'type'     => 'custom',
+			'settings' => 'separator_active_sep',
+			'section'  => 'style',
+			'default'  => '<div style="' . $active_sep_style . '">' . esc_html__( 'Active buttons', 'xstore' ) . '</div>',
 		),
-
-		'active_buttons_fonts'	=>	 array(
-			'name'        => 'active_buttons_fonts',
-			'type'        => 'typography',
-			'settings'    => 'active_buttons_fonts',
-			'section'     => 'style',
-			'default'     => array(
+		
+		'active_buttons_fonts' => array(
+			'name'      => 'active_buttons_fonts',
+			'type'      => 'typography',
+			'settings'  => 'active_buttons_fonts',
+			'section'   => 'style',
+			'default'   => array(
 				'font-family'    => '',
 				'variant'        => '',
 				'font-size'      => '',
@@ -1094,78 +1244,78 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 				// 'color'          => '#555',
 				'text-transform' => '',
 			),
-			'transport'   => 'auto',
-			'output'      => array(
+			'transport' => 'auto',
+			'output'    => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context' => array( 'editor', 'front' ),
 					'element' => $active_buttons['regular'],
 				),
 			),
 		),
-
-		'active_buttons_bg'	=>	 array(
-			'name'        => 'active_buttons_bg',
-			'type'        => 'multicolor',
-			'settings'    => 'active_buttons_bg',
-			'label'       => esc_html__( 'Active buttons background', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'active_buttons_bg' => array(
+			'name'      => 'active_buttons_bg',
+			'type'      => 'multicolor',
+			'settings'  => 'active_buttons_bg',
+			'label'     => esc_html__( 'Active buttons background', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-active-bg-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-active-bg-color-hover',
 				),
 			),
 		),
-
-		'active_buttons_color'	=>	 array(
-			'name'        => 'active_buttons_color',
-			'type'        => 'multicolor',
-			'settings'    => 'active_buttons_color',
-			'label'       => esc_html__( 'Buttons text color', 'xstore' ),
-			'section'     => 'style',
-			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+		
+		'active_buttons_color' => array(
+			'name'      => 'active_buttons_color',
+			'type'      => 'multicolor',
+			'settings'  => 'active_buttons_color',
+			'label'     => esc_html__( 'Buttons text color', 'xstore' ),
+			'section'   => 'style',
+			'choices'   => array(
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
-			'default'     => array(
-				'regular'    => '',
+			'default'   => array(
+				'regular' => '',
 				'hover'   => '',
 			),
 			'transport' => 'auto',
 			'output'    => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-active-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-active-color-hover',
 				),
 			),
 		),
-
-		'active_buttons_border_color'	=>	 array(
+		
+		'active_buttons_border_color' => array(
 			'name'        => 'active_buttons_border_color',
 			'type'        => 'multicolor',
 			'settings'    => 'active_buttons_border_color',
@@ -1173,31 +1323,31 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'description' => esc_html__( 'Controls the Active buttons border color', 'xstore' ),
 			'section'     => 'style',
 			'choices'     => array(
-				'regular'    => esc_html__( 'Regular', 'xstore' ),
+				'regular' => esc_html__( 'Regular', 'xstore' ),
 				'hover'   => esc_html__( 'Hover', 'xstore' ),
 			),
 			'default'     => array(
-				'regular'    => '',
+				'regular' => '',
 				'hover'   => '',
 			),
-			'transport' => 'auto',
-			'output'    => array(
+			'transport'   => 'auto',
+			'output'      => array(
 				array(
-					'choice'    => 'regular',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'regular',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-active-br-color',
 				),
 				array(
-					'choice'    => 'hover',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'hover',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_btn-active-br-color-hover',
 				),
 			)
 		),
-
-		'active_buttons_border_width'	=>	 array(
+		
+		'active_buttons_border_width' => array(
 			'name'        => 'active_buttons_border_width',
 			'type'        => 'dimensions',
 			'settings'    => 'active_buttons_border_width',
@@ -1208,75 +1358,75 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'postMessage',
+			'transport'   => 'postMessage',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['regular'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['regular'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['regular'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['regular'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'active_buttons_border_radius'	=>	 array(
-			'name'        => 'active_buttons_border_radius',
-			'type'        => 'dimensions',
-			'settings'    => 'active_buttons_border_radius',
-			'label'    => esc_html__('Active buttons border radius', 'xstore'),
-			'section'     => 'style',
-			'default'     => $border_radius,
-			'choices'     => array(
+		
+		'active_buttons_border_radius' => array(
+			'name'      => 'active_buttons_border_radius',
+			'type'      => 'dimensions',
+			'settings'  => 'active_buttons_border_radius',
+			'label'     => esc_html__( 'Active buttons border radius', 'xstore' ),
+			'section'   => 'style',
+			'default'   => $border_radius,
+			'choices'   => array(
 				'labels' => $border_radius_labels,
 			),
 			'transport' => 'auto',
-			'output'      => array(
+			'output'    => array(
 				array(
-			      	'choice'      => 'border-top-left-radius',
-			      	'context'   => array('editor', 'front'),
-			      	'element'  => $active_buttons['regular'],
-			      	'property'    => 'border-top-left-radius',
-			    ),
-			    array(
-			      	'choice'      => 'border-top-right-radius',
-			      	'context'   => array('editor', 'front'),
-			      	'element'  => $active_buttons['regular'],
-			      	'property'    => 'border-top-right-radius',
-			    ),
-			    array(
-			      	'choice'      => 'border-bottom-right-radius',
-			      	'context'   => array('editor', 'front'),
-			      	'element'  => $active_buttons['regular'],
-			      	'property'    => 'border-bottom-right-radius',
-			    ),
-			    array(
-			      	'choice'      => 'border-bottom-left-radius',
-			      	'context'   => array('editor', 'front'),
+					'choice'   => 'border-top-left-radius',
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['regular'],
-			      	'property'    => 'border-bottom-left-radius',
-			    ),
+					'property' => 'border-top-left-radius',
+				),
+				array(
+					'choice'   => 'border-top-right-radius',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $active_buttons['regular'],
+					'property' => 'border-top-right-radius',
+				),
+				array(
+					'choice'   => 'border-bottom-right-radius',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $active_buttons['regular'],
+					'property' => 'border-bottom-right-radius',
+				),
+				array(
+					'choice'   => 'border-bottom-left-radius',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $active_buttons['regular'],
+					'property' => 'border-bottom-left-radius',
+				),
 			),
 		),
-
-		'active_buttons_border_width_hover'	=>	 array(
+		
+		'active_buttons_border_width_hover' => array(
 			'name'        => 'active_buttons_border_width_hover',
 			'type'        => 'dimensions',
 			'settings'    => 'active_buttons_border_width_hover',
@@ -1287,36 +1437,36 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'choices'     => array(
 				'labels' => $border_labels,
 			),
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
 					'choice'   => 'border-top',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['hover'],
 					'property' => 'border-top-width'
 				),
 				array(
 					'choice'   => 'border-bottom',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['hover'],
 					'property' => 'border-bottom-width'
 				),
 				array(
 					'choice'   => 'border-left',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['hover'],
 					'property' => 'border-left-width'
 				),
 				array(
 					'choice'   => 'border-right',
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['hover'],
 					'property' => 'border-right-width'
 				),
 			),
 		),
-
-		'active_buttons_border_style'	=>	 array(
+		
+		'active_buttons_border_style' => array(
 			'name'        => 'active_buttons_border_style',
 			'type'        => 'select',
 			'settings'    => 'active_buttons_border_style',
@@ -1325,17 +1475,17 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'none',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => $active_buttons['regular'],
+					'context'  => array( 'editor', 'front' ),
+					'element'  => $active_buttons['regular'],
 					'property' => 'border-style'
 				),
 			),
 		),
 		
-		'active_buttons_border_style_hover'	=>	 array(
+		'active_buttons_border_style_hover' => array(
 			'name'        => 'active_buttons_border_style_hover',
 			'type'        => 'select',
 			'settings'    => 'active_buttons_border_style_hover',
@@ -1344,19 +1494,19 @@ add_filter( $hook, function ( $fields )  use($light_sep_style,$light_buttons,$bo
 			'section'     => 'style',
 			'default'     => 'none',
 			'choices'     => $border_styles,
-			'transport' => 'auto',
+			'transport'   => 'auto',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
+					'context'  => array( 'editor', 'front' ),
 					'element'  => $active_buttons['hover'],
 					'property' => 'border-style'
 				),
 			),
 		),
-
+	
 	);
-
-
+	
+	
 	return array_merge( $fields, $args );
-
-});
+	
+} );

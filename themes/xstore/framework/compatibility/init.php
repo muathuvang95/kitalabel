@@ -38,11 +38,18 @@ if ( class_exists( 'bbPress' ) ) {
 }
 
 /*
-* WCMarketplace compatibilities
+* WCMarketplace compatibilities (MVX - since 4.0 renamed) 
 * ******************************************************************* */
-if ( class_exists('WCMp') ) {
+if ( class_exists('WCMp') || class_exists('MVX') ) {
 	require_once( apply_filters( 'etheme_file_url', ETHEME_CODE . 'compatibility/wcmp.php' ) );
 }
+
+/*
+* WCFM Marketplace compatibility
+* ******************************************************************* */
+//if ( class_exists( 'WCFMmp' ) ) {
+	require_once( apply_filters( 'etheme_file_url', ETHEME_CODE . 'compatibility/wcfmmp.php' ) );
+//}
 
 /*
 * Yoast compatibilities
@@ -57,3 +64,5 @@ if ( defined('WPSEO_VERSION') ) {
 if ( defined('WPML_TM_VERSION') && defined('WPML_ST_VERSION') ) {
 	require_once( apply_filters( 'etheme_file_url', ETHEME_CODE . 'compatibility/wpml.php' ) );
 }
+
+require_once( apply_filters( 'etheme_file_url', ETHEME_CODE . 'compatibility/gutenberg.php' ) );

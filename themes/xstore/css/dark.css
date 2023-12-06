@@ -12,6 +12,11 @@
   --et_btn-bg-color: #555;
   --et_btn-bordered-color: #fff;
   --et_notice-bg-color: #1f1f1f;
+  --et_info-bg-color: #1f1f1f;
+  --et_error-bg-color: #1f1f1f;
+  --et_notice-color: #fff;
+  --et_info-color: #fff;
+  --et_error-color: #fff;
   --et_dark-2-white-0: rgba(255, 255, 255, 0);
   --et_dark-2-white-01: rgba(255, 255, 255, 0.1);
   --et_dark-2-white-02: rgba(255, 255, 255, 0.2);
@@ -25,6 +30,7 @@
   --et_white-2-dark-09: rgba(0, 0, 0, 0.9);
   --et_dark-2-light-dark: #1f1f1f;
   --et_white-2-light-dark: #1f1f1f;
+  --et_light-color: #1f1f1f;
   --et_btn-dark-bg-color: #555;
   --et_btn-dark-br-color: #555;
   --et_loader-br-color: #555;

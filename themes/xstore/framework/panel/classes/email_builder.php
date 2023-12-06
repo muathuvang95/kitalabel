@@ -18,6 +18,12 @@ class Email_builder{
 		update_option( 'etheme_built_in_email_builder', $_POST['value']);
 		die();
 	}
+	
+	public function et_email_builder_switch_dev_mode_default(){
+		$_POST['value'] = $_POST['value'] == 'false' ? false : true;
+		update_option( 'etheme_built_in_email_builder_dev_mode', $_POST['value'], false);
+		die();
+	}
 }
 
 new Email_builder();

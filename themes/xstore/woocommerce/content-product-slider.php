@@ -26,7 +26,9 @@ if ( ! $product || ! $product->is_visible()) {
 	return;
 }
 
-if ( defined( 'DOING_AJAX' ) && DOING_AJAX || !get_query_var('et_is-woocommerce-archive', false) ) {
+$doing_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
+if ( $doing_ajax || !get_query_var('et_is-woocommerce-archive', false) ) {
+	$variable_price_from = etheme_get_option('product_variable_price_from', false);
 	$hover = etheme_get_option('product_img_hover', 'slider');
 	$view = etheme_get_option('product_view', 'disable');
 	$view_color = etheme_get_option('product_view_color', 'white');
@@ -37,13 +39,36 @@ if ( defined( 'DOING_AJAX' ) && DOING_AJAX || !get_query_var('et_is-woocommerce-
 	$product_settings = etheme_get_option('product_page_switchers', array('product_page_productname', 'product_page_cats', 'product_page_price','product_page_addtocart', 'product_page_productrating', 'hide_buttons_mobile'));
 	$product_settings = !is_array( $product_settings ) ? array() : $product_settings;
     $product_new_label_range = etheme_get_option('product_new_label_range', 0);
+	$product_featured_label = etheme_get_option('featured_label', false);
     $product_title_limit_type = etheme_get_option('product_title_limit_type', 'chars');
 	$product_title_limit = etheme_get_option('product_title_limit', 0);
 	$product_has_quantity = etheme_get_option('product_page_smart_addtocart', 0);
 	$view_mode = etheme_get_view_mode();
 	$show_quick_view = etheme_get_option('quick_view', 1);
+	$advanced_stock = etheme_get_option('advanced_stock_status', false) && in_array('product_archives', (array)etheme_get_option( 'advanced_stock_locations', array('single_product', 'quick_view') )) && 'yes' === get_option( 'woocommerce_manage_stock' );
+
+	// force filter built-in wishlist on ajax actions
+    if (  get_theme_mod('xstore_wishlist', false) && class_exists('\XStoreCore\Modules\WooCommerce\XStore_Wishlist')) {
+        $xstore_wishlist_instance = \XStoreCore\Modules\WooCommerce\XStore_Wishlist::get_instance();
+        if ( !$xstore_wishlist_instance::$inited || $doing_ajax ) {
+            $xstore_wishlist_instance->init_added_products();
+            $xstore_wishlist_instance->define_settings();
+        }
+        add_filter('etheme_wishlist_btn_output', array($xstore_wishlist_instance, 'old_wishlist_btn_filter'), 10, 2);
+    }
+
+    // force filter built-in compare on ajax actions
+    if ( !isset($woocommerce_loop['popup-added-to-cart']) && get_theme_mod('xstore_compare', false) && class_exists('\XStoreCore\Modules\WooCommerce\XStore_Compare')) {
+        $xstore_compare_instance = \XStoreCore\Modules\WooCommerce\XStore_Compare::get_instance();
+        if ( !$xstore_compare_instance::$inited || $doing_ajax ) {
+            $xstore_compare_instance->init_added_products();
+            $xstore_compare_instance->define_settings();
+            add_action('woocommerce_after_shop_loop_item', array($xstore_compare_instance, 'old_compare_btn_filter'), 20);
+        }
+    }
 }
 else {
+	$variable_price_from = get_query_var('et_product-variable-price-from', false);
 	$hover = get_query_var('et_product-hover', 'slider');
 	$view = get_query_var('et_product-view', 'disable');
 	$view_color = get_query_var('et_product-view-color', 'white');
@@ -53,25 +78,27 @@ else {
 	$excerpt_length = get_query_var('et_product-excerpt-length', 120);
 	$product_settings = get_query_var('et_product-switchers', array());
     $product_new_label_range = get_query_var('et_product-new-label-range', 0);
+	$product_featured_label = get_query_var('et_product-featured-label', false);
     $product_title_limit_type = get_query_var('et_product-title-limit-type', 'chars');
 	$product_title_limit = get_query_var('et_product-title-limit', 0);
 	$product_has_quantity = get_query_var('et_product-with-quantity', 0);
 	$view_mode = get_query_var('et_view-mode', 'grid');
-	
 	$show_quick_view = get_query_var('et_is-quick-view', false);
+	$advanced_stock = get_query_var('et_product-advanced-stock', false) && in_array('product_archives', (array) get_query_var('et_product-advanced-stock-locations', array('single_product'))) && 'yes' === get_option( 'woocommerce_manage_stock' );
 }
 
 
-if ( get_theme_mod('product_variable_price_from', false)) {
+if ( $variable_price_from ) {
 	add_filter( 'woocommerce_format_price_range', function ( $price, $from, $to ) {
 		return sprintf( '%s %s', esc_html__( 'From:', 'xstore' ), wc_price( $from ) );
 	}, 10, 3 );
 }
 
-$size            = 'shop_catalog';
-$show_stock      = false;
+$size            = 'woocommerce_thumbnail';
+$show_stock      = !!$advanced_stock;
 $show_counter = false;
 $with_new_label = false;
+$with_hot_label = false;
 $product_type = is_object($product) ? $product->get_type() : '';
 $product_id = $product->get_ID();
 
@@ -88,11 +115,16 @@ if ( isset( $woocommerce_loop['product_content_elements'] ) ) {
 }
 
 if ( $product_new_label_range > 0 ) {
-    $date_modified = $product->get_date_modified();
-    $postdate        = get_the_modified_date( 'Y-m-d', $product->get_id() );
+    $postdate        = apply_filters('product_new_label_on_date_created', false) ?
+        get_the_date( 'Y-m-d', $product->get_id() ) :
+        get_the_modified_date( 'Y-m-d', $product->get_id() );
     $post_date_stamp = strtotime( $postdate );
 
     $with_new_label = ( time() - ( 60 * 60 * 24 * $product_new_label_range ) ) < $post_date_stamp;
+}
+
+if ( $product_featured_label ) {
+	$with_hot_label = $product->is_featured();
 }
 
 if ( isset($woocommerce_loop['product_add_to_cart_quantity']) ) {
@@ -203,7 +235,12 @@ if ( $view != 'custom' || !$custom_template ) {
     $classes[] = 'product-hover-' . $hover;
     $classes[] = 'product-view-' . $view;
     $classes[] = 'view-color-' . $view_color;
-    if ( $hover == 'slider' ) $classes[] = 'arrows-hovered';
+    if ( in_array($hover, array('slider', 'carousel')) ) $classes[] = 'arrows-hovered';
+}
+
+if ($hover == 'carousel') {
+    // include scripts/style in case we are on grid but could switch to list with ajax and make automatic hover work too
+    wp_enqueue_script( 'et_product_hover_slider');
 }
 
 $product_title = unicode_chars(get_the_title());
@@ -237,7 +274,7 @@ $with_quantity = false;
 if (
 	$product_has_quantity
 	&& in_array('product_page_addtocart', $product_settings)
-	&& in_array( $view, array('default', 'mask3', 'mask', 'mask2', 'overlay') )
+	&& (in_array( $view, array('default', 'mask3', 'mask', 'mask2', 'overlay') ) || isset($woocommerce_loop['popup-added-to-cart']))
 	&& in_array($product_type, $product_type_quantity_types)
 	&& !$just_catalog
 	&& $product->is_in_stock()
@@ -257,7 +294,7 @@ add_filter( 'single_product_archive_thumbnail_size', function($old_size) use ($s
 	return $size;
 } );
 
-$hover = ($hover == 'swap' && get_query_var('is_mobile', false)) ? 'none' : $hover;
+$hover = (in_array($hover, array('swap', 'back-zoom-in', 'back-zoom-out', 'zoom-in')) && get_query_var('is_mobile', false)) ? 'none' : $hover;
 
 if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get_option( 'ltv_price', esc_html__( 'Login to view price', 'xstore' ) ) == '' ){
 	remove_action( 'woocommerce_after_shop_loop_item_title', 'woocommerce_template_loop_price', 10 );
@@ -315,6 +352,14 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
                         </div>
                         <?php
                     }
+	
+                    if ( $with_hot_label ) {
+                        ?>
+                        <div class="sale-wrapper">
+                            <span class="onsale left hot-label"><?php echo esc_html__('Hot', 'xstore'); ?></span>
+                        </div>
+                        <?php
+                    }
                     
                     ?>
 
@@ -338,8 +383,8 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
                         if ( $view != 'booking' ):
                             etheme_product_availability();
                         endif;
-                        if ( $hover == 'slider' ) echo '<div class="images-slider-wrapper">'; ?>
-                        <a class="product-content-image" href="<?php echo esc_url($product_link); ?>" data-images="<?php echo etheme_get_image_list( $size ); ?>">
+                        if ( in_array($hover, array('slider', 'carousel')) ) echo '<div class="images-slider-wrapper">'; ?>
+                        <a class="product-content-image" href="<?php echo esc_url($product_link); ?>" data-images="<?php echo ( 'slider' == $hover ) ? etheme_get_image_list( $size ) : ''; ?>">
 	                        <?php  if ( $view_mode == 'list' || $view == 'booking' ) {
 		                        if ($view == 'booking') {
 			                        remove_action( 'woocommerce_before_shop_loop_item', 'woocommerce_template_loop_product_link_open', 10 );
@@ -347,7 +392,7 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
 		                        do_action( 'woocommerce_before_shop_loop_item' );
 	                        } ?>
 	                        <?php if ( $view == 'booking' ) etheme_product_availability(); ?>
-                            <?php if( $hover == 'swap' ) etheme_get_second_image( $size ); ?>
+                            <?php if( in_array($hover, array('swap', 'back-zoom-in', 'back-zoom-out')) ) etheme_get_second_image( $size ); ?>
 	
 	                        <?php
 	                        /**
@@ -356,11 +401,37 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
 	                         * @hooked woocommerce_show_product_loop_sale_flash - 10
 	                         * @hooked woocommerce_template_loop_product_thumbnail - 10
 	                         */
-	                        do_action( 'woocommerce_before_shop_loop_item_title' );
+                            // set required attributes for hover effect
+                            if ('carousel' == $hover) {
+                                $carousel_images = etheme_get_image_list($size, false);
+                                add_filter('wp_get_attachment_image_attributes', function ($attr, $attachment, $size) use ($carousel_images) {
+                                    if ($carousel_images) {
+                                        $attr['data-hover-slides'] = str_replace(';', ',', $carousel_images);
+                                        $attr['data-options'] = '{"touch": "end", "preloadImages": true }';
+                                        if ( isset($attr['class']))
+                                            $attr['class'] .= ' main-hover-slider-img';
+                                        else
+                                            $attr['class'] = 'main-hover-slider-img';
+                                    }
+                                    return $attr;
+                                }, 5, 3);
+                            }
+                            do_action( 'woocommerce_before_shop_loop_item_title' );
+                            // reset required attributes for hover effect
+                            if ('carousel' == $hover) {
+                                add_filter('wp_get_attachment_image_attributes', function ($attr, $attachment, $size) {
+                                    if (isset($attr['data-hover-slides']))
+                                        unset($attr['data-hover-slides']);
+                                    if (isset($attr['data-options']))
+                                        unset($attr['data-options']);
+                                    $attr['class'] = str_replace('main-hover-slider-img', '', $attr['class']);
+                                    return $attr;
+                                }, 5, 3);
+                            }
 	                        ?>
                             
                         </a>
-                        <?php if ( $hover == 'slider' ) echo '</div>'; ?>
+                        <?php if ( in_array($hover, array('slider', 'carousel')) ) echo '</div>'; ?>
 
                         <?php if ( $view == 'booking' && in_array('product_page_productname', $product_settings)): ?>
                             <h2 class="product-title">
@@ -409,9 +480,13 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
                             } ?>
                         <?php endif ?>
 
-                        <?php if ( in_array($view, array('mask', 'mask2', 'mask3', 'default', 'info') ) ): ?>
+                        <?php if ( in_array($view, array('mask', 'mask2', 'mask3', 'default', 'info') ) ):
+                            $built_in_compare = get_theme_mod('xstore_compare', false) && class_exists('\XStoreCore\Modules\WooCommerce\XStore_Compare');
+                            $built_in_compare_instance = $built_in_compare ? XStoreCore\Modules\WooCommerce\XStore_Compare::get_instance() : ''; ?>
                             <footer class="footer-product">
-                                <?php if ( $view == 'mask3' ):
+                                <?php if ($built_in_compare)
+                                    add_filter('xstore_compare_product_settings', array($built_in_compare_instance, 'compare_btn_only_icon'), 999, 2);
+                                if ( $view == 'mask3' ):
                                     echo etheme_wishlist_btn();
                                 else:
                                     if ($show_quick_view): ?>
@@ -432,7 +507,13 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
                                     <?php endif ?>
                                 <?php elseif ($view != 'default'): ?>
                                     <?php echo etheme_wishlist_btn(); ?>
-                                <?php endif; ?>
+                                <?php endif;
+                                 if ($built_in_compare)
+                                    remove_filter('xstore_compare_product_settings', array($built_in_compare_instance, 'compare_btn_only_icon'), 999, 2);
+
+                                 unset($built_in_compare);
+                                 unset($built_in_compare_instance);
+                                 ?>
                             </footer>
                         <?php endif ?>
                     </div>
@@ -532,7 +613,7 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
                             echo et_product_stock_line($product);
                         }
                     
-                    if ( $show_counter ) etheme_product_countdown();
+                    if ( $show_counter ) etheme_product_countdown('type2', false);
                     
                     if ( $view_mode == 'grid' && $show_excerpt ): ?>
                         <div class="product-excerpt">
@@ -549,7 +630,7 @@ if ( $just_catalog && etheme_get_option( 'just_catalog_price', 0 ) && etheme_get
                         if ( ! in_array( $view, array( 'mask', 'mask3', 'light', 'overlay' ) ) ) {
                             do_action( 'woocommerce_after_shop_loop_item' );
                         }
-                        if ( $with_quantity && ! ($product_type == 'variable' && etheme_get_option( 'swatch_layout_shop', 'before' ) == 'popup') ) {
+                        if ( $with_quantity && ! ($product_type == 'variable' && etheme_get_option( 'swatch_layout_shop', 'default' ) == 'popup') ) {
                             echo '<div class="quantity-wrapper">';
                             woocommerce_quantity_input( array(), $product, true );
                             woocommerce_template_loop_add_to_cart();

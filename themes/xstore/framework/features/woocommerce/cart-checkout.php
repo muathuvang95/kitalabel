@@ -9,6 +9,10 @@
  * @license    Themeforest Split Licence
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 class Etheme_WooCommerce_Cart_Checkout {
 	
@@ -48,34 +52,36 @@ class Etheme_WooCommerce_Cart_Checkout {
 	}
 	
 	public function disable_advanced_layout_actions() {
-		$actions_list = array(
-			array(
-				'action' => 'etheme_vertical_header',
-				'hook' => 'etheme_header',
-				'priority' => 1
-			),
-			array(
-				'action' => 'etheme_header_top',
-				'hook' => 'etheme_header',
-				'priority' => 10
-			),
-			array(
-				'action' => 'etheme_header_main',
-				'hook' => 'etheme_header',
-				'priority' => 20
-			),
-			array(
-				'action' => 'etheme_header_bottom',
-				'hook' => 'etheme_header',
-				'priority' => 30
-			),
-			array(
-				'action' => 'etheme_header_banner',
-				'hook' => 'etheme_header',
-				'priority' => 2
-			),
+		$actions_list = array();
+		if ( !get_query_var('et_cart-checkout-header-builder', false) ) {
+		    $actions_list = array(
+			    array(
+				    'action' => 'etheme_vertical_header',
+				    'hook' => 'etheme_header',
+				    'priority' => 1
+			    ),
+			    array(
+				    'action' => 'etheme_header_top',
+				    'hook' => 'etheme_header',
+				    'priority' => 10
+			    ),
+			    array(
+				    'action' => 'etheme_header_main',
+				    'hook' => 'etheme_header',
+				    'priority' => 20
+			    ),
+			    array(
+				    'action' => 'etheme_header_bottom',
+				    'hook' => 'etheme_header',
+				    'priority' => 30
+			    ),
+			    array(
+				    'action' => 'etheme_header_banner',
+				    'hook' => 'etheme_header',
+				    'priority' => 2
+			    ),
 			
-			// mobile header
+			    // mobile header
 //			array(
 //				'action' => 'etheme_header_top',
 //				'hook' => 'etheme_header_mobile',
@@ -96,14 +102,20 @@ class Etheme_WooCommerce_Cart_Checkout {
 //				'hook' => 'etheme_header_mobile',
 //				'priority' => 40
 //			),
-			
+       
+			    array(
+				    'actions' => true,
+				    'hook' => 'etheme_header_mobile',
+			    ),
+            );
+        }
+		$actions_list = array_merge($actions_list, array(
 			// remove specific breadcrumbs and sales booster countdown
 			array(
 				'action' => 'et_cart_checkout_breadcrumbs',
 				'hook' => 'etheme_page_heading',
 				'priority' => 20
 			),
-			
 			array(
 				'action' => 'etheme_mobile_panel',
 				'hook' => 'after_page_wrapper',
@@ -134,21 +146,21 @@ class Etheme_WooCommerce_Cart_Checkout {
 				'action' => 'etheme_bordered_layout',
 				'hook' => 'et_after_body',
 			),
-			
-			array(
-				'actions' => true,
-				'hook' => 'etheme_header_mobile',
-			),
-			array(
-				'actions' => true,
-				'hook' => 'etheme_prefooter',
-			),
-			array(
-				'actions' => true,
-				'hook' => 'etheme_footer',
-			),
-			
-		);
+   
+		));
+		
+		if ( !get_query_var('et_cart-checkout-default-footer', false) ) {
+			$actions_list = array_merge( $actions_list, array(
+				array(
+					'actions' => true,
+					'hook'    => 'etheme_prefooter',
+				),
+				array(
+					'actions' => true,
+					'hook'    => 'etheme_footer',
+				),
+			) );
+		}
 		
 		if ( get_query_var('et_cart-checkout-layout', 'default') != 'default') {
 			$actions_list[] = array(
@@ -187,35 +199,118 @@ class Etheme_WooCommerce_Cart_Checkout {
 		}
 	}
 	
+	public function header_steps($no_wrapper = false) {
+		$check_pages = $this->check_page();
+		$classes = array(
+			'cart' => '',
+			'checkout' => '',
+			'order' => 'no-click'
+		);
+		
+		if ( $check_pages['is_order'] ) {
+			$classes['cart'] = $classes['checkout'] = $classes['order'] = 'active';
+		}
+        elseif ( $check_pages['is_checkout'] ) {
+			$classes['cart'] = $classes['checkout'] = 'active';
+			$classes['checkout'] .= ' no-click';
+		}
+        elseif ( $check_pages['is_cart'] ) {
+			$classes['cart'] = 'active no-click';
+		}
+		
+		$cart_url = wc_get_cart_url();
+		$checkout_url = wc_get_checkout_url();
+		$arrow = '<span class="et-icon et-'.(get_query_var('et_is-rtl', false) ? 'left' : 'right').'-arrow"></span>';
+		
+		$no_wrapper = !!$no_wrapper;
+		
+		if ( !$no_wrapper )
+		    echo '<div class="cart-checkout-nav'.(( get_query_var('et_cart-checkout-layout', 'default') != 'default' ) ? '-simple': '').'">';
+		
+		if ( $check_pages['is_order'] ) :
+			echo '<a class="active"><i class="et-icon et_b-icon et-checked"></i><span>' . esc_html__('Your order has been received', 'xstore') . '</span></a>';
+        elseif ( get_query_var('et_cart-checkout-layout', 'default') == 'default' ) :
+			echo '<a href="'. $cart_url .'" class="' . esc_attr($classes['cart']) . '" data-step="1"> ' . esc_html__('Shopping cart', 'xstore') . '</a>' . $arrow;
+			
+			echo '<a href="' . $checkout_url . '" class="'. esc_attr($classes['checkout']) . '" data-step="2"> ' . esc_html__('Checkout', 'xstore') . '</a>' . $arrow;
+			
+			echo '<a href="#" class="'. esc_attr($classes['order']) . '" data-step="3">'. esc_html__('Order status', 'xstore') . '</a>';
+		else :
+			
+			echo '<a href="'. $cart_url .'" class="' . ($check_pages['is_cart'] ? 'active' : '') . '" data-step="shopping-cart"> ' . esc_html__('Shopping cart', 'xstore') . '</a>' . $arrow;
+			
+			echo '<a href="' . $checkout_url . '" class="' . ($check_pages['is_billing'] ? 'active' : '') . '" '.($check_pages['is_checkout'] ? 'data-step="billing"' : '') . '> ' . esc_html__('Billing details', 'xstore') . '</a>' . $arrow;
+			
+			if ( WC()->cart->needs_shipping() )
+				echo '<a href="' . add_query_arg('step', 'shipping', $checkout_url) . '" class="' . ($check_pages['is_shipping'] ? 'active' : '') . '"' . ($check_pages['is_checkout'] ? 'data-step="shipping"' : '') . '> ' . esc_html__('Shipping', 'xstore') . '</a>' . $arrow;
+			
+			echo '<a href="' . add_query_arg('step', 'payment', $checkout_url) . '" class="' . ($check_pages['is_payment'] ? 'active' : '') . '"' . ($check_pages['is_checkout'] ? 'data-step="payment"' : '') . '> ' . esc_html__('Payment', 'xstore') . '</a>' . $arrow;
+			
+			echo '<a href="#" class="'. esc_attr($classes['order']) . '" data-step="order">'. esc_html__('Order status', 'xstore') . '</a>';
+		
+		endif;
+		
+		if ( !$no_wrapper )
+		    echo '</div>';
+    }
+	
+	public function update_progress_bar() {
+	    ob_start();
+		    $this->sales_booster_progress_bar();
+		wp_send_json(ob_get_clean());
+	}
+	
 	public function enable_advanced_layout_actions() {
-		add_action('etheme_header_start', function () {
-			$sticky_header = get_theme_mod( 'cart_checkout_main_header_sticky_et-desktop', '1' ) && get_query_var('et_cart-checkout-layout', 'default') != 'separated';
-			add_filter('theme_mod_top_header_sticky_et-mobile', '__return_false');
-			add_filter('theme_mod_main_header_sticky_et-mobile', function($value) use ($sticky_header) {
-				return $sticky_header;
-			});
-			add_filter('theme_mod_bottom_header_sticky_et-mobile', '__return_false');
+		
+	    if ( !get_query_var('et_cart-checkout-header-builder', false) ) {
+            add_filter('theme_mod_header_overlap_et-desktop', '__return_false');
+            add_filter('theme_mod_header_overlap_et-mobile', '__return_false');
+		    add_action( 'etheme_header_start', function () {
+			    $sticky_header = get_theme_mod( 'cart_checkout_main_header_sticky_et-desktop', '1' ) && get_query_var( 'et_cart-checkout-layout', 'default' ) != 'separated';
+			    add_filter( 'theme_mod_top_header_sticky_et-mobile', '__return_false' );
+			    add_filter( 'theme_mod_main_header_sticky_et-mobile', function ( $value ) use ( $sticky_header ) {
+				    return $sticky_header;
+			    } );
+			    add_filter( 'theme_mod_bottom_header_sticky_et-mobile', '__return_false' );
 			
-			add_filter('theme_mod_top_header_sticky_et-desktop', '__return_false');
-			add_filter('theme_mod_main_header_sticky_et-desktop', function($value) use ($sticky_header) {
-				return $sticky_header;
-			});
-			add_filter('theme_mod_bottom_header_sticky_et-desktop', '__return_false');
+			    add_filter( 'theme_mod_top_header_sticky_et-desktop', '__return_false' );
+			    add_filter( 'theme_mod_main_header_sticky_et-desktop', function ( $value ) use ( $sticky_header ) {
+				    return $sticky_header;
+			    } );
+			    add_filter( 'theme_mod_bottom_header_sticky_et-desktop', '__return_false' );
 			
-			add_filter('theme_mod_header_sticky_type_et-desktop', function () {
-				return 'sticky';
-			});
-		}, 3);
-		if ( get_query_var('et_cart-checkout-layout', 'default') != 'separated' || $this->check_page()['is_order']) {
+			    add_filter( 'theme_mod_header_sticky_type_et-desktop', function () {
+				    return 'sticky';
+			    } );
+		    }, 3 );
+		    if ( get_query_var( 'et_cart-checkout-layout', 'default' ) != 'separated' || $this->check_page()['is_order'] ) {
 //			etheme_woocommerce_above_checkout_form
-			add_action('etheme_header', array($this, 'etheme_cart_checkout_header_content'), 10 );
+			    add_action( 'etheme_header', array( $this, 'etheme_cart_checkout_header_content' ), 10 );
+		    } else {
+			    add_action( 'etheme_woocommerce_above_checkout_form', array(
+				    $this,
+				    'etheme_cart_checkout_header_content_separated'
+			    ), - 10 );
+			    // cart page use-case
+			    add_action( 'etheme_woocommerce_before_cart_form', array(
+				    $this,
+				    'etheme_cart_checkout_header_content_separated'
+			    ), - 10 );
+		    }
+	    }
+	    else {
+		    add_action( 'etheme_woocommerce_above_checkout_form', array(
+			    $this,
+			    'header_steps'
+		    ), - 10 );
+		    add_action( 'etheme_woocommerce_before_cart_form', array(
+			    $this,
+			    'header_steps'
+		    ), - 10 );
         }
-		else {
-			add_action('etheme_woocommerce_above_checkout_form', array($this, 'etheme_cart_checkout_header_content_separated'), -10 );
-			// cart page use-case
-			add_action('etheme_woocommerce_before_cart_form', array($this, 'etheme_cart_checkout_header_content_separated'), -10 );
-        }
-		add_action( 'etheme_footer', array($this, 'etheme_cart_checkout_footer_content'), 10 );
+		if ( !get_query_var('et_cart-checkout-default-footer', false) ) {
+			add_action( 'etheme_footer', array( $this, 'etheme_cart_checkout_footer_content' ), 10 );
+		}
 		set_query_var('et_page-banner', false);
 		set_query_var('et_breadcrumbs', false);
 		
@@ -224,6 +319,15 @@ class Etheme_WooCommerce_Cart_Checkout {
 			add_action('etheme_woocommerce_above_checkout_form', array($this, 'sales_booster_countdown_output'), 2);
 //			add_action('woocommerce_checkout_before_customer_details', array($this, 'sales_booster_countdown_output'), 2);
 		}
+
+		if ( get_theme_mod('cart_checkout_advanced_email_first', false) ) {
+            add_filter('woocommerce_billing_fields', function($fields) {
+                if ( isset($fields['billing_email'])) {
+                    $fields['billing_email']['priority'] = 10;
+                }
+                return $fields;
+            });
+        }
 		
 		if ( get_theme_mod('cart_checkout_advanced_form_label', false) ) {
 		    add_filter('woocommerce_default_address_fields', function ($fields) {
@@ -401,7 +505,7 @@ class Etheme_WooCommerce_Cart_Checkout {
 //	            $step_title = esc_html__('Place order', 'xstore');
 //            break;
 //	    }
-	    echo '<a class="etheme-checkout-footer-step button btn black" data-step="'.$step.'"><span>' . $steps_titles[$active_step] . '</span><i class="et-icon et-' . ( get_query_var( 'et_is-rtl', false ) ? 'left' : 'right' ) . '-arrow-2"></i></a>';
+	    echo '<a class="etheme-checkout-footer-step button btn black medium" data-step="'.$step.'"><span>' . $steps_titles[$active_step] . '</span><i class="et-icon et-' . ( get_query_var( 'et_is-rtl', false ) ? 'left' : 'right' ) . '-arrow-2"></i></a>';
 	}
 	
 	public function cart_totals_shipping_html($return = false) { ob_start(); ?>
@@ -496,10 +600,11 @@ class Etheme_WooCommerce_Cart_Checkout {
 				'american-express',
 				'master-card',
 				'paypal',
+                'maestro',
 				'visa'
 			) as $icon) : ?>
                 &nbsp;
-                <img src="<?php echo ETHEME_BASE_URI.'images/woocommerce/payment-icons/'.$icon.'.png'; ?>">
+                <img src="<?php echo ETHEME_BASE_URI.'images/woocommerce/payment-icons/'.$icon.'.jpeg'; ?>" alt="<?php echo esc_attr($icon); ?>" style="max-width: 45px; border: 1px solid var(--et_border-color); border-radius: 4px;">
                 &nbsp;
 			<?php endforeach; ?>
             <br/><br/>
@@ -600,7 +705,7 @@ class Etheme_WooCommerce_Cart_Checkout {
 	public function sales_booster_progress_bar() {
 		
 		// in case it was on different hood added where not refreshing by woocomerce ajax
-		// wp_enqueue_script( 'cart_progress_bar');
+        // wp_enqueue_script( 'cart_progress_bar');
 		
 		$element_options = array();
 		$element_options['xstore_sales_booster_settings'] = (array)get_option( 'xstore_sales_booster_settings', array() );
@@ -639,6 +744,8 @@ class Etheme_WooCommerce_Cart_Checkout {
 		} else {
 			$amount = WC()->cart->cart_contents_total + WC()->cart->tax_total;
 		}
+
+        $amount += WC()->cart->get_discount_total();
 		
 		$element_options['cart_options']['price_diff'] = $element_options['cart_options']['booster_progress_price'] - $amount;
 		$element_options['cart_options']['price_diff'] = $element_options['cart_options']['price_diff'] > 0 ? $element_options['cart_options']['price_diff'] : 0;
@@ -650,30 +757,29 @@ class Etheme_WooCommerce_Cart_Checkout {
 			$finished = true;
 		?>
 		<div class="et-cart-progress flex justify-content-start align-items-center" data-percent-sold="<?php if ( $finished ) : echo '100'; else: echo (int)number_format($percent_sold, 3); endif; ?>">
-                <span class="et-cart-in-progress">
-                    <?php
-                    $element_options['cart_options']['booster_progress_content'] = '<span>' . str_replace(array('{{et_price}}'), array($element_options['cart_options']['cart_progress_bar_content']), $element_options['cart_options']['booster_progress_content']) . '</span>';
-                    if ( $element_options['cart_options']['booster_progress_icon'] != 'none') {
-	                    if ( $element_options['cart_options']['booster_progress_icon_position'] == 'before')
-		                    $element_options['cart_options']['booster_progress_content'] = '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_icon']).'"></span>'. $element_options['cart_options']['booster_progress_content'];
-	                    else
-		                    $element_options['cart_options']['booster_progress_content'] .= '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_icon']).'"></span>';
-                    }
-                    echo $element_options['cart_options']['booster_progress_content'];
-                    ?>
-                </span>
-			<span class="et-cart-progress-success">
-                    <?php
-                    $element_options['cart_options']['booster_progress_content_success'] = '<span>'.$element_options['cart_options']['booster_progress_content_success'].'</span>';
-                    if ( $element_options['cart_options']['booster_progress_success_icon'] != 'none') {
-	                    if ( $element_options['cart_options']['booster_progress_success_icon_position'] == 'before')
-		                    $element_options['cart_options']['booster_progress_content_success'] = '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_success_icon']).'"></span>'. $element_options['cart_options']['booster_progress_content_success'];
-	                    else
-		                    $element_options['cart_options']['booster_progress_content_success'] .= '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_success_icon']).'"></span>';
-                    }
-                    echo $element_options['cart_options']['booster_progress_content_success'];
-                    ?>
-                </span>
+
+            <?php
+            $element_options['cart_options']['booster_progress_content'] = '<span>' . str_replace(array('{{et_price}}'), array($element_options['cart_options']['cart_progress_bar_content']), $element_options['cart_options']['booster_progress_content']) . '</span>';
+            if ( $element_options['cart_options']['booster_progress_icon'] != 'none') {
+                if ( $element_options['cart_options']['booster_progress_icon_position'] == 'before')
+                    $element_options['cart_options']['booster_progress_content'] = '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_icon']).'"></span>'. $element_options['cart_options']['booster_progress_content'];
+                else
+                    $element_options['cart_options']['booster_progress_content'] .= '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_icon']).'"></span>';
+            }
+            echo '<span class="et-cart-in-progress">' . $element_options['cart_options']['booster_progress_content'] . '</span>';
+            ?>
+
+            <?php
+            $element_options['cart_options']['booster_progress_content_success'] = '<span>'.$element_options['cart_options']['booster_progress_content_success'].'</span>';
+            if ( $element_options['cart_options']['booster_progress_success_icon'] != 'none') {
+                if ( $element_options['cart_options']['booster_progress_success_icon_position'] == 'before')
+                    $element_options['cart_options']['booster_progress_content_success'] = '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_success_icon']).'"></span>'. $element_options['cart_options']['booster_progress_content_success'];
+                else
+                    $element_options['cart_options']['booster_progress_content_success'] .= '<span class="et_b-icon et-icon '.str_replace('et_icon-', 'et-', $element_options['cart_options']['booster_progress_success_icon']).'"></span>';
+            }
+            echo '<span class="et-cart-progress-success">' . $element_options['cart_options']['booster_progress_content_success'] . '</span>';
+            ?>
+
 			<progress class="et_cart-progress-bar" max="100" value="<?php if ( $finished ) : echo '100'; else: echo (int)number_format($percent_sold, 3); endif; ?>"></progress>
 			<span class="hidden cart-widget-subtotal-ghost" data-amount="<?php echo esc_attr($amount); ?>"></span>
 		</div>

@@ -6,9 +6,9 @@
 add_action('wp', 'et_custom_query', 1);
 if ( ! function_exists( 'et_custom_query' ) ) {
 	function et_custom_query(){
-	    if ( is_admin() ) return;
-
-	    global $wp;
+		if ( is_admin() ) return;
+		
+		global $wp;
 		global $post;
 
 //		$old_options = get_option('et_options', array());
@@ -16,12 +16,12 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 		
 		$is_woocommerce = class_exists('WooCommerce');
 		set_query_var('et_is-woocommerce', $is_woocommerce);
-		
+		$etheme_single_product_builder = false;
+
 //		$id = $post_id['id'];
 		$id = ( $post && is_object($post) && $post->ID) ? $post->ID : 0;
 		$is_mobile_device = wp_is_mobile();
 		$is_customize_preview = is_customize_preview();
-		$etheme_single_product_builder = get_option( 'etheme_single_product_builder', false );
 		$fixed_footer = ( ( etheme_get_option('footer_fixed', 0) || etheme_get_custom_field('footer_fixed', $id) == 'yes' ) );
 		
 		set_query_var('et_fixed-footer', $fixed_footer);
@@ -34,26 +34,43 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 		
 		$custom = etheme_get_custom_field('post_template', $id);
 		
+		$is_logged_in = is_user_logged_in();
+		set_query_var( 'et_is-loggedin', $is_logged_in);
+		
 		if( ! empty( $custom ) ) {
 			$template = $custom;
 		}
 		
 		if ( $is_woocommerce ) {
+
+			$etheme_single_product_builder = get_option( 'etheme_single_product_builder', false );
+			
 			$grid_sidebar = etheme_get_option('grid_sidebar', 'left');
 			set_query_var('et_grid-sidebar', $grid_sidebar);
 			
 			// set catalog mode query
-            set_query_var('et_is-catalog', etheme_is_catalog());
+			set_query_var('et_is-catalog', etheme_is_catalog());
+			
+			if ( !$is_logged_in ) {
+				set_query_var( 'et_account-registration', 'yes' === get_option( 'woocommerce_enable_myaccount_registration', 'no' ) );
+				set_query_var( 'et_account-registration-generate-pass', 'yes' === get_option( 'woocommerce_registration_generate_password', 'yes' ) );
+			}
 			
 			set_query_var('et_is-swatches', etheme_get_option( 'enable_swatch', 1 ) && class_exists( 'St_Woo_Swatches_Base' ));
 			set_query_var('et_is-quick-view', etheme_get_option('quick_view', 1));
 			set_query_var('et_is-quick-view-type', etheme_get_option('quick_view_content_type', 'popup'));
 			
-            $is_product_cat = is_product_category();
-            
+			if ( etheme_get_option('advanced_stock_status', false) ) {
+				set_query_var( 'et_product-advanced-stock', true );
+//				set_query_var( 'et_product-archive-advanced-stock', etheme_get_option( 'advanced_stock_status_archive', false ) );
+				set_query_var( 'et_product-advanced-stock-locations', etheme_get_option( 'advanced_stock_locations', array('single_product', 'quick_view') ) );
+			}
+			
+			$is_product_cat = is_product_category();
+			
 			if  (is_shop() || $is_product_cat || is_product_tag() || is_product_taxonomy() || is_tax('brand') || is_post_type_archive( 'product' ) ||
-                 ( defined('WC_PRODUCT_VENDORS_TAXONOMY') && is_tax( WC_PRODUCT_VENDORS_TAXONOMY ) ) ||
-                 (function_exists('dokan_is_store_page') && dokan_is_store_page()) ||
+			     ( defined('WC_PRODUCT_VENDORS_TAXONOMY') && is_tax( WC_PRODUCT_VENDORS_TAXONOMY ) ) ||
+			     (function_exists('dokan_is_store_page') && dokan_is_store_page()) ||
 			     apply_filters('etheme_is_shop_page', false) ) {
 				$view_mode = etheme_get_view_mode();
 				set_query_var( 'et_view-mode', $view_mode );
@@ -71,7 +88,7 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				if ( etheme_get_option('filters_area_widgets_open_close', 0) ) {
 					set_query_var('et_widgets-open-close', true);
 					set_query_var('et_filters-area-widgets-open-close', true);
-                }
+				}
 				$filters_area_widgets_open_close_type = etheme_get_option('filters_area_widgets_open_close_type', 'open');
 				if ($filters_area_widgets_open_close_type == 'closed' || (($filters_area_widgets_open_close_type == 'closed_mobile') && $is_mobile_device) ) {
 					set_query_var('et_filters-area-widgets-open-close-default', true);
@@ -84,7 +101,8 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				if ( etheme_get_option('show_plus_filters',0) ) {
 					set_query_var('et_widgets-show-more', true);
 					set_query_var('et_widgets-show-more-after', etheme_get_option('show_plus_filter_after',3));
-                }
+					set_query_var('et_widgets-show-less', get_theme_mod('show_plus_less_filters', false));
+				}
 				
 				// set product options
 				$product_settings = etheme_get_option('product_page_switchers', array(
@@ -99,6 +117,8 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				set_query_var('et_product-variable-detach', etheme_get_option('variable_products_detach', false));
 				set_query_var('et_product-variable-name-attributes', etheme_get_option('variation_product_name_attributes', true));
 				
+				set_query_var('et_product-variable-price-from', etheme_get_option('product_variable_price_from', false));
+				
 				set_query_var('et_product-hover', etheme_get_option('product_img_hover', 'slider'));
 				set_query_var('et_product-view', etheme_get_option('product_view', 'disable'));
 				set_query_var('et_product-view-color', etheme_get_option('product_view_color', 'white'));
@@ -107,8 +127,10 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				set_query_var('et_product-excerpt-length', etheme_get_option('product_page_excerpt_length', 120));
 				set_query_var('et_product-switchers', $product_settings);
 				set_query_var('et_product-with-quantity', etheme_get_option('product_page_smart_addtocart', 0));
-
-                set_query_var('et_product-new-label-range', etheme_get_option('product_new_label_range', 0));
+				
+				set_query_var('et_product-new-label-range', etheme_get_option('product_new_label_range', 0));
+				set_query_var('et_product-featured-label', etheme_get_option('featured_label', false));
+				
 				set_query_var('et_product-title-limit-type', etheme_get_option('product_title_limit_type', 'chars'));
 				set_query_var('et_product-title-limit', etheme_get_option('product_title_limit', 0));
 				
@@ -141,8 +163,8 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 					set_query_var('et_cat-cols', $category_cols);
 				}
 			}
-			
-			elseif ( is_tax('brand') ) {
+
+            elseif ( is_tax('brand') ) {
 				$brand_sidebar = etheme_get_option('brand_sidebar', 'left');
 				set_query_var('et_cat-sidebar', $brand_sidebar);
 				if ( $view_mode_smart ) {
@@ -154,19 +176,21 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 					set_query_var('et_cat-cols', $brand_cols);
 				}
 			}
-			
-			elseif ( is_cart() ) {
+
+            elseif ( is_cart() ) {
 				set_query_var('et_is-cart', true);
 				if ( !WC()->cart->is_empty() )
-				    set_query_var('et_is-cart-checkout-advanced', get_theme_mod('cart_checkout_advanced_layout', false));
-            }
+					set_query_var('et_is-cart-checkout-advanced', get_theme_mod('cart_checkout_advanced_layout', false));
+			}
             elseif ( is_checkout() ) {
 				set_query_var('et_is-checkout', true);
-	            set_query_var('et_is-cart-checkout-advanced', get_theme_mod('cart_checkout_advanced_layout', false));
-            }
+				set_query_var('et_is-cart-checkout-advanced', get_theme_mod('cart_checkout_advanced_layout', false));
+			}
 			
 			if ( get_query_var('et_is-cart-checkout-advanced', false ) ) {
 				set_query_var( 'et_cart-checkout-layout', get_theme_mod( 'cart_checkout_layout_type', 'default' ) );
+				set_query_var( 'et_cart-checkout-header-builder', get_theme_mod( 'cart_checkout_header_builder', false ) );
+				set_query_var( 'et_cart-checkout-default-footer', get_theme_mod( 'cart_checkout_default_footer', false ) );
 				global $wp;
 				// Handle checkout actions.
 				if ( ! empty( $wp->query_vars['order-pay'] ) ) {
@@ -210,7 +234,7 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				if ( $slider_direction == 'vertical' ) {
 					$vertical_slider = true;
 				}
-				elseif($slider_direction == 'horizontal') {
+                elseif($slider_direction == 'horizontal') {
 					$vertical_slider = false;
 				}
 				
@@ -222,13 +246,13 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				if ( $slider_direction == 'disable' ) {
 					$show_thumbs = false;
 				}
-				elseif ( in_array($slider_direction, array('vertical', 'horizontal') ) ) {
+                elseif ( in_array($slider_direction, array('vertical', 'horizontal') ) ) {
 					$show_thumbs = true;
 				}
 				if ( $enable_slider == 'on' || ($enable_slider == 'on_mobile' && $is_mobile_device ) ) {
 					$gallery_slider = true;
 				}
-				elseif ( $enable_slider == 'off' || ($enable_slider == 'on_mobile' && !$is_mobile_device ) ) {
+                elseif ( $enable_slider == 'off' || ($enable_slider == 'on_mobile' && !$is_mobile_device ) ) {
 					$gallery_slider = false;
 					$show_thumbs = false;
 				}
@@ -277,7 +301,7 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 				$single_product_widget_area_1_widget_toggle_actions = etheme_get_option('single_product_widget_area_1_widget_toggle_actions_et-desktop', 'opened');
 				if ($single_product_widget_area_1_widget_toggle_actions == 'closed' || (($single_product_widget_area_1_widget_toggle_actions == 'mob_closed') && $is_mobile_device) ) {
 					set_query_var('et_sidebar-widgets-open-close-default', true);
-                }
+				}
 			}
 			
 			set_query_var('etheme_variable_products_detach', etheme_get_option('variable_products_detach', false));
@@ -285,6 +309,10 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 			set_query_var('etheme_variation_product_name_attributes', etheme_get_option('variation_product_name_attributes', true));
 			
 			// }
+            
+            if ( class_exists( 'SB_WooCommerce_Infinite_Scroll' ) || class_exists('SBWIS_WooCommerce_Infinite_Scroll') ) {
+	            set_query_var('et_sb_infinite_scroll', true);
+            }
 		}
 		
 		if ( etheme_get_option('portfolio_projects', 1) ) {
@@ -306,7 +334,7 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 		set_query_var('et_mobile-optimization', get_theme_mod('mobile_optimization', false) && !$is_customize_preview);
 		if ( get_query_var('et_is-cart-checkout-advanced', false ) ) {
 			set_query_var('et_mobile-optimization', false);
-        }
+		}
 		set_query_var( 'et_page-id', $post_id );
 		set_query_var( 'etheme_single_product_builder', $etheme_single_product_builder );
 		
@@ -335,7 +363,7 @@ if ( ! function_exists( 'et_custom_query' ) ) {
 			set_query_var('et_widgets-open-close', true);
 		}
 		
-        set_query_var('et_main-layout', etheme_get_option( 'main_layout' ));
+		set_query_var('et_main-layout', etheme_get_option( 'main_layout' ));
 		set_query_var('et_is-rtl', is_rtl());
 		set_query_var('et_is-single', is_single());
 	}
@@ -345,38 +373,13 @@ function etheme_child_styles() {
 	// files:
 	// parent-theme/style.css, parent-theme/bootstrap.css (parent-theme/xstore.css), secondary-menu.css, options-style.min.css, child-theme/style.css
 	$theme = wp_get_theme();
-	$depends = array();
-	
-	$generated_css_js = get_option('etheme_generated_css_js');
-	$generated_css = false;
-	
-	if ( isset($generated_css_js['css']['is_enabled']) && $generated_css_js['css']['is_enabled'] ){
-		if ( $generated_css_js['css']['is_enabled'] ){
-			if ( file_exists ($generated_css_js['css']['path']) ){
-				$generated_css = true;
-			}
-		}
-	}
-
-	// Temp disable generated_css remove after fix on server
-	$generated_css = false;
-	
-	if ($generated_css){
-		wp_enqueue_style("et-generated-css",$generated_css_js['css']['url'], array(), $theme->version);
-		wp_enqueue_style( 'child-style',
-			get_stylesheet_directory_uri() . '/style.css',
-			array('et-generated-css'),
-			$theme->version
-		);
-	} else {
 		
-		wp_enqueue_style( 'child-style',
-			get_stylesheet_directory_uri() . '/style.css',
+    wp_enqueue_style( 'child-style',
+        get_stylesheet_directory_uri() . '/style.css',
 //			array('parent-style', 'bootstrap'),
-			array( 'etheme-parent-style' ),
-			$theme->version
-		);
-	}
+        array( 'etheme-parent-style' ),
+        $theme->version
+    );
 }
 
 // **********************************************************************//
@@ -458,10 +461,10 @@ if(!function_exists('etheme_add_body_classes')) {
 			$classes[] = 'breadcrumbs-type-' . get_query_var( 'et_breadcrumbs-type', 'none' );
 		}
 		$classes[] = get_query_var('et_main-layout', 'wide');
-        if ( get_query_var('et_is-cart', false) || get_query_var('et_is-checkout', false) ) {
-            if ( !get_query_var('et_is-cart-checkout-advanced', false) )
-	            $classes[] = ( etheme_get_option( 'cart_special_breadcrumbs', 1 ) ) ? 'special-cart-breadcrumbs' : '';
-        }
+		if ( get_query_var('et_is-cart', false) || get_query_var('et_is-checkout', false) ) {
+			if ( !get_query_var('et_is-cart-checkout-advanced', false) )
+				$classes[] = ( etheme_get_option( 'cart_special_breadcrumbs', 1 ) ) ? 'special-cart-breadcrumbs' : '';
+		}
 		$classes[] = (etheme_get_option('site_preloader', 0)) ? 'et-preloader-on' : 'et-preloader-off';
 		$classes[] = (get_query_var('et_is-catalog', false)) ? 'et-catalog-on' : 'et-catalog-off';
 		$classes[] = ( get_query_var('is_mobile', false) ) ? 'mobile-device' : '';
@@ -482,23 +485,29 @@ if(!function_exists('etheme_add_body_classes')) {
 		}
 		
 		if ( get_query_var('et_is-woocommerce', false)) {
-            if (get_query_var('et_filters-area-widgets-open-close', false)) {
-                $classes[] = 'fa_widgets-open-close';
-                if (get_query_var('et_filters-area-widgets-open-close-default', false)) {
-                    $classes[] = 'fawc-default';
-                }
-            }
-
-            if (get_query_var('is_single_product', false)) {
-                $classes[] = 'sticky-message-' . (etheme_get_option('sticky_added_to_cart_message', 1) ? 'on' : 'off');
-                if (!$etheme_single_product_builder) {
-                    $classes[] = 'global-product-name-' . (etheme_get_option('product_name_signle', 0) && !etheme_get_option('product_name_single_duplicated', 0) ? 'off' : 'on');
-                }
-            } elseif (get_query_var('et_is-cart-checkout-advanced', false)) { // keeps inside condition of is_cart || is_checkout
-                $classes[] = 'cart-checkout-advanced-layout';
-                $classes[] = 'cart-checkout-' . get_query_var( 'et_cart-checkout-layout', 'default' );
-            }
-        }
+			if (get_query_var('et_filters-area-widgets-open-close', false)) {
+				$classes[] = 'fa_widgets-open-close';
+				if (get_query_var('et_filters-area-widgets-open-close-default', false)) {
+					$classes[] = 'fawc-default';
+				}
+			}
+			
+			if (get_query_var('is_single_product', false)) {
+				$classes[] = 'sticky-message-' . (etheme_get_option('sticky_added_to_cart_message', 1) ? 'on' : 'off');
+				if (!$etheme_single_product_builder) {
+					$classes[] = 'global-product-name-' . (etheme_get_option('product_name_signle', 0) && !etheme_get_option('product_name_single_duplicated', 0) ? 'off' : 'on');
+				}
+			} elseif (get_query_var('et_is-cart-checkout-advanced', false)) { // keeps inside condition of is_cart || is_checkout
+				$classes[] = 'cart-checkout-advanced-layout';
+				$classes[] = 'cart-checkout-' . get_query_var( 'et_cart-checkout-layout', 'default' );
+				if ( !get_query_var('et_cart-checkout-header-builder', false) ) {
+					$classes[] = 'cart-checkout-light-header';
+				}
+				if ( !get_query_var('et_cart-checkout-default-footer', false) ) {
+					$classes[] = 'cart-checkout-light-footer';
+				}
+			}
+		}
 		
 		if ( did_action('etheme_load_all_departments_styles') ) {
 			// secondary
@@ -523,239 +532,11 @@ if(!function_exists('etheme_add_body_classes')) {
 			$classes[] = 'et-enable-swatch';
 		}
 		
-		if ( etheme_get_option( 'et_optimize_js', 0 ) ) {
+		if ( !etheme_get_option( 'disable_old_browsers_support', get_theme_mod('et_optimize_js', 0) ? false : true ) ) {
 			$classes[] = 'et-old-browser';
 		}
 		
 		return $classes;
-	}
-}
-
-// **********************************************************************//
-// ! Render custom styles
-// **********************************************************************//
-if ( !function_exists('et_custom_styles') ) {
-	function et_custom_styles () {
-		
-		$css = '';
-		
-		$fonts = get_option( 'etheme-fonts', false );
-		if ( $fonts ) {
-			foreach ( $fonts as $value ) {
-				// ! Validate format
-				switch ( $value['file']['extension'] ) {
-					case 'ttf':
-						$format = 'truetype';
-						break;
-					case 'otf':
-						$format = 'opentype';
-						break;
-//						case 'eot':
-//							$format = false;
-//							break;
-					case 'eot?#iefix':
-						$format = 'embedded-opentype';
-						break;
-					case 'woff2':
-						$format = 'woff2';
-						break;
-					case 'woff':
-						$format = 'woff';
-						break;
-					default:
-						$format = false;
-						break;
-				}
-				
-				$format = ( $format ) ? 'format("' . $format . '")' : '';
-				
-				$font_url = ( is_ssl() && (strpos($value['file']['url'], 'https') === false) ) ? str_replace('http', 'https', $value['file']['url']) : $value['file']['url'];
-				
-				// ! Set fonts
-				$css .= '
-						@font-face {
-							font-family: "' . $value['name'] . '";
-							src: url(' . $font_url . ') ' . $format . ';
-						}
-					';
-			}
-		}
-		
-		$sale_size = etheme_get_option('sale_icon_size', '');
-		$sale_size = explode( 'x', $sale_size );
-		
-		if ( ! isset( $sale_size[0] ) ) $sale_size[0] = 3.75;
-		if ( ! isset( $sale_size[1] ) ) $sale_size[1] = $sale_size[0];
-		
-		$sale_width = $sale_size[0];
-		$sale_height = $sale_size[1];
-		
-		if ( !empty($sale_width) || !empty($sale_height)) {
-			$css .= '.onsale{';
-			$css .= ( ! empty( $sale_width ) ) ? 'width:' . $sale_width . 'em;' : '';
-			$css .= ( ! empty( $sale_height ) ) ? 'height:' . $sale_height . 'em; line-height: 1.2;' : '';
-			$css .= '}';
-		}
-		
-		$active_buttons_bg = etheme_get_option('active_buttons_bg',
-			array(
-				'regular'    => '',
-				'hover'   => '',
-			)
-		);
-		
-		if ( is_array($active_buttons_bg) && isset($active_buttons_bg['hover']) && $active_buttons_bg['hover'] != '' ) {
-			$css .= '.btn-checkout:hover, .btn-view-wishlist:hover {
-				opacity: 1 !important;
-			}';
-		}
-		
-		if ( get_query_var('et_is-quick-view', false) && get_query_var('et_is-quick-view-type', 'popup') == 'popup') {
-			$q_dimentions = etheme_get_option('quick_dimentions',
-				array(
-					'width'  => '',
-					'height' => '',
-				)
-			);
-		    if ( !empty($q_dimentions['width']) || !empty($q_dimentions['height']) ) {
-			    $css .= '@media (min-width: 768px) {';
-			    $css .= '.quick-view-popup.et-quick-view-wrapper {';
-			    if ( ! empty( $q_dimentions['width'] ) ) {
-				    $css .= 'width: ' . $q_dimentions['width'] . ';';
-			    }
-			    if ( ! empty( $q_dimentions['height'] ) ) {
-				    $css .= 'height: ' . $q_dimentions['height'] . ';';
-			    }
-			
-			    $css .= '}';
-			
-			    if ( ! empty( $q_dimentions['height'] ) ) {
-				    $css .= '.quick-view-popup .product-content {';
-				    $css .= 'max-height:' . $q_dimentions['height'] . ';';
-				    $css .= '}';
-				    $css .= '.quick-view-layout-default img, .quick-view-layout-default iframe {';
-				    $css .= 'max-height:' . $q_dimentions['height'] . ';';
-				    $css .= 'margin: 0 auto !important;';
-				    $css .= '}';
-			    }
-			    $css .= '}';
-		    }
-		}
-		
-		// ! breadcrumb background
-		$bread_bg = etheme_get_option( 'breadcrumb_bg',
-			array(
-				'background-color'      => '',
-				'background-image'      => '',
-				'background-repeat'     => '',
-				'background-position'   => '',
-				'background-size'       => '',
-				'background-attachment' => '',
-			)
-		);
-		
-		if( ! empty( $bread_bg['background-image'] ) || ! empty( $bread_bg['background-color'] ) ){
-			$css .= '.page-heading {';
-			// set 0 margin if specific breadcrumbs on cart/checkout
-			if ( (get_query_var('et_is-cart', false) || get_query_var('et_is-checkout', false)) &&
-                ( etheme_get_option( 'cart_special_breadcrumbs', 1 ) || get_option('xstore_sales_booster_settings_cart_checkout_countdown') ) ) {
-				$css .= 'margin-bottom: 0px !important;';
-			}
-			else {
-				$css .= 'margin-bottom: 25px;';
-			}
-			$css .= '}';
-//            if ( (get_query_var('et_is-cart', false) || get_query_var('et_is-checkout', false) ) && !etheme_get_option( 'cart_special_breadcrumbs', 1 ) ) {
-//                $css .= '.page-heading ~ .sales-booster-cart-countdown {';
-//                $css .= 'margin-top: -25px;';
-//                $css .= '}';
-//            }
-		}
-		
-		$css = et_minify_css($css);
-		return $css;
-	}
-}
-
-if ( !function_exists('et_custom_styles_responsive') ) {
-	function et_custom_styles_responsive () {
-		$css = '';
-		$custom_css = etheme_get_option('custom_css_global', '');
-		$custom_css_desktop = etheme_get_option('custom_css_desktop', '');
-		$custom_css_tablet = etheme_get_option('custom_css_tablet', '');
-		$custom_css_wide_mobile = etheme_get_option('custom_css_wide_mobile', '');
-		$custom_css_mobile = etheme_get_option('custom_css_mobile', '');
-		if($custom_css != '') {
-			$css .= $custom_css;
-		}
-		if($custom_css_desktop != '') {
-			$css .= '@media (min-width: 993px) { ' . $custom_css_desktop . ' }';
-		}
-		if($custom_css_tablet != '') {
-			$css .= '@media (min-width: 768px) and (max-width: 992px) {' . $custom_css_tablet . ' }';
-		}
-		if($custom_css_wide_mobile != '') {
-			$css .= '@media (min-width: 481px) and (max-width: 767px) { ' . $custom_css_wide_mobile . ' }';
-		}
-		if($custom_css_mobile != '') {
-			$css .= '@media (max-width: 480px) { ' . $custom_css_mobile . ' }';
-		}
-		$css = et_minify_css($css);
-		return $css;
-	}
-}
-
-if ( !function_exists('et_minify_css') ) {
-	function et_minify_css ($css) {
-		// Normalize whitespace
-		$css = preg_replace( '/\s+/', ' ', $css );
-		
-		// Remove spaces before and after comment
-		$css = preg_replace( '/(\s+)(\/\*(.*?)\*\/)(\s+)/', '$2', $css );
-		// Remove comment blocks, everything between /* and */, unless
-		// preserved with /*! ... */ or /** ... */
-		$css = preg_replace( '~/\*(?![\!|\*])(.*?)\*/~', '', $css );
-		// Remove ; before }
-		$css = preg_replace( '/;(?=\s*})/', '', $css );
-		// Remove space after , : ; { } */ >
-		$css = preg_replace( '/(,|:|;|\{|}|\*\/|>) /', '$1', $css );
-		// Remove space before , ; { } ( ) >
-		$css = preg_replace( '/ (,|;|\{|}|>)/', '$1', $css );
-		// Strips leading 0 on decimal values (converts 0.5px into .5px)
-		$css = preg_replace( '/(:| )0\.([0-9]+)(%|em|ex|px|in|cm|mm|pt|pc)/i', '${1}.${2}${3}', $css );
-		// Strips units if value is 0 (converts 0px to 0)
-		$css = preg_replace( '/(:| )(\.?)0(%|em|ex|px|in|cm|mm|pt|pc)/i', '${1}0', $css );
-		// Converts all zeros value into short-hand
-		$css = preg_replace( '/0 0 0 0/', '0', $css );
-		// Shortern 6-character hex color codes to 3-character where possible
-		$css = preg_replace( '/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $css );
-		return trim( $css );
-		
-	}
-}
-
-// **********************************************************************//
-// ! Check woocommerce installed
-// **********************************************************************//
-if( ! function_exists('etheme_woocommerce_installed') ) {
-	function etheme_woocommerce_installed() {
-		return class_exists('WooCommerce');
-	}
-}
-
-// **********************************************************************//
-// ! WooCommerce active notice
-// **********************************************************************//
-// @todo could be in core
-if( ! function_exists('etheme_woocommerce_notice') ) {
-	function etheme_woocommerce_notice($notice = '') {
-		if ( ! class_exists('WooCommerce') ) {
-			if ( $notice == '' ) $notice = esc_html__( 'To use this element install or activate WooCommerce plugin', 'xstore' );
-			echo '<p class="woocommerce-warning">' . $notice . '</p>';
-			return true;
-		} else {
-			return false;
-		}
 	}
 }
 
@@ -773,37 +554,6 @@ if( ! function_exists('etheme_xstore_plugin_notice') ) {
 		}
 	}
 }
-
-// **********************************************************************//
-// ! Wp title
-// **********************************************************************//
-if(!function_exists('etheme_wp_title')) {
-	function etheme_wp_title($title, $sep ) {
-		global $paged, $page;
-		
-		if ( is_feed() ) {
-			return $title;
-		}
-		
-		// Add the site name.
-		$title .= get_bloginfo( 'name', 'display' );
-		
-		// Add the site description for the home/front page.
-		$site_description = get_bloginfo( 'description', 'display' );
-		if ( $site_description && ( is_home() || is_front_page() ) ) {
-			$title = "$title $sep $site_description";
-		}
-		
-		// Add a page number if necessary.
-		if ( ( $paged >= 2 || $page >= 2 ) && ! is_404() ) {
-			$title = "$title $sep " . sprintf( esc_html__( 'Page %s', 'xstore' ), max( $paged, $page ) );
-		}
-		
-		return $title;
-	}
-}
-
-add_filter( 'wp_title', 'etheme_wp_title', 10, 2 );
 
 // **********************************************************************//
 // ! Get column class bootstrap
@@ -842,7 +592,6 @@ if(!function_exists('etheme_custom_comment_form')) {
 			</p>
 		';
 		$defaults['comment_notes_after'] = '';
-		$dafaults['id_form'] = 'comments_form';
 		
 		$defaults['comment_field'] = '
 			<div class="form-group">
@@ -918,83 +667,8 @@ add_filter('widget_text', 'do_shortcode');
 add_action('pre_get_posts', 'etheme_search_all_sku_query');
 if (! function_exists('etheme_search_all_sku_query')) {
 	function etheme_search_all_sku_query($query){
-		//add_filter('posts_join', 'etheme_search_post_join');
 		add_filter('posts_where', 'etheme_search_post_excerpt');
 	}
-}
-
-function etheme_search_post_join($join = ''){
-	
-	global $wp_the_query, $wpdb;
-	
-	// default
-	$prefix = 'wp_';
-	if ( $wpdb->prefix ) {
-		// current site prefix
-		$prefix = $wpdb->prefix;
-	} elseif ( $wpdb->base_prefix ) {
-		// wp-config.php defined prefix
-		$prefix = $wpdb->base_prefix;
-	}
-	
-	// escape if not woocommerce search query
-	
-	if ( empty( $wp_the_query->query_vars['wc_query'] ) || empty( $wp_the_query->query_vars['s'] ) )
-		return $join;
-	
-	$join .= 'INNER JOIN '.$prefix.'postmeta AS jcmt1 ON ('.$prefix.'posts.ID = jcmt1.post_id)';
-	
-	return $join;
-}
-
-// Attention Attention!
-// Do not move it inside of etheme_search_post_excerpt
-// Because etheme_search_post_excerpt called minimum 7 times
-// And it will add the same query several times
-add_filter( 'woocommerce_price_filter_sql', function( $sql, $meta_query_sql, $tax_query_sql ){
-	if ( isset( $_GET['filter_brand'] ) && ! empty($_GET['filter_brand']) ) {
-		global $wpdb;
-		$ids = et_get_active_brand_ids($_GET['filter_brand']);
-		if ($ids){
-		    // change to str_contains for php 8
-            // else if dose not work here
-			if (strpos($sql, "product_id") !== false){
-				$sql .= "AND product_id IN(SELECT $wpdb->term_relationships.object_id  FROM $wpdb->term_relationships WHERE term_taxonomy_id  IN (" . $ids . "))";
-				return $sql;
-
-			}
-			if (strpos($sql, "{$wpdb->posts}.ID") !== false) {
-				$sql .= "AND {$wpdb->posts}.ID IN(SELECT $wpdb->term_relationships.object_id  FROM $wpdb->term_relationships WHERE term_taxonomy_id  IN (" . $ids . "))";
-				return $sql;
-			}
-		}
-	}
-	return $sql;
-}, 10, 3 );
-
-if (!function_exists('et_get_active_brand_ids')){
-    function et_get_active_brand_ids($filter_brand){
-        if (! $filter_brand ) return false;
-	    $brands = explode(',', $filter_brand);
-	    $ids    = array();
-
-	    foreach ($brands as $key => $value) {
-		    $term = get_term_by('slug', $value, 'brand');
-		    if ( ! isset( $term->term_taxonomy_id ) || empty( $term->term_taxonomy_id ) ) // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-		    {
-		    } else {
-			    $ids[] = $term->term_taxonomy_id;
-		    }
-	    }
-
-	    if ( ! implode( ',', $ids ) ) {
-		    $ids = 0;
-	    } else {
-		    $ids = implode( ',', $ids );
-	    }
-
-	    return $ids;
-    }
 }
 
 if ( ! function_exists( 'etheme_search_post_excerpt' ) ) :
@@ -1015,9 +689,9 @@ if ( ! function_exists( 'etheme_search_post_excerpt' ) ) :
 		
 		// ! Filter by brands
 		if ( isset( $_GET['filter_brand'] ) && ! empty($_GET['filter_brand']) ) {
-
+			
 			$ids = et_get_active_brand_ids($_GET['filter_brand']);
-
+			
 			if ($ids){
 				$where .= " AND " . $prefix . "posts.ID IN ( SELECT " . $prefix . "term_relationships.object_id  FROM " . $prefix . "term_relationships WHERE term_taxonomy_id  IN (" . $ids . ") )";
 			}
@@ -1046,11 +720,11 @@ if ( ! function_exists( 'etheme_search_post_excerpt' ) ) :
 					) )";
 				} else {
 					$where .= " OR " . $prefix . "posts.ID IN ( SELECT " . $prefix . "postmeta.post_id  FROM " . $prefix . "postmeta WHERE meta_key = '_sku' AND meta_value LIKE '%$s%' )";
-					$where .= " AND post_type = 'product'";
-
+					$where .= " AND post_type = 'product' AND post_status = 'publish'";
+					
 					if (isset($_GET['product_cat'])) {
 						$category = get_term_by( 'slug', $_GET['product_cat'], 'product_cat' );
-
+						
 						if ($category && isset($category->term_id)) {
 							$where .= " AND " . $prefix . "posts.ID IN ( SELECT " . $prefix . "term_relationships.object_id  FROM " . $prefix . "term_relationships WHERE term_taxonomy_id = '".$category->term_id."' )";
 						}
@@ -1073,15 +747,15 @@ if ( ! function_exists( 'etheme_search_post_excerpt' ) ) :
 				    post_title LIKE '%$s%' OR post_excerpt LIKE '%$s%' OR post_content LIKE '%$s%'
 				    OR " . $prefix . "posts.ID IN ( SELECT " . $prefix . "postmeta.post_id  FROM " . $prefix . "postmeta WHERE meta_key = '_sku' AND meta_value LIKE '%$s%' )
 				) ";
-
+				
 				if (isset($_GET['product_cat'])) {
 					$category = get_term_by( 'slug', $_GET['product_cat'], 'product_cat' );
-
+					
 					if ($category && isset($category->term_id)) {
 						$where .= " AND " . $prefix . "posts.ID IN ( SELECT " . $prefix . "term_relationships.object_id  FROM " . $prefix . "term_relationships WHERE term_taxonomy_id = '".$category->term_id."' )";
 					}
 				}
-
+				
 				//$where .= " OR " . $prefix . "posts.ID IN ( SELECT " . $prefix . "postmeta.post_id  FROM " . $prefix . "postmeta WHERE meta_key = '_sku' AND meta_value LIKE '%$s%' )";
 			}
 		}
@@ -1145,16 +819,16 @@ if(!function_exists('etheme_get_footer_widget_class')) {
 if( ! function_exists( 'etheme_activated_theme' ) ) {
 	function etheme_activated_theme() {
 		$activated_data = get_option( 'etheme_activated_data' );
-		
+
 		// auto update option for old users
 		if ( isset( $activated_data['purchase'] ) && $activated_data['purchase'] && get_option( 'envato_purchase_code_15780546', 'undefined' ) === 'undefined' ) {
 			update_option( 'envato_purchase_code_15780546', $activated_data['purchase'] );
-			
+
 		}
 		if( isset( $activated_data['purchase'] ) && $activated_data['purchase'] && $activated_data['purchase'] != get_option( 'envato_purchase_code_15780546', false )){
 			return false;
 		}
-		
+
 		$theme = ( isset( $activated_data['theme'] ) && ! empty( $activated_data['theme'] ) ) ? $activated_data['theme'] : false ;
 		return $theme;
 	}
@@ -1176,94 +850,124 @@ if(!function_exists('etheme_is_activated')) {
 // ! Get image by size function
 // **********************************************************************//
 if( ! function_exists('etheme_get_image') ) {
-	if( ! function_exists('etheme_get_image') ) {
-		function etheme_get_image($attach_id, $size, $location = '') {
-
-			$type   = '';
-			if ( !(isset($_GET['vc_editable']) || (defined( 'DOING_AJAX' ) && DOING_AJAX) || is_admin()) ) {
-				$type = get_theme_mod( 'images_loading_type_et-desktop', 'lazy' );
-			}
-
-			$class = '';
-
-			if ($type == 'lqip') {
-				$class .= ' lazyload lazyload-lqip et-lazyload-fadeIn';
-			} elseif($type == 'lazy'){
-				$class .= ' lazyload lazyload-simple et-lazyload-fadeIn';
-			}
-
-			if (function_exists('wpb_getImageBySize')) {
-				$image = wpb_getImageBySize( array(
-					'attach_id' => $attach_id,
-					'thumb_size' => $size,
-					'class' => $class
-				) );
-				$image = (isset($image['thumbnail'])) ? $image['thumbnail'] : false;
-			} elseif (!empty($size) && ( ( !is_array($size) && strpos($size, 'x') !== false ) || is_array($size) ) && defined('ELEMENTOR_PATH') ) {
-				$size = is_array($size) ? $size : explode('x', $size);
-				if ( ! class_exists( 'Group_Control_Image_Size' ) ) {
-					require_once ELEMENTOR_PATH . '/includes/controls/groups/image-size.php';
-				}
-				$image = \Elementor\Group_Control_Image_Size::get_attachment_image_html(
-					array(
-						'image' => array(
-							'id' => $attach_id,
-						),
-						'image_custom_dimension' => array('width' => $size[0], 'height' => $size[1]),
-						'image_size' => 'custom',
-						'hover_animation' => ' ' . $class
-					)
-				);
-			}
-			else {
+	function etheme_get_image($attach_id, $size, $location = '') {
+		
+		$type   = '';
+		if ( !(isset($_GET['vc_editable']) || (defined( 'DOING_AJAX' ) && DOING_AJAX) || is_admin()) ) {
+			$type = get_theme_mod( 'images_loading_type_et-desktop', 'lazy' );
+		}
+		
+		$class = '';
+		
+		if ($type == 'lqip') {
+			$class .= ' lazyload lazyload-lqip et-lazyload-fadeIn';
+		} elseif($type == 'lazy'){
+			$class .= ' lazyload lazyload-simple et-lazyload-fadeIn';
+		}
+		
+		if (function_exists('wpb_getImageBySize')) {
+			$image = wpb_getImageBySize( array(
+				'attach_id' => $attach_id,
+				'thumb_size' => $size,
+				'class' => $class
+			) );
+			$image = (isset($image['thumbnail'])) ? $image['thumbnail'] : false;
+			// if image was false then take the image using origin wp function
+			if ( !$image )
 				$image = wp_get_attachment_image( $attach_id, $size, false, array('class' => $class) );
+		} elseif (!empty($size) && ( ( !is_array($size) && strpos($size, 'x') !== false ) || is_array($size) ) && defined('ELEMENTOR_PATH') ) {
+			$size = is_array($size) ? $size : explode('x', $size);
+			if ( ! class_exists( 'Group_Control_Image_Size' ) ) {
+				require_once ELEMENTOR_PATH . '/includes/controls/groups/image-size.php';
 			}
-
-			if ( $type && $type != 'default' ) {
-				if ( $type == 'lqip') {
-					if ( $size == 'woocommerce_thumbnail' ) {
-						$placeholder = wp_get_attachment_image_src( $attach_id, 'etheme-woocommerce-nimi' );
-					} else {
-						$placeholder = wp_get_attachment_image_src( $attach_id, 'etheme-nimi' );
-					}
-					if ( isset( $placeholder[0] ) ) {
-						$new_attr = 'src="' . $placeholder[0] . '" data-src';
-						$image    = str_replace( 'src', $new_attr, $image );
-					}
+			$image = \Elementor\Group_Control_Image_Size::get_attachment_image_html(
+				array(
+					'image' => array(
+						'id' => $attach_id,
+					),
+					'image_custom_dimension' => array('width' => $size[0], 'height' => $size[1]),
+					'image_size' => 'custom',
+					'hover_animation' => ' ' . $class
+				)
+			);
+		}
+		else {
+			$image = wp_get_attachment_image( $attach_id, $size, false, array('class' => $class) );
+		}
+		
+		if ( $type && $type != 'default' ) {
+			if ( $type == 'lqip') {
+				if ( $size == 'woocommerce_thumbnail' ) {
+					$placeholder = wp_get_attachment_image_src( $attach_id, 'etheme-woocommerce-nimi' );
+				} else {
+					$placeholder = wp_get_attachment_image_src( $attach_id, 'etheme-nimi' );
 				}
-				else {
-					
-					if (function_exists('wpb_getImageBySize')) {
-						$placeholder_image_id = (int)get_option( 'xstore_placeholder_image', 0 );
-						$placeholder_image = wpb_getImageBySize( array(
-							'attach_id' => $placeholder_image_id,
-							'thumb_size' => $size,
-							'class' => $class
-						) );
-						
-						$placeholder_image = $placeholder_image['thumbnail'] ?? false;
-						if ( $placeholder_image ) {
-							$placeholder_image = string_between_two_string( $placeholder_image, 'src="', '" ' );
-						}
-						else {
-							$placeholder_image = etheme_placeholder_image($size, $attach_id);
-						}
-						
-					} else {
-						$placeholder_image = etheme_placeholder_image($size, $attach_id);
-					}
-
-					$new_attr = 'src="' . $placeholder_image . '" data-src';
+				if ( isset( $placeholder[0] ) ) {
+					$new_attr = 'src="' . $placeholder[0] . '" data-src';
 					$image    = str_replace( 'src', $new_attr, $image );
 				}
-				$image = str_replace( 'sizes', 'data-sizes', $image );
-
 			}
-
-			return $image;
+			else {
+				
+				if (function_exists('wpb_getImageBySize')) {
+					$placeholder_image_id = (int)get_option( 'xstore_placeholder_image', 0 );
+					$placeholder_image = wpb_getImageBySize( array(
+						'attach_id' => $placeholder_image_id,
+						'thumb_size' => $size,
+						'class' => $class
+					) );
+					
+					$placeholder_image = $placeholder_image['thumbnail'] ?? false;
+					if ( $placeholder_image ) {
+						$placeholder_image = string_between_two_string( $placeholder_image, 'src="', '" ' );
+					}
+					else {
+						$placeholder_image = etheme_placeholder_image($size, $attach_id);
+					}
+					
+				} else {
+					$placeholder_image = etheme_placeholder_image($size, $attach_id);
+				}
+				
+				$new_attr = 'src="' . $placeholder_image . '" data-src';
+				$image    = str_replace( 'src', $new_attr, $image );
+			}
+			$image = str_replace( 'sizes', 'data-sizes', $image );
+			
 		}
+		
+		return $image;
 	}
+}
 
+// **********************************************************************//
+// ! Get image size function
+// **********************************************************************//
+if( ! function_exists('etheme_get_size') ) {
+	function etheme_get_size($size = 'medium'){
+		if ( in_array( $size, array(  'thumbnail', 'medium', 'large', 'full' ) ) ){
+			return $size;
+		} else {
+			$size = explode( 'x', $size );
+			if ( is_array( $size ) ){
+				if (
+					isset( $size['size'][0] )
+					&& isset( $size['size'][1] )
+				){
+					return array( $size['size'][0], $size['size'][1] );
+				} elseif (
+					isset( $size['size'][0] )
+					&& ! isset( $size['size'][1] )
+				){
+					return array( $size['size'][0], $size['size'][0] );
+				}
+			}
+		}
+		return $size;
+	}
+}
+
+if ( !function_exists('string_between_two_string') ) {
 	function string_between_two_string($str, $starting_word, $ending_word){
 		$subtring_start = strpos($str, $starting_word);
 		$subtring_start += strlen($starting_word);
@@ -1271,94 +975,26 @@ if( ! function_exists('etheme_get_image') ) {
 		return substr($str, $subtring_start, $size);
 	}
 }
-
-// **********************************************************************//
-// ! Check file exists by url
-// **********************************************************************//
-if ( ! function_exists( 'etheme_custom_font_exists' ) ) :
-	function etheme_custom_font_exists( $url ) {
-		$upload_dir = wp_upload_dir();
-		$upload_dir = $upload_dir['basedir'] . '/custom-fonts';
-		$url = explode( '/custom-fonts', $url );
-		
-		return file_exists( $upload_dir . $url[1] );
-	}
-endif;
-
-// **********************************************************************//
-// ! Force name sorting
-// **********************************************************************//
-// @todo could be in core
-if ( ! function_exists( 'et_force_name_sort' ) ) :
-	function et_force_name_sort( $array, $order ){
-		
-		if ( is_wp_error( $array ) || count( $array ) <= 0 ) return;
-		
-		// ! Set values
-		$to_sort = array();
-		$sorted = array();
-		
-		// ! Set names array
-		foreach ( $array as $key => $value ) {
-			$to_sort[] = strtolower( $value->name );
+if (! function_exists('unicode_chars')) {
+	function unicode_chars( $source, $iconv_to = 'UTF-8' ) {
+		$decodedStr = '';
+		$pos        = 0;
+		$len        = strlen( $source );
+		while ( $pos < $len ) {
+			$charAt     = substr( $source, $pos, 1 );
+			$decodedStr .= $charAt;
+			$pos ++;
 		}
-		
-		// ! Sort names array
-		sort( $to_sort );
-		
-		// ! Change order if need it
-		if ( $order == 'DESC' ){
-			$to_sort = array_reverse( $to_sort );
-		}
-		
-		// ! Set new sorted array
-		foreach ( $to_sort as $key => $value ) {
-			foreach ( $array as $k => $v ) {
-				if ( $value == strtolower( $v->name ) ) {
-					$sorted[] = $v;
-				}
-			}
-		}
-		return $sorted;
-	}
-endif;
 
-function unicode_chars($source, $iconv_to = 'UTF-8') {
-	$decodedStr = '';
-	$pos = 0;
-	$len = strlen ($source);
-	while ($pos < $len) {
-		$charAt = substr ($source, $pos, 1);
-		$decodedStr .= $charAt;
-		$pos++;
+		if ( $iconv_to != "UTF-8" ) {
+			$decodedStr = iconv( "UTF-8", $iconv_to, $decodedStr );
+		}
+
+		return $decodedStr;
 	}
-	
-	if ($iconv_to != "UTF-8") {
-		$decodedStr = iconv("UTF-8", $iconv_to, $decodedStr);
-	}
-	
-	return $decodedStr;
 }
-
 // For wpml test
 apply_filters( 'wpml_current_language', NULL );
-
-// **********************************************************************//
-// ! Add activation redirect
-// **********************************************************************//
-add_action( 'after_switch_theme', 'et_activation_redirect' );
-if ( ! function_exists( 'et_activation_redirect' ) ) :
-	function et_activation_redirect() {
-		if ( isset($_GET['page']) && $_GET['page'] == '_options' ) {
-			if ( !class_exists( 'Kirki' ) || !etheme_is_activated() ) {
-				header( 'Location:' . admin_url( 'admin.php?page=et-panel-welcome' ) );
-			}
-			else {
-				header( 'Location:' . wp_customize_url() );
-			}
-		}
-	}
-endif;
 
 // **********************************************************************//
 // ! Add custom fonts to customizer typography
@@ -1462,6 +1098,25 @@ endif;
 // **********************************************************************//
 add_action( 'admin_notices', 'etheme_required_core_notice', 50 );
 add_action( 'wp_body_open', 'etheme_required_plugin_notice_frontend', 50 );
+add_action( 'admin_notices', 'etheme_api_connection_notice', 60);
+
+function etheme_api_connection_notice(){
+	$connection = get_transient( 'etheme_api_connection_check' );
+	if (!$connection && ! $connection = etheme_api_connection_check()){
+		echo '
+            <div class="et-message et-warning">
+                <p>'.esc_html__('We are unable to connect to the XStore API with the XStore theme. Please check your SSL certificate or white lists.', 'xstore') . '</p>
+            </div>
+        ';
+		set_transient( 'etheme_api_connection_check', $connection, 10 * DAY_IN_SECONDS );
+	}
+}
+
+function etheme_api_connection_check(){
+	$response = wp_remote_get( 'https://8theme.com/import/update-history/xstore/' );
+	$response_code = wp_remote_retrieve_response_code( $response );
+	return ( 200 == $response_code );
+}
 
 function etheme_required_core_notice(){
 	
@@ -1484,7 +1139,7 @@ function etheme_required_core_notice(){
 	$plugin = get_plugin_data( $file, false, false );
 	
 	if ( version_compare( ETHEME_CORE_MIN_VERSION, $plugin['Version'], '>' ) ) {
-		$video = '<a class="et-button" href="https://www.youtube.com/watch?v=xMEoi3rKoHk" target="_blank" style="color: white!important; text-decoration: none"><span class="dashicons dashicons-video-alt3" style="color: var(--et_admin_red-color, #c62828);git "></span> Video tutorial</a>';
+		$video = '<a class="et-button" href="https://www.youtube.com/watch?v=xMEoi3rKoHk" target="_blank" style="color: white!important; text-decoration: none"><span class="dashicons dashicons-video-alt3" style="color: var(--et_admin_red-color, #c62828);"></span> Video tutorial</a>';
 		
 		echo '
         <div class="et-message et-warning">
@@ -1504,7 +1159,7 @@ function etheme_required_core_notice(){
 }
 
 function etheme_required_plugin_notice_frontend(){
-	if ( is_user_logged_in() && current_user_can('administrator') ) {
+	if ( get_query_var( 'et_is-loggedin', false) && current_user_can('administrator') ) {
 		
 		$xstore_branding_settings = get_option( 'xstore_white_label_branding_settings', array() );
 		
@@ -1532,33 +1187,13 @@ function etheme_required_plugin_notice_frontend(){
 			echo '
 				</br>
 				<div class="woocommerce-massege woocommerce-info error">
-					XStore theme requires the following plugin: <strong>Core plugin v.' . ETHEME_CORE_MIN_VERSION . '.</strong>
+					XStore theme requires the following plugin: <strong>XStore Core plugin v.' . ETHEME_CORE_MIN_VERSION . '.</strong>
 					'.$video.'. This warning is visible for <strong>administrator only</strong>.
 				</div>
 			';
 		}
 	}
 }
-
-// **********************************************************************//
-// ! add sizes for LQIP
-// **********************************************************************//
-$cropping = get_option( 'woocommerce_thumbnail_cropping', '1:1' );
-
-if ( 'uncropped' === $cropping ) {
-	add_image_size( 'etheme-woocommerce-nimi', 10, 10 );
-} elseif ( 'custom' === $cropping ) {
-	$width          = max( 1, get_option( 'woocommerce_thumbnail_cropping_custom_width', '4' ) );
-	$height         = max( 1, get_option( 'woocommerce_thumbnail_cropping_custom_height', '3' ) );
-	add_image_size( 'etheme-woocommerce-nimi', $width, $height );
-} else {
-	$cropping_split = explode( ':', $cropping );
-	$width          = max( 1, current( $cropping_split ) );
-	$height         = max( 1, end( $cropping_split ) );
-	add_image_size( 'etheme-woocommerce-nimi', $width, $height );
-}
-
-add_image_size( 'etheme-nimi', 10, 10 );
 
 function etheme_get_image_sizes( $size = '' ) {
 	$wp_additional_image_sizes = wp_get_additional_image_sizes();
@@ -1594,9 +1229,8 @@ function etheme_get_image_sizes( $size = '' ) {
 
 function etheme_get_demo_versions(){
 	$versions   = get_transient( 'etheme_demo_versions_info' );
-	$url        = 'http://8theme.com/import/xstore-demos/1/versions';
-	$url        = apply_filters( 'etheme_demos_url', $url);
-	
+	$url        = apply_filters('etheme_protocol_url', ETHEME_BASE_URL . 'import/xstore-demos/1/versions/');
+
 	if ( ! $versions || empty( $versions ) || isset($_GET['etheme_demo_versions_info']) ) {
 		$api_response = wp_remote_get( $url );
 		$code         = wp_remote_retrieve_response_code( $api_response );
@@ -1625,41 +1259,6 @@ function etheme_do_not_setup_demo_pages($args){
 	}
 	return array();
 }
-
-if( ! function_exists('etheme_is_catalog') ){
-	function etheme_is_catalog(){
-		if ( etheme_get_option( 'just_catalog', 0 ) ){
-			if ( etheme_get_option( 'just_catalog_type', 'all' ) == 'unregistered' && is_user_logged_in()){
-				return false;
-			} else {
-				return true;
-			}
-		}
-		return false;
-	}
-}
-
-// speed optimizations
-add_action('wp_head', function() {
-//	global $post;
-//	if ( is_object($post) ) {
-//		if ( $post->post_type == 'staticblocks' && function_exists( 'wp_robots_no_robots' ) ) {
-//			//wp_robots_no_robots();
-//		}
-//	}
-	
-	$icons_type = ( etheme_get_option('bold_icons', 0) ) ? 'bold' : 'light';
-	?>
-
-    <?php if ( apply_filters('etheme_preload_woff_icons', true)) : ?>
-        <link rel="prefetch" as="font" href="<?php echo esc_url( get_template_directory_uri() ); ?>/fonts/xstore-icons-<?php echo esc_attr($icons_type); ?>.woff?v=<?php echo esc_attr( ETHEME_THEME_VERSION ); ?>" type="font/woff">
-    <?php endif; ?>
-
-	<?php if ( apply_filters('etheme_preload_woff2_icons', true)) : ?>
-        <link rel="prefetch" as="font" href="<?php echo esc_url( get_template_directory_uri() ); ?>/fonts/xstore-icons-<?php echo esc_attr($icons_type); ?>.woff2?v=<?php echo esc_attr( ETHEME_THEME_VERSION ); ?>" type="font/woff2">
-    <?php
-    endif;
-});
 
 add_action('init', function () {
 	$placeholder_image = get_option( 'xstore_placeholder_image', 0 );
@@ -1711,16 +1310,16 @@ add_action('init', function () {
 
 // tweak to include pagination style for shortcodes
 add_filter('paginate_links_output', function ($r) {
-    if (!empty($r)) {
-	    etheme_enqueue_style( 'pagination' );
-    }
-    return $r;
+	if (!empty($r)) {
+		etheme_enqueue_style( 'pagination' );
+	}
+	return $r;
 });
 
 // Show xstore avatars
 add_filter('get_avatar_data', 'xstore_change_avatar', 100, 2);
 function xstore_change_avatar($args, $id_or_email) {
-
+	
 	$xstore_avatar = get_user_meta( $id_or_email, 'xstore_avatar', true);
 	if(get_theme_mod( 'load_social_avatar_value', 'off' ) === 'on' && $xstore_avatar) {
 		$args['url'] = wp_get_attachment_url($xstore_avatar);
@@ -1730,16 +1329,16 @@ function xstore_change_avatar($args, $id_or_email) {
 
 // Maintenance mode
 if ( get_option('etheme_maintenance_mode', false) ) {
- 
-	add_action('template_redirect', function () {
-		$pages = get_pages(array(
-			'meta_key' => '_wp_page_template',
+	
+	add_action( 'template_redirect', function () {
+		$pages = get_pages( array(
+			'meta_key'   => '_wp_page_template',
 			'meta_value' => 'maintenance.php'
-		));
+		) );
 		
 		$return = array();
 		
-		foreach($pages as $page){
+		foreach ( $pages as $page ) {
 			$return[] = $page->ID;
 		}
 		$page_id = current( $return );
@@ -1748,25 +1347,18 @@ if ( get_option('etheme_maintenance_mode', false) ) {
 			return;
 		}
 		
-		if ( ! is_page( $page_id ) && ! is_user_logged_in() ) {
+		if ( ! is_page( $page_id ) && ! get_query_var( 'et_is-loggedin', false ) ) {
 			wp_redirect( get_permalink( $page_id ) );
 			exit();
 		}
-    }, 20);
-	
+	}, 20 );
 }
 
-add_action( 'wp_head', function(){
-	if (
-		etheme_get_option( 'et_seo_noindex', 0 )
-        && get_query_var('et_is-woocommerce-archive', false)
-	) {
+add_filter('etheme_protocol_url', 'etheme_protocol_url', 10);
 
-		$url = parse_url($_SERVER['REQUEST_URI']);
-		if (isset($url['query'])){
-			echo "\n\t\t<!-- 8theme SEO v1.0.0 -->";
-			echo '<meta name="robots" content="noindex, nofollow">';
-			echo "\t\t<!-- 8theme SEO -->\n\n";
-		}
+add_action( 'init', 'instagram_request' );
+function instagram_request() {
+	if( isset( $_GET['et_remove_instagram'] ) ) {
+		update_option('etheme_instagram_api_data',json_encode(array()));
 	}
-}, 1 );
+}

@@ -27,8 +27,8 @@ global $product; ?>
         <?php 
             $thumbnail_id = get_post_thumbnail_id( $product->get_id() );
             if ( ! empty( $thumbnail_id ) ) {
-	            $thumbnail = $product->get_image( 'shop_thumbnail');
-//                $thumbnail = $product->get_image( 'shop_thumbnail', array( 'class' => 'swiper-lazy attachment-shop_thumbnail size-shop_thumbnail wp-post-image' ) );
+	            $thumbnail = $product->get_image( 'woocommerce_gallery_thumbnail');
+//                $thumbnail = $product->get_image( 'woocommerce_gallery_thumbnail', array( 'class' => 'swiper-lazy attachment-shop_thumbnail size-shop_thumbnail wp-post-image' ) );
                 echo wp_kses_post($thumbnail);
 //                etheme_loader(true, 'swiper-lazy-preloader');
             } else {

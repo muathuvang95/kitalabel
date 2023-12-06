@@ -5,13 +5,16 @@
  * Template "Plugins" for 8theme dashboard.
  *
  * @since   6.3.4
- * @version 1.0.0
+ * @version 1.0.1
  */
+
+$_plugin = ( isset($_GET['plugin']) ) ? $_GET['plugin'] : false;
 
 ?>
 <div class="etheme-plugins-section">
     <h1 class="etheme-page-title etheme-page-title-type-2">Plugins Installer</h1>
-    <div class="import-demos-header etheme-plugins-header">
+    <?php if(!$_plugin): ?>
+        <div class="import-demos-header etheme-plugins-header">
         <ul class="et-filters import-demos-filter et-filters-type-1">
             <li>
                 <span class="et-filter-toggle">
@@ -25,6 +28,7 @@
                     <li class="et-filter plugin-filter" data-filter="active"><?php esc_html_e( 'Active', 'xstore' ); ?></li>
                     <li class="et-filter plugin-filter" data-filter="disabled"><?php esc_html_e( 'Inactive', 'xstore' ); ?></li>
                     <li class="et-filter plugin-filter" data-filter="premium"><?php esc_html_e( 'Premium', 'xstore' ); ?></li>
+                    <li class="et-filter plugin-filter" data-filter="xstore"><?php esc_html_e( 'Xstore', 'xstore' ); ?></li>
                     <li class="et-filter plugin-filter" data-filter="free"><?php esc_html_e( 'Free', 'xstore' ); ?></li>
                 </ul>
             </li>
@@ -42,6 +46,7 @@
             </span>
         </div>
     </div>
+    <?php endif; ?>
     <div class="manage-plugins">
 		<?php
 		$system = new Etheme_System_Requirements();
@@ -51,7 +56,7 @@
 		$installed = get_plugins();
 		if ( !count($instance->plugins) ) {
 			echo  '<p class="et-message et-error" style="width: 100%; margin: 0 20px;">' .
-                  esc_html__('Can not connect to get plugin list', 'xstore') .
+                  esc_html__('We are unable to connect to the 8Theme API to retrieve the list of plugins.', 'xstore') .
               '</p>';
 			echo '</div></div>';
 		    return;
@@ -63,6 +68,10 @@
         }
 		foreach ( $instance->plugins as $slug => $plugin ) : ?>
 			<?php
+
+            if ($_plugin && $_plugin != $slug){
+                continue;
+            }
 
 			$new_is_plugin_active = (
 				( ! empty( $instance->plugins[ $slug ]['is_callable'] ) && is_callable( $instance->plugins[ $slug ]['is_callable'] ) )
@@ -88,16 +97,33 @@
 				$filters[] = 'disabled';
             }
 
-			if (isset( $plugin['premium'] ) && $plugin['premium']){
-				$filters[] = 'premium';
-			} else {
-				$filters[] = 'free';
-			}
+			//var_dump($plugin['etheme_filters']);
+
+			if ( isset($plugin['etheme_filters']) ){
+				$filters = array_merge($filters, $plugin['etheme_filters'] );
+            } else {
+			    // @todo remove it in May
+				if (isset( $plugin['premium'] ) && $plugin['premium']){
+					$filters[] = 'premium';
+				} else {
+					$filters[] = 'free';
+				}
+
+				if (str_contains($plugin['name'], 'XStore')){
+					$filters[] = 'xstore';
+				}
+            }
+
+
 			?>
 
             <div class="<?php echo trim( esc_attr( implode( ' ', $plugin_classes ) ) ); ?>"
                  data-slug="<?php echo esc_attr( $plugin['slug'] ); ?>"
-                 data-filter="<?php echo trim( esc_attr( implode( ' ', $filters ) ) ); ?>>">
+                 data-filter="<?php echo trim( esc_attr( implode( ' ', $filters ) ) ); ?>>"
+                    <?php if( $_plugin == 'xstore-amp' ):?>
+                         data-redirect="<?php echo admin_url( 'admin.php?page=et-panel-xstore-amp' ); ?>"
+                    <?php endif;?>
+                >
                 <div class="et_plugin-content">
                     <span
                             class="plugin-action-text"
@@ -122,46 +148,6 @@
                             .mt-mes{
                                 display: none;
                             }
-                            /*.et_plugin-checkbox:hover .mt-mes {*/
-                            /*    display: inline-block;*/
-                            /*    margin-top: 0;*/
-                            /*    top: auto;*/
-                            /*    bottom: calc(50% - 12px);*/
-                            /*    left: auto;*/
-                            /*    right: 100%;*/
-                            /*    transform: translate(0,0);*/
-                            /*    margin-right: 15px;*/
-                            /*    transition: all .3s;*/
-                            /*}*/
-                            /*.et_plugin-checkbox:hover .mt-mes {*/
-                            /*    position: absolute !important;*/
-                            /*    background: #222;*/
-                            /*    white-space: nowrap;*/
-                            /*    color: #fff;*/
-                            /*    padding: 7px 12px !important;*/
-                            /*    top: 100%;*/
-                            /*    font-weight: 300;*/
-                            /*    margin-top: 10px;*/
-                            /*    left: 50%;*/
-                            /*    transform: translateX(-50%);*/
-                            /*    border-radius: 3px;*/
-                            /*    font-size: 12px;*/
-                            /*    height: 11px;*/
-                            /*    line-height: 11px;*/
-                            /*    box-sizing: content-box;*/
-                            /*    box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.1);*/
-                            /*}*/
-                            /*.mt-mes:after {*/
-                            /*    content: '';*/
-                            /*    top: auto;*/
-                            /*    left: auto;*/
-                            /*    right: 100%;*/
-                            /*    bottom: calc(50% - 5px);*/
-                            /*    margin-right: 5px;*/
-                            /*    border-top-color: transparent;*/
-                            /*    border-left-color: #222;*/
-                            /*    border-bottom-color: transparent;*/
-                            /*}*/
                             .et_plugin-checkbox:hover .mt-mes, .et_plugin-info:hover .mt-mes{
                                 display: inline-block;
                                 position: absolute;
@@ -171,7 +157,6 @@
                                 border-radius: 3px;
                                 background: #222;
                                 color: #fff;
-                                background: #222;
                                 padding: 3px 5px;
                                 white-space: nowrap;
                                 font-size: 14px;
@@ -187,8 +172,13 @@
                             }
                         </style>
 						<?php if ( isset( $plugin['image_url'] ) ) : ?>
-                            <img src="<?php echo esc_attr( $plugin['image_url'] ); ?>"
-                                 alt="<?php echo esc_attr( $plugin['slug'] ); ?>">
+                            <img
+                                class="lazyload lazyload-simple et-lazyload-fadeIn"
+                                src="<?php echo esc_html( ETHEME_BASE_URI . ETHEME_CODE ); ?>assets/images/placeholder-350x268.png"
+                                data-src="<?php echo esc_attr( apply_filters('etheme_protocol_url',$plugin['image_url'] ) ); ?>"
+                                data-old-src="<?php echo esc_html( ETHEME_BASE_URI . ETHEME_CODE ); ?>assets/images/placeholder-350x268.png"
+                                alt="<?php echo esc_attr( $plugin['slug'] ); ?>"
+                            >
 						<?php else: ?>
                             <span><?php esc_html_e( 'No image set', 'xstore' ); ?></span>
 						<?php endif; ?>

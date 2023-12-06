@@ -86,8 +86,9 @@ function et_get_menu_fields() {
 			'width' => 'wide',
 			'input_type' => 'number',
 			'attributes' => array(
+				'step' => 0.1,
 				'min' => 1,
-				'max' => 1000
+//				'max' => 1000
 			),
 			'levels' => array(0)
 		),
@@ -155,7 +156,8 @@ function et_get_menu_fields() {
 			'title' => esc_html__('Icons library', 'xstore'),
 			'width' => 'wide',
 			'options' => array(
-				'fontawesome' => 'FontAwesome',
+				'fontawesome' => 'FontAwesome 4.7',
+				'fontawesome-5' => 'FontAwesome 5+',
 				'xstore-icons' => 'XStore icons',
 			),
 		),

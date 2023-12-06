@@ -164,4 +164,3 @@ class VideoUrlParser
 		return $url;
 	}
 }
- ?>

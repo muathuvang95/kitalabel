@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 
         <p class="woocommerce-notice woocommerce-notice--error woocommerce-thankyou-order-failed-actions">
             <a href="<?php echo esc_url( $order->get_checkout_payment_url() ); ?>" class="button pay"><?php esc_html_e( 'Pay', 'xstore' ); ?></a>
-			<?php if ( is_user_logged_in() ) : ?>
+			<?php if ( get_query_var( 'et_is-loggedin', false) ) : ?>
                 <a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" class="button pay"><?php esc_html_e( 'My account', 'xstore' ); ?></a>
 			<?php endif; ?>
         </p>
@@ -45,33 +45,33 @@ defined( 'ABSPATH' ) || exit;
         <div class="woocommerce-order-overview-wrapper">
             
             <ul class="woocommerce-order-overview woocommerce-thankyou-order-details order_details">
-    
+
                 <li class="woocommerce-order-overview__order order">
                     <h5><?php esc_html_e( 'Order number:', 'xstore' ); ?></h5>
-                    <span><?php echo $order->get_order_number(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php echo '<span>'. $order->get_order_number() . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </li>
-    
+
                 <li class="woocommerce-order-overview__date date">
                     <h5><?php esc_html_e( 'Date:', 'xstore' ); ?></h5>
-                    <span><?php echo wc_format_datetime( $order->get_date_created() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php echo '<span>' . wc_format_datetime( $order->get_date_created() ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </li>
-                
-                <?php if ( is_user_logged_in() && $order->get_user_id() === get_current_user_id() && $order->get_billing_email() ) : ?>
+
+                <?php if ( get_query_var( 'et_is-loggedin', false) && $order->get_user_id() === get_current_user_id() && $order->get_billing_email() ) : ?>
                     <li class="woocommerce-order-overview__email email">
                         <h5><?php esc_html_e( 'Email:', 'xstore' ); ?></h5>
-                        <span><?php echo $order->get_billing_email(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                        <?php echo '<span>' . $order->get_billing_email() . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </li>
                 <?php endif; ?>
-    
+
                 <li class="woocommerce-order-overview__total total">
                     <h5><?php esc_html_e( 'Total:', 'xstore' ); ?></h5>
-                    <span><?php echo $order->get_formatted_order_total(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php echo '<span>' . $order->get_formatted_order_total() . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </li>
-                
+
                 <?php if ( $order->get_payment_method_title() ) : ?>
                     <li class="woocommerce-order-overview__payment-method method">
                         <h5><?php esc_html_e( 'Payment method:', 'xstore' ); ?></h5>
-                        <span><?php echo wp_kses_post( $order->get_payment_method_title() ); ?></span>
+                        <?php echo '<span>' . wp_kses_post( $order->get_payment_method_title() ) . '</span>'; ?>
                     </li>
                 <?php endif; ?>
     
@@ -100,7 +100,7 @@ defined( 'ABSPATH' ) || exit;
                             $product_id = $item->get_variation_id() ? $item->get_variation_id() : $item->get_product_id();
 	                        $product = wc_get_product($product_id);
                             
-                            return apply_filters( 'woocommerce_cart_item_thumbnail', $product->get_image(), $product ) . '<span class="product-name-info">'. $item_name;
+                            return $product->get_image() . '<span class="product-name-info">'. $item_name;
                         }, 1, 3);
                         
                         add_action('woocommerce_order_item_meta_end', function () {

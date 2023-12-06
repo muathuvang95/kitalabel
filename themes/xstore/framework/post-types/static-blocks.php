@@ -36,22 +36,34 @@ if ( ! function_exists( 'etheme_static_block' ) ) {
             return;
         }
 	
-	    $edit_mode = (isset($_GET['action']) && $_GET['action'] == 'elementor');
-	    // always is false but make delay to prevent fatal error for get_query_var in $et_options
-	
-	    $cache = false;
-	    if ( !$edit_mode ) {
+	    $edit_mode = false;
+        $elementor_instance = false;
+        
+        if ( defined( 'ELEMENTOR_VERSION' ) && is_callable( 'Elementor\Plugin::instance' ) ) {
+	        $elementor_instance = Elementor\Plugin::instance();
+	        $edit_mode = Elementor\Plugin::instance()->preview->is_preview_mode();
+        }
+	    
+//	    $cache = false;
+//	    if ( !$edit_mode ) {
 		    $cache = etheme_get_option( 'static_block_cache', 1 );
-	    }
+//	    }
 	    
         $output = false;
+	
+	    $id = (string)$id;
 	    
 	    $prevent_setup_post = apply_filters('etheme_static_block_prevent_setup_post', false);
 
         if ( $cache ) {
-            $output = wp_cache_get( $id, 'etheme_get_block' );
+        	if ( $edit_mode ) {
+        		if ($id != '') wp_cache_delete($id, 'etheme_get_block');
+	        }
+        	else {
+		        $output = ( $id != '' ) ? wp_cache_get( $id, 'etheme_get_block' ) : '';
+	        }
         }
-
+        
         if ( ! $output ) {
             $args = array( 'include' => $id,'post_type' => 'staticblocks', 'posts_per_page' => 1);
             $output = '';
@@ -60,8 +72,7 @@ if ( ! function_exists( 'etheme_static_block' ) ) {
 	            if ( !$prevent_setup_post )
                     setup_postdata($block);
 
-                if ( defined( 'ELEMENTOR_VERSION' ) && is_callable( 'Elementor\Plugin::instance' ) ) {
-                    $elementor_instance = Elementor\Plugin::instance();
+                if ( !!$elementor_instance ) {
                     $output = $elementor_instance->frontend->get_builder_content_for_display( $block->ID );
                 }
 
@@ -133,8 +144,8 @@ if ( ! function_exists( 'etheme_static_block' ) ) {
 	        if ( !$prevent_setup_post )
                 wp_reset_postdata();
 
-            if ( $cache ) {
-                wp_cache_add( $id, $output, 'etheme_get_block' );
+            if ( $cache && $id != '' ) {
+            	wp_cache_add( $id, $output, 'etheme_get_block' );
             }
         }
 

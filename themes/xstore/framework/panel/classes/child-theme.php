@@ -14,6 +14,7 @@ class ChildTheme{
 		$this->theme_name      = strtolower( preg_replace( '#[^a-zA-Z]#', '', $current_theme->get( 'Name' ) ) );
 	}
 	public function et_create_child_theme(){
+		// don't remove any variables because they are used in child-theme-css.php and maybe somewhere else
 		$parent_theme_title = 'XStore';
 		$parent_theme_template = 'xstore';
 		$parent_theme_name = get_stylesheet();

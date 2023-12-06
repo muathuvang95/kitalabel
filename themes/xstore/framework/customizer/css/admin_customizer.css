@@ -106,6 +106,10 @@
     border-radius: 3px;
 }
 
+.wp-customizer textarea {
+    width: 100%;
+}
+
 .wp-customizer input[type=radio] {
     margin-right: 7px;
 }
@@ -1677,7 +1681,8 @@ button.collapse-sidebar.button .collapse-sidebar-arrow:hover:before {
 }
 
 .wp-customizer .select2-container--default .select2-results__option[data-selected=true] {
-    background-color: #fafafa;
+    background-color: #fff;
+    color: #cecece;
 }
 
 .wp-customizer .select2-container--default .select2-results__option--highlighted[data-selected] {
@@ -2046,6 +2051,9 @@ button.collapse-sidebar.button .collapse-sidebar-arrow:hover:before {
 [id*=et_icon-shopping-cart-2][class*=select2]:after {
     content: "\e90d";
 }
+[id*=et_icon-shopping-basket][class*=select2]:after {
+    content: "\e916";
+}
 
 [id*=et_icon-burger][class*=select2]:after {
     content: "\e936";
@@ -2265,8 +2273,12 @@ button.collapse-sidebar.button .collapse-sidebar-arrow:hover:before {
     border: 1px solid #e1e1e1;
     border-top-width: 2px;
     border-top-color: #1565C5;
+    display: none;
 }
 
+.tooltip-wrapper:hover .tooltip-content {
+    display: block;
+}
 .tooltip-wrapper .tooltip-content:after {
     color: #e1e1e1;
     right: -13px;

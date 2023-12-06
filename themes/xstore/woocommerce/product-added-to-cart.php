@@ -110,6 +110,17 @@ wc_print_notice( wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_pr
 		            ?>
 		
                 </div>
+	
+	            <?php
+                    if ( in_array('popup_added_to_cart', (array)get_theme_mod('product_sku_locations', array('cart', 'popup_added_to_cart', 'mini-cart'))) && wc_product_sku_enabled() ) {
+                        add_filter('product_meta_elements', function () {
+                            return array('sku');
+                        });
+                        global $product;
+                        $product = $_product;
+                        woocommerce_template_single_meta();
+                    }
+	            ?>
                 
             </td>
         </tr>
@@ -135,9 +146,13 @@ ob_start(); ?>
 <a class="flex-inline btn light big" href="<?php echo wc_get_cart_url(); ?>"><?php esc_html_e('View Cart','xstore'); ?></a>
 <a class="flex-inline btn black big" href="<?php echo wc_get_checkout_url(); ?>"><?php esc_html_e('Checkout','xstore'); ?></a>
 
-<?php do_action('etheme_product_added_to_cart_section_02'); ?>
+<?php do_action('etheme_product_added_to_cart_section_02');
 
-<?php $element_options['product_section_02'] = ob_get_clean();
+if ( get_theme_mod('ajax_added_product_notify_popup_progress_bar', false) ) {
+    echo do_shortcode('[etheme_sales_booster_cart_checkout_progress_bar]');
+}
+
+$element_options['product_section_02'] = ob_get_clean();
 
 $element_options['linked_products_ids'] = array();
 $element_options['linked_products_ids']['upsell_ids'] = array();
@@ -180,22 +195,25 @@ add_filter('etheme_product_content_settings', function ($args){
         array(
             'product_page_productname',
             'product_page_price',
+            'product_page_addtocart'
         );
 });
 
 do_action('etheme_product_added_popup');
+$woocommerce_loop['popup-added-to-cart'] = true;
 $woocommerce_loop['product_view'] = 'disable';
     et_mini_cart_linked_products(
             $cart_content_linked_products_type,
             $element_options['linked_products_ids'],
             array(
                 'as_widget' => false,
-                'slides_per_view' => 5,
+                'slides_per_view' => get_theme_mod('ajax_added_product_notify_popup_products_per_view_et-desktop', 4),
                 'slides_per_view_mobile' => 2,
                 'hide_out_stock' => true
             )
     );
 unset($woocommerce_loop['product_view']);
+unset($woocommerce_loop['popup-added-to-cart']);
 
 do_action( 'etheme_product_added_to_cart_section_03' );
 

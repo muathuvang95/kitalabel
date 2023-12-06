@@ -44,6 +44,11 @@ if ( !function_exists('etheme_lazy_attachment_attrs')) {
 		if ( strpos( $attr['class'], 'lazyload' ) !== false || isset( $_GET['vc_editable'] ) ) {
 			return $attr;
 		}
+
+        // prevent lazy for smart hover effects on products
+        if ( strpos( $attr['class'], 'main-hover-slider-img' ) !== false ) {
+            return $attr;
+        }
 		
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return $attr;
@@ -65,7 +70,7 @@ if ( !function_exists('etheme_lazy_attachment_attrs')) {
 				}
 
 //			$placeholder = $placeholder[0];
-			if ( strpos($attr['class'], 'attachment-shop_single') === false  ) {
+			if ( strpos($attr['class'], 'attachment-woocommerce_single') === false  ) {
 				$attr['data-src'] = $attr['src'];
 			}
 				$attr['src']   = $placeholder[0];
@@ -274,6 +279,10 @@ function etheme_ajaxify(){
 		case 'elementor':
 			$widget_data = etheme_ajaxify_get_lazyload_buffer($data[2]);
 			add_filter('etheme_output_shortcodes_inline_css', '__return_true');
+			if ( function_exists('etheme_catalog_setup') ) {
+			    // set all actions/filter for catalog mode
+                etheme_catalog_setup(true);
+            }
 			$document = Elementor\Plugin::$instance->documents->get($data[1]);
 			Elementor\Plugin::$instance->documents->switch_to_document( $document );
 			echo $document->render_element($widget_data);
@@ -368,11 +377,17 @@ add_action('wp_footer', function () {
                     var data = element.dataset["request"];
                     var type = element.dataset["type"];
                     var xhttp = new XMLHttpRequest();
+                   
                     xhttp.onreadystatechange = function () {
                         if (this.readyState == 4 && this.status == 200) {
                             var elementor_widget = type == "elementor" ? jQuery(element).parents(".elementor-element") : "";
                             if (element.className.match(/etheme-ajaxify-replace/)) {
-                                element.outerHTML = this.responseText;
+                                
+                                // fix for double wrapper of .elementor-widget-container
+                                if ( jQuery(element).parent().hasClass("elementor-widget-container"))
+                                    jQuery(element).parent().parent().html(this.responseText);
+                                else
+                                    element.outerHTML = this.responseText;
                             } else {
                                 element.innerHTML = this.responseText;
                             }
@@ -384,12 +399,27 @@ add_action('wp_footer', function () {
                             element.classList.remove("etheme-ajaxify-loading");
                             if ( window.elementorFrontend && elementor_widget.length ) {
                                 elementorFrontend.elementsHandler.runReadyTrigger( elementor_widget );
-                                parent.addClass("animated fadeIn");
                                 setTimeout(function(){
                                     jQuery(parent).removeClass("animated fadeIn");
                                 }, 500);
+                                
+                                if ( window.hoverSlider !== undefined ) { 
+                                    window.hoverSlider.init({});
+                                    window.hoverSlider.prepareMarkup();
+                                }
+                                
+                                if ( elementor_widget.parents(".elementor-container").find(".etheme-elementor-sticky-column").length ) {
+                                    elementor_widget.parents(".elementor-container").find(".etheme-elementor-sticky-column").each(function(index, element) {
+                                        elementorFrontend.elementsHandler.runReadyTrigger( element );
+                                    });
+                                }
+                                
                                 if ( etTheme.swiperFunc !== undefined )
 		                            etTheme.swiperFunc();
+                                if ( etTheme.reinitSwatches !== undefined )
+                                    etTheme.reinitSwatches();
+                                if ( etTheme.contentProdImages !== undefined )
+                                    etTheme.contentProdImages();
                             }
                                 
                             element.dispatchEvent(new Event("etheme-ajaxify-finished"));

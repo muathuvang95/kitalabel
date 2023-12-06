@@ -32,7 +32,7 @@ global $post;
 	}
 
     $post_page    = get_option( 'page_for_posts' );
-    $title_at_end = '<a href="' . get_permalink( $post_page ) . '">' . esc_html__( 'Blog', 'xstore' ) . '</a>';
+	$title_at_end = ( ! empty( $post_page ) ) ? '<a href="' . get_permalink( $post_page ) . '">' . esc_html__( 'Blog', 'xstore' ) . '</a>' : '';
     $homeLink     = home_url();
     $xstore_title = '';
     $html         = '';
@@ -169,7 +169,11 @@ global $post;
                     if ( $args['showCurrent'] == 0 ) {
                         $cats = preg_replace("#^(.+)\s" . $args['delimiter'] . "\s$#", "$1", $cats);
                     }
-                    $html .= ' ' . $title_at_end . ' ' . $args['delimiter'] . ' ';
+
+                    if ($title_at_end){
+	                    $html .= ' ' . $title_at_end . ' ' . $args['delimiter'] . ' ';
+                    }
+
                     $html .= $cats;
                 }
                 if ( $args['showCurrent'] == 1 ) {

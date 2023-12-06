@@ -27,7 +27,8 @@ class Etheme_System_Requirements {
 		'filesystem'      => 'direct', // ! direct
 		'wp_remote_get'   => true,     // ! true
 		'f_get_contents'  => true,     // ! true
-		'gzip'            => true     // ! true
+		'gzip'            => true,     // ! true
+		'DOMDocument'     => true,      // ! true
 	);
 	
 	// ! Let's think that all alright
@@ -78,7 +79,8 @@ class Etheme_System_Requirements {
 			'filesystem'      => get_filesystem_method(),
 			'wp_remote_get'   => function_exists( 'wp_remote_get' ),
 			'f_get_contents'  => function_exists( 'file_get_contents' ),
-			'gzip'            => is_callable( 'gzopen' )
+			'gzip'            => is_callable( 'gzopen' ),
+			'DOMDocument'     => class_exists('DOMDocument'),
 		);
 
 		if ($system['memory_limit'] == -1) {
@@ -271,6 +273,17 @@ class Etheme_System_Requirements {
 			( $this->requirements['wp_remote_get'] ) ? 'enable' : 'disable',
 			( $system['wp_remote_get'] == $this->requirements['wp_remote_get'] ) ? 'enable' : 'disable',
 			( $system['wp_remote_get'] == $this->requirements['wp_remote_get'] ) ? $this->check( true ) : $this->check( false )
+		);
+
+		printf(
+			'<tr class="class-DOMDocument %3$s">
+					<td>DOMDocument</td>
+					<td>%1$s</td>
+					<td>%2$s<span class="dashicons dashicons-%3$s "></span></td>
+				</tr>',
+			( $this->requirements['DOMDocument'] ) ? 'enable' : 'disable',
+			( $system['DOMDocument'] == $this->requirements['DOMDocument'] ) ? 'enable' : 'disable',
+			( $system['DOMDocument'] == $this->requirements['DOMDocument'] ) ? $this->check( true ) : $this->check( false )
 		);
 		echo '</table>';
 	}

@@ -3,7 +3,11 @@
   border-right: 1px solid;
 }
 .product-view-mask .et-wishlist-holder,
-.product-view-info .et-wishlist-holder {
+.product-view-info .et-wishlist-holder,
+.product-view-mask .xstore-wishlist,
+.product-view-info .xstore-wishlist,
+.product-view-mask .xstore-compare,
+.product-view-info .xstore-compare {
   border-left: 1px solid;
 }
 .footer-product .show-quickly {
@@ -14,11 +18,15 @@
 .footer-product .show-quickly:after {
   right: 0;
 }
-.footer-product .et-wishlist-holder {
+.footer-product .et-wishlist-holder,
+.footer-product .xstore-wishlist,
+.footer-product .xstore-compare {
   right: 0;
   font-size: 0;
 }
-.footer-product .et-wishlist-holder:after {
+.footer-product .et-wishlist-holder:after,
+.footer-product .xstore-wishlist:after,
+.footer-product .xstore-compare:after {
   left: 0;
 }
 .footer-product .by-vendor-name-link:after,
@@ -40,14 +48,16 @@
   margin-right: 0;
 }
 .footer-product .show-quickly:after,
+.footer-product .xstore-wishlist:after,
 .footer-product .et-wishlist-holder:after,
+.footer-product .xstore-compare:after,
 .footer-product .by-vendor-name-link:after,
 .footer-product .pre_order_loop:after,
 .footer-product .wcmp_add_to_cart_message:after {
   position: absolute;
   top: 0;
   width: 1px;
-  border-right: 1px solid var(--et_dark-color);
+  border-right: 1px solid #444;
   height: 100%;
 }
 /*=======================================
@@ -59,7 +69,8 @@
 .products-list .product-details .button.compare,
 .product-view-mask .button.compare,
 .product-view-info .button.compare,
-.product-view-light .button.compare {
+.product-view-light .button.compare,
+.product-view-light .xstore-compare {
   display: none;
 }
 .product-view-mask.view-color-dark .wcpv-sold-by-loop,
@@ -79,6 +90,12 @@
 .content-product .wishlist-fragment a:before {
   font-size: 16px;
 }
+.footer-product .xstore-wishlist.button:before,
+.footer-product .xstore-compare.button:before {
+  display: none;
+}
+.footer-product .xstore-wishlist .et-icon,
+.footer-product .xstore-compare .et-icon,
 .footer-product .add_to_cart_button:after {
   font-size: 16px;
 }
@@ -152,6 +169,7 @@
   background: transparent;
 }
 .footer-product .show-quickly,
+.footer-product .xstore-wishlist,
 .footer-product .et-wishlist-holder {
   position: absolute;
   display: -webkit-box;
@@ -170,6 +188,19 @@
   border-color: var(--et_dark-color);
   background: var(--et_dark-color);
   z-index: 1;
+}
+.footer-product .xstore-compare {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-color: var(--et_dark-color);
+  background: var(--et_dark-color);
 }
 .footer-product .by-vendor-name-link,
 .footer-product .pre_order_loop,
@@ -222,10 +253,13 @@
   height: 100%;
 }
 .footer-product .show-quickly,
+.footer-product .xstore-wishlist,
 .footer-product .et-wishlist-holder a,
 .footer-product .button,
 .footer-product .button.compare,
 .footer-product .button.compare:hover,
+.footer-product .xstore-compare,
+.footer-product .xstore-compare:hover,
 .footer-product .by-vendor-name-link {
   color: #fff;
 }
@@ -234,8 +268,10 @@
   color: #fff !important;
 }
 .footer-product .compare.button,
+.footer-product .xstore-compare,
 .footer-product .button,
 .footer-product .show-quickly,
+.footer-product .xstore-wishlist,
 .footer-product .et-wishlist-holder,
 .footer-product .by-vendor-name-link,
 .footer-product .pre_order_loop,
@@ -244,8 +280,10 @@
   transition: all 0.2s ease-out;
 }
 .footer-product .compare.button:hover,
+.footer-product .xstore-compare:hover,
 .footer-product .button:hover,
 .footer-product .show-quickly:hover,
+.footer-product .xstore-wishlist:hover,
 .footer-product .et-wishlist-holder:hover,
 .footer-product .by-vendor-name-link:hover,
 .footer-product .pre_order_loop:hover,
@@ -298,7 +336,11 @@
 .view-color-white .footer-product:before,
 .view-color-white .footer-product .show-quickly,
 .view-color-white .footer-product .et-wishlist-holder,
+.view-color-white .footer-product .xstore-wishlist,
+.view-color-white .footer-product .xstore-wishlist:after,
 .view-color-white .footer-product .et-wishlist-holder:after,
+.view-color-white .footer-product .xstore-compare,
+.view-color-white .footer-product .xstore-compare:after,
 .view-color-white .footer-product .show-quickly:after,
 .view-color-white .footer-product .by-vendor-name-link:after,
 .view-color-white .footer-product .pre_order_loop:after,
@@ -306,8 +348,10 @@
   border-color: var(--et_border-color);
 }
 .view-color-white .footer-product .button.compare:hover,
+.view-color-white .footer-product .xstore-compare:hover,
 .view-color-white .footer-product .button:hover,
 .view-color-white .footer-product .show-quickly:hover,
+.view-color-white .footer-product .xstore-wishlist:hover,
 .view-color-white .footer-product .et-wishlist-holder:hover,
 .view-color-white .footer-product .by-vendor-name-link:hover,
 .view-color-white .footer-product .pre_order_loop:hover,
@@ -319,8 +363,10 @@
 }
 .view-color-white.product-view-mask2 .footer-product,
 .view-color-white .footer-product .button.compare,
+.view-color-white .footer-product .xstore-compare,
 .view-color-white .footer-product .button,
 .view-color-white .footer-product .show-quickly,
+.view-color-white .footer-product .xstore-wishlist,
 .view-color-white .footer-product .et-wishlist-holder,
 .view-color-white .footer-product .by-vendor-name-link,
 .view-color-white .footer-product .pre_order_loop,
@@ -330,6 +376,8 @@
   background: #fff;
 }
 .view-color-white .footer-product .show-quickly,
+.view-color-white .footer-product .xstore-wishlist,
+.view-color-white .footer-product .xstore-compare,
 .view-color-white .footer-product .et-wishlist-holder a,
 .view-color-white .footer-product .et-wishlist-holder a.add_to_wishlist.button.alt,
 .view-color-white .footer-product .by-vendor-name-link,
@@ -361,6 +409,8 @@
   color: var(--et_main-color);
 }
 .view-color-transparent .footer-product .show-quickly,
+.view-color-transparent .footer-product .xstore-wishlist,
+.view-color-transparent .footer-product .xstore-compare,
 .view-color-transparent .footer-product .et-wishlist-holder a,
 .view-color-transparent .footer-product .et-wishlist-holder a.add_to_wishlist.button.alt,
 .view-color-transparent .footer-product .by-vendor-name-link,
@@ -383,8 +433,12 @@
 }
 .view-color-transparent .footer-product:before,
 .view-color-transparent .footer-product .show-quickly,
+.view-color-transparent .footer-product .xstore-wishlist,
+.view-color-transparent .footer-product .xstore-wishlist:after,
 .view-color-transparent .footer-product .et-wishlist-holder,
 .view-color-transparent .footer-product .et-wishlist-holder:after,
+.view-color-transparent .footer-product .xstore-compare,
+.view-color-transparent .footer-product .xstore-compare:after,
 .view-color-transparent .footer-product .show-quickly:after,
 .view-color-transparent .footer-product .by-vendor-name-link:after,
 .view-color-transparent .footer-product .pre_order_loop:after,
@@ -392,6 +446,8 @@
   border: none;
 }
 .view-color-transparent .footer-product .show-quickly:hover,
+.view-color-transparent .footer-product .xstore-wishlist:hover,
+.view-color-transparent .footer-product .xstore-compare:hover,
 .view-color-transparent .footer-product .et-wishlist-holder:hover .yith-wcwl-add-button a,
 .view-color-transparent .footer-product .et-wishlist-holder:hover a.add_to_wishlist.button.alt,
 .view-color-transparent .footer-product .button:hover,
@@ -408,10 +464,13 @@
 .view-color-transparent .footer-product,
 .view-color-transparent .footer-product .button,
 .view-color-transparent .footer-product .button.compare,
+.view-color-transparent .footer-product .xstore-compare,
 .view-color-transparent .footer-product .show-quickly,
+.view-color-transparent .footer-product .xstore-wishlist,
 .view-color-transparent .footer-product .et-wishlist-holder,
 .view-color-transparent .footer-product .button:hover,
 .view-color-transparent .footer-product .show-quickly:hover,
+.view-color-transparent .footer-product .xstore-wishlist:hover,
 .view-color-transparent .footer-product .et-wishlist-holder:hover,
 .view-color-transparent .footer-product .by-vendor-name-link:hover,
 .view-color-transparent .footer-product .pre_order_loop:hover,
@@ -449,6 +508,14 @@
 .col-md-8 .product-slide .product-view-mask .footer-product .show-quickly,
 .col-md-9 .product-slide .product-view-info .footer-product .show-quickly,
 .col-md-8 .product-slide .product-view-info .footer-product .show-quickly,
+.col-md-9 .product-slide .product-view-mask .footer-product .xstore-wishlist,
+.col-md-8 .product-slide .product-view-mask .footer-product .xstore-wishlist,
+.col-md-9 .product-slide .product-view-info .footer-product .xstore-wishlist,
+.col-md-8 .product-slide .product-view-info .footer-product .xstore-wishlist,
+.col-md-9 .product-slide .product-view-mask .footer-product .xstore-compare,
+.col-md-8 .product-slide .product-view-mask .footer-product .xstore-compare,
+.col-md-9 .product-slide .product-view-info .footer-product .xstore-compare,
+.col-md-8 .product-slide .product-view-info .footer-product .xstore-compare,
 .col-md-9 .product-slide .product-view-mask .footer-product .et-wishlist-holder,
 .col-md-8 .product-slide .product-view-mask .footer-product .et-wishlist-holder,
 .col-md-9 .product-slide .product-view-info .footer-product .et-wishlist-holder,
@@ -475,6 +542,14 @@
 .col-md-8 .product-slide .product-view-mask .footer-product .show-quickly:after,
 .col-md-9 .product-slide .product-view-info .footer-product .show-quickly:after,
 .col-md-8 .product-slide .product-view-info .footer-product .show-quickly:after,
+.col-md-9 .product-slide .product-view-mask .footer-product .xstore-wishlist:after,
+.col-md-8 .product-slide .product-view-mask .footer-product .xstore-wishlist:after,
+.col-md-9 .product-slide .product-view-info .footer-product .xstore-wishlist:after,
+.col-md-8 .product-slide .product-view-info .footer-product .xstore-wishlist:after,
+.col-md-9 .product-slide .product-view-mask .footer-product .xstore-compare:after,
+.col-md-8 .product-slide .product-view-mask .footer-product .xstore-compare:after,
+.col-md-9 .product-slide .product-view-info .footer-product .xstore-compare:after,
+.col-md-8 .product-slide .product-view-info .footer-product .xstore-compare:after,
 .col-md-9 .product-slide .product-view-mask .footer-product .et-wishlist-holder:after,
 .col-md-8 .product-slide .product-view-mask .footer-product .et-wishlist-holder:after,
 .col-md-9 .product-slide .product-view-info .footer-product .et-wishlist-holder:after,
@@ -551,6 +626,10 @@
   }
   .products-hover-only-icons .product-view-mask .footer-product .show-quickly,
   .products-hover-only-icons .product-view-info .footer-product .show-quickly,
+  .products-hover-only-icons .product-view-mask .footer-product .xstore-wishlist,
+  .products-hover-only-icons .product-view-info .footer-product .xstore-wishlist,
+  .products-hover-only-icons .product-view-mask .footer-product .xstore-compare,
+  .products-hover-only-icons .product-view-info .footer-product .xstore-compare,
   .products-hover-only-icons .product-view-mask .footer-product .et-wishlist-holder,
   .products-hover-only-icons .product-view-info .footer-product .et-wishlist-holder,
   .products-hover-only-icons .product-view-mask .footer-product .by-vendor-name-link,
@@ -567,6 +646,10 @@
   }
   .products-hover-only-icons .product-view-mask .footer-product .show-quickly:after,
   .products-hover-only-icons .product-view-info .footer-product .show-quickly:after,
+  .products-hover-only-icons .product-view-mask .footer-product .xstore-wishlist:after,
+  .products-hover-only-icons .product-view-info .footer-product .xstore-wishlist:after,
+  .products-hover-only-icons .product-view-mask .footer-product .xstore-compare:after,
+  .products-hover-only-icons .product-view-info .footer-product .xstore-compare:after,
   .products-hover-only-icons .product-view-mask .footer-product .et-wishlist-holder:after,
   .products-hover-only-icons .product-view-info .footer-product .et-wishlist-holder:after,
   .products-hover-only-icons .product-view-mask .footer-product .by-vendor-name-link:after,
@@ -730,13 +813,21 @@
 .product-view-overlay .yith-wcwl-add-to-wishlist .yith-wcwl-icon + span {
   display: none;
 }
-.product-view-overlay .yith-wcwl-add-to-wishlist a:before {
+.product-view-overlay .yith-wcwl-add-to-wishlist a:before,
+.product-view-overlay .xstore-wishlist,
+.product-view-overlay .xstore-compare {
   margin: 0;
   line-height: 1;
   font-size: 18px !important;
 }
+.product-view-overlay .xstore-wishlist,
+.product-view-overlay .xstore-compare {
+  position: relative;
+}
 .product-view-overlay.view-color-dark .quick-buttons .button,
-.product-view-overlay.view-color-dark .quick-buttons .et-wishlist-holder a {
+.product-view-overlay.view-color-dark .quick-buttons .et-wishlist-holder a,
+.product-view-overlay.view-color-dark .quick-buttons .xstore-wishlist,
+.product-view-overlay.view-color-dark .quick-buttons .xstore-compare {
   color: #fff;
 }
 .product-view-overlay.view-color-white .product-image-wrapper:before {

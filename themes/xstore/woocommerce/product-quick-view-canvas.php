@@ -73,6 +73,27 @@ if ( etheme_get_option('product_variable_price_from', false)) {
 
 ob_start();
 
+$estimated_delivery_exists = false;
+if ( get_option('xstore_sales_booster_settings_estimated_delivery') ) {
+	$estimated_delivery_exists = true;
+	$estimated_delivery = Etheme_Sales_Booster_Estimated_Delivery::get_instance();
+	$estimated_delivery->init($product);
+	$estimated_delivery->add_actions();
+	$estimated_delivery->args['original_tag'] = $estimated_delivery->args['tag'];
+	add_action( 'woocommerce_product_meta_end', array( $estimated_delivery, 'output' ), 15 );
+}
+
+$safe_checkout_exists = false;
+if ( get_option('xstore_sales_booster_settings_safe_checkout') ) {
+    $safe_checkout_exists = true;
+    $safe_checkout = Etheme_Sales_Booster_Safe_Checkout::get_instance();
+    $safe_checkout->init($product);
+    $safe_checkout->add_actions();
+    if ( $safe_checkout->settings['shown_on_quick_view'] == 'on' ) {
+        add_action( 'woocommerce_product_meta_start', array( $safe_checkout, 'output' ), 15 );
+    }
+}
+
 ?>
 
     <span class="et-close-popup et-toggle pos-absolute full-<?php echo esc_attr($element_options['content_pos']); ?> top">
@@ -81,7 +102,7 @@ ob_start();
         </svg>
     </span>
     <div class="et-content product-content">
-        <div class="et-content-inner <?php echo implode( ' ', $element_options['class'] ); ?>">
+        <div class="et-content-inner">
 			<?php
 			
 			foreach ( $element_options['product_content'] as $item ) {
@@ -109,15 +130,18 @@ ob_start();
 					case 'quick_gallery':
 						add_filter( 'woocommerce_sale_flash', 'etheme_woocommerce_sale_flash', 20, 3 );
 						if ( in_array( $element_options['images_type'], array( 'slider', 'grid' ) ) ): ?>
-							<?php
-							/**
-							 * woocommerce_before_single_product_summary hook
-							 *
-							 * @hooked woocommerce_show_product_sale_flash - 10
-							 * @hooked woocommerce_show_product_images - 20
-							 */
-							do_action( 'woocommerce_before_single_product_summary' );
-						
+                            <div class="main-images <?php echo implode( ' ', $element_options['class'] ); ?>">
+                                <?php
+                                    /**
+                                     * woocommerce_before_single_product_summary hook
+                                     *
+                                     * @hooked woocommerce_show_product_sale_flash - 10
+                                     * @hooked woocommerce_show_product_images - 20
+                                     */
+                                    do_action( 'woocommerce_before_single_product_summary' );
+                                ?>
+                            </div>
+                        <?php
 						else: ?>
 							<?php
 							$images_loading_type = get_theme_mod( 'images_loading_type_et-desktop', 'lazy' );
@@ -126,13 +150,13 @@ ob_start();
 								$new_attr    = 'src="' . $placeholder[0] . '" data-src';
 								$image       = get_the_post_thumbnail(
 									$post->ID,
-									apply_filters( 'single_product_large_thumbnail_size', 'shop_single' ),
+									apply_filters( 'single_product_large_thumbnail_size', 'woocommerce_single' ),
 									array(
 										'class' => 'lazyload lazyload-lqip et-lazyload-fadeIn',
 										// 'data-lazy_timeout' => '300',
 									)
 								); ?>
-                                <div class="main-images">
+                                <div class="main-images <?php echo implode( ' ', $element_options['class'] ); ?>">
 									<?php
 									woocommerce_show_product_sale_flash();
 									echo str_replace( 'src', $new_attr, $image );
@@ -140,16 +164,20 @@ ob_start();
                                 </div>
 								<?php
 							} else { ?>
-                                <div class="main-images">
+                                <div class="main-images <?php echo implode( ' ', $element_options['class'] ); ?>">
 									<?php woocommerce_show_product_sale_flash(); ?>
-									<?php the_post_thumbnail( $post->ID, apply_filters( 'single_product_large_thumbnail_size', 'shop_single' ) ); ?>
+									<?php the_post_thumbnail( $post->ID, apply_filters( 'single_product_large_thumbnail_size', 'woocommerce_single' ) ); ?>
                                 </div>
 							<?php }
 						
 						endif;
 						break;
 					case 'quick_categories':
+					    if ( $estimated_delivery_exists )
+						    $estimated_delivery->args['tag'] = 'span';
 						woocommerce_template_single_meta();
+						if ( $estimated_delivery_exists )
+							$estimated_delivery->args['tag'] = $estimated_delivery->args['original_tag'];
 						break;
 					case 'quick_share':
 						?>
@@ -165,6 +193,11 @@ ob_start();
 							
 							return $additional_params;
 						} );
+                        $element_options['built_in_wishlist'] = get_theme_mod('xstore_wishlist', false);
+                        if ( $element_options['built_in_wishlist'] && class_exists('XStoreCore\Modules\WooCommerce\XStore_Wishlist')) {
+                            $element_options['built_in_wishlist_instance'] = XStoreCore\Modules\WooCommerce\XStore_Wishlist::get_instance();
+                            add_filter('etheme_wishlist_btn_output', array($element_options['built_in_wishlist_instance'], 'old_wishlist_btn_filter_quick_view'), 10, 2);
+                        }
 						echo etheme_wishlist_btn();
 						break;
 					case 'quick_short_descr':
@@ -174,7 +207,7 @@ ob_start();
                                         $product->get_parent_id() :
                                 $product->get_ID());
 
-                            echo '<div class="sales-booster-live-viewing">' . $rendered_string . '</div>';
+                            echo '<p class="sales-booster-live-viewing">' . $rendered_string . '</p>';
                         }
 						if ( $element_options['variable_products_detach'] && $element_options['product_type'] == 'variation') {
 							$custom_excerpt = $product->get_description();
@@ -198,7 +231,7 @@ ob_start();
                         else :
 	                        $element_options['length']      = etheme_get_option( 'quick_descr_length', 120 );
 	                        $element_options['length']      = ( $element_options['length'] ) ? $element_options['length'] : 120;
-	                        $element_options['description'] = etheme_trunc( etheme_strip_shortcodes( get_the_content() ), $element_options['length'] );
+	                        $element_options['description'] = '-1' != $element_options['length'] ? etheme_trunc( etheme_strip_shortcodes( get_the_content() ), $element_options['length'] ) : etheme_strip_shortcodes( get_the_content() );
 	                        $element_options['description'] = trim( $element_options['description'] );
 	
 	                        if ( ! empty( $element_options['description'] ) ): ?>
@@ -206,7 +239,7 @@ ob_start();
                                     <div class="excerpt-title"><?php esc_html_e( 'More Details', 'xstore' ); ?></div>
                                     <div class="excerpt-content">
                                         <div class="excerpt-content-inner">
-					                        <?php echo wp_kses_post( $element_options['description'] );
+					                        <?php echo '-1' != $element_options['length'] ? wp_kses_post( $element_options['description'] ) : $element_options['description']; // skip html parsers if output full content
 					                        // if ( in_array( 'product_link', $element_options['product_content'] ) ): ?>
                                                 <div>
                                                     <a href="<?php the_permalink(); ?>" class="show-full-details">
@@ -220,6 +253,16 @@ ob_start();
                         endif;
 						break;
 					case 'quick_add_to_cart':
+						
+						$advanced_stock = etheme_get_option('advanced_stock_status', false) &&
+                              in_array('quick_view', (array) etheme_get_option( 'advanced_stock_locations', array('single_product', 'quick_view') ) ) && 'yes' === get_option( 'woocommerce_manage_stock' );
+                        if ( $advanced_stock ) {
+                            add_filter( 'woocommerce_get_stock_html', 'etheme_advanced_stock_status_html', 2, 10);
+                        }
+						
+						add_action( 'woocommerce_before_add_to_cart_button', 'etheme_show_single_stock', 10 );
+						add_filter( 'woocommerce_available_variation', 'etheme_show_single_variation_stock', 10, 2 );
+						
 						// add quantity
 						add_action( 'woocommerce_before_quantity_input_field', 'et_quantity_minus_icon' );
 						add_action( 'woocommerce_after_quantity_input_field', 'et_quantity_plus_icon' );
@@ -252,9 +295,44 @@ ob_start();
                                     break;
 						    }
 						}
-						
+
+                        if ( get_option('xstore_sales_booster_settings_quantity_discounts') ) {
+                            $quantity_discounts_exists = Etheme_Sales_Booster_Quantity_Discounts::get_instance();
+                            $quantity_discounts_exists->init($product);
+                            $quantity_discounts_exists->add_actions();
+                            if ($quantity_discounts_exists->args['should_render'] && $quantity_discounts_exists->settings['shown_on_quick_view'] == 'on') {
+                                $quantity_discounts_exists->settings['button_text'] = false;
+//                                if ( $quantity_discounts_exists->settings['button_icon'] == 'none') {
+                                    switch (etheme_get_option( 'cart_icon_et-desktop', 'type1' )) {
+                                        case 'type1':
+                                            $quantity_discounts_exists->settings['button_icon'] = 'et_icon-shopping-bag';
+                                            break;
+                                        case 'type2':
+                                            $quantity_discounts_exists->settings['button_icon'] = 'et_icon-shopping-basket';
+                                            break;
+                                        case 'type4':
+                                            $quantity_discounts_exists->settings['button_icon'] = 'et_icon-shopping-cart-2';
+                                            break;
+                                        default:
+                                            $quantity_discounts_exists->settings['button_icon'] = 'et_icon-shopping-cart';
+                                            break;
+                                    }
+//                                }
+                                $quantity_discounts_exists->output();
+                            }
+                        }
+
 						remove_action( 'woocommerce_before_quantity_input_field', 'et_quantity_minus_icon' );
 						remove_action( 'woocommerce_after_quantity_input_field', 'et_quantity_plus_icon' );
+						
+						if ( $advanced_stock ) {
+                            remove_filter( 'woocommerce_get_stock_html', 'etheme_advanced_stock_status_html', 2, 10);
+                        }
+
+                        if ( get_theme_mod('xstore_compare', false) && class_exists('XStoreCore\Modules\WooCommerce\XStore_Compare')) {
+                            $element_options['built_in_compare_instance'] = XStoreCore\Modules\WooCommerce\XStore_Compare::get_instance();
+                            $element_options['built_in_compare_instance']->old_compare_btn_filter_quick_view();
+                        }
 						break;
 					default:
 						break;
@@ -265,6 +343,9 @@ ob_start();
     </div>
 
 <?php
+
+if ( $estimated_delivery_exists )
+	remove_action( 'woocommerce_product_meta_end', array( $estimated_delivery, 'output' ), 15 );
 
 echo json_encode(
 	array(

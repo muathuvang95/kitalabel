@@ -13,7 +13,7 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 		
 		if ( isset( $this->visible ) ) {
 			$visibility = $this->visible;
-			if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+			if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 				if ( $depth > 0 ) {
 					// $output .= "\n$indent<div class=\"nav-sublist\">\n";
 					$output .= '';
@@ -37,7 +37,7 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 		
 		if ( isset( $this->visible ) ) {
 			$visibility = $this->visible;
-			if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+			if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 				if ( $depth > 0 ) {
 					// $output .= "\n$indent</div>\n";
 					$output .= '';
@@ -63,7 +63,7 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 		
 		$visibility    = get_post_meta( $item_id, '_menu-item-item_visibility', true );
 		$this->visible = $visibility;
-		if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+		if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 			return;
 		}
 		
@@ -198,6 +198,9 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 			switch ( $icon_type ) {
 				case 'xstore-icons':
 					$icon = '<i class="et-icon et-' . $icon . '"></i>';
+					break;
+				case 'fontawesome-5':
+					$icon = '<i class="' . $icon . '"></i>';
 					break;
 				default:
 					$icon = '<i class="fa fa-' . $icon . '"></i>';
@@ -334,7 +337,7 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 	public function end_el( &$output, $item, $depth = 0, $args = array() ) {
 		$visibility    = get_post_meta( $item->ID, '_menu-item-item_visibility', true );
 		$this->visible = $visibility;
-		if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+		if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 			return;
 		}
 		
@@ -347,7 +350,7 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 	
 	function et_enque_styles( $item_id, $depth ) {
 		$visibility = get_post_meta( $item_id, '_menu-item-item_visibility', true );
-		if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+		if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 			return;
 		}
 		$use_img            = get_post_meta( $item_id, '_menu-item-use_img', true );
@@ -413,7 +416,7 @@ class ETheme_Navigation extends Walker_Nav_Menu {
 	
 	function et_get_tooltip_html( $item_id ) {
 		$visibility = get_post_meta( $item_id, '_menu-item-item_visibility', true );
-		if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+		if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 			return;
 		}
 		$output             = '';
@@ -527,7 +530,7 @@ class ETheme_Navigation_Mobile extends Walker_Nav_Menu {
 		$value = '';
 		$visibility    = get_post_meta( $item_id, '_menu-item-item_visibility', true );
 		$this->visible = $visibility;
-		if ( ( $visibility == 'logged' && ! ( is_user_logged_in() ) ) || ( $visibility == 'unlogged' && is_user_logged_in() ) ) {
+		if ( ( $visibility == 'logged' && ! ( get_query_var( 'et_is-loggedin', false) ) ) || ( $visibility == 'unlogged' && get_query_var( 'et_is-loggedin', false) ) ) {
 			return;
 		}
 		

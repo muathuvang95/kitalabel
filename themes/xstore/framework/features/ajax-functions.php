@@ -25,6 +25,11 @@ if ( ! function_exists( 'et_ajax_element' ) ) {
 		$args = ( isset( $_POST['args'] ) ) ? $_POST['args'] : array() ;
 		$args['ajax'] = false;
 		$args['ajax_loaded'] = true;
+
+        if ( class_exists('XStoreCore\Modules\WooCommerce\XStore_Wishlist')) {
+            $wishlist_instance = XStoreCore\Modules\WooCommerce\XStore_Wishlist::get_instance();
+            add_filter('etheme_wishlist_btn_output', array($wishlist_instance, 'old_wishlist_btn_filter'), 10, 2);
+        }
 		
 		if (isset($_POST[ 'type' ]) ) {
 			if ($_POST[ 'type' ] == 'widget'){
@@ -123,7 +128,7 @@ if (! function_exists('et_ajax_widgets')){
 			return false;
 		}
 		if ( get_query_var('is_mobile', false) && get_theme_mod('sidebar_for_mobile', 'off_canvas') == 'off_canvas' ) {
-			return false;
+			//return false;
 		}
 		return $ajax;
 	}

@@ -1,6 +1,6 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit( 'No direct script access allowed' );
 /**
- * Template "Etheme Custom Fonts" for 8theme dashboard.
+ * Template "Sales booster" for 8theme dashboard.
  *
  * @since   7.0.0
  * @version 1.0.0

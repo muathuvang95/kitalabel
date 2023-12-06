@@ -128,6 +128,23 @@ article + .comment-respond {
 .commentlist .description p {
   margin-bottom: 0.75em;
 }
+.commentlist .review-images {
+  margin: 0 -5px 5px;
+}
+.commentlist .review-images a {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.commentlist .review-images img {
+  margin: 0 5px 5px;
+}
 .commentlist .star-rating {
   float: right;
   margin-top: 5px;
@@ -178,6 +195,26 @@ article + .comment-respond {
 #reviews .commentlist .star-rating {
   margin-top: 10px;
 }
+.open-reviews {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.open-reviews:after {
+  content: '\e905';
+  font-family: 'xstore-icons';
+  -webkit-margin-start: 7px;
+          margin-inline-start: 7px;
+}
+.open-reviews.opened:after {
+  content: '\e903';
+}
 @media only screen and (min-width: 992px) {
   #reviews {
     overflow: hidden;
@@ -226,6 +263,56 @@ article + .comment-respond {
   .comments-list .comment .media-body {
     width: 100%;
   }
+}
+#review_form .et-reviews-images {
+  margin-top: 10px;
+}
+#review_form .et-reviews-images label {
+  display: inline-block;
+  margin-bottom: 7px;
+}
+.et-reviews-images-message {
+  position: relative;
+  font-size: 1.14rem;
+  word-wrap: break-word;
+  background: var(--et_info-bg-color, var(--et_blue-color));
+  color: var(--et_info-color, #fff);
+  margin: 15px 0;
+  padding: 0.79em 1.2em 0.79em 45px;
+  padding: 0.79em 1.2em 0.79em calc(1.2em + 25px);
+  border-left: 5px solid var(--et_dark-2-white-02);
+}
+.et-reviews-images-message:empty {
+  display: none;
+}
+.et-reviews-images-message:before {
+  content: "\e906";
+  position: absolute;
+  font-family: 'xstore-icons';
+  border-radius: 50%;
+  left: 20px;
+  padding: 0;
+  top: auto;
+  background: 0 0;
+  font-style: normal;
+}
+.et-reviews-images-error {
+  color: var(--et_error-color, #fff);
+  background: var(--et_error-bg-color, var(--et_red-color));
+}
+.et-reviews-images-info {
+  margin-bottom: 10px;
+}
+#et-reviews-images-uploader {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+.et-reviews-images-previewer {
+  margin: 0 -10px 10px;
+}
+.et-reviews-images-previewer img {
+  max-width: 150px;
+  margin: 0 10px 10px;
 }
 /*=====  End of Comments styles  ======*/
 .comments-list {

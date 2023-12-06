@@ -105,6 +105,8 @@ if(!function_exists('etheme_page_config')) {
 		// Thats all about custom options for the particular page
 
 		if(get_query_var('et_is-woocommerce', false) && get_query_var('is_single_product', false) ) {
+		    // disable slider for single product
+            $layout['slider'] = false;
 			if ( !get_query_var('etheme_single_product_builder', false) ) {
 				$layout['sidebar'] = etheme_get_option('single_sidebar', 'without');
 			}
@@ -132,8 +134,8 @@ if(!function_exists('etheme_page_config')) {
 			$layout['sidebar-size'] = 0;
 		}
 
-		// Remove sidebar on login page 
-		if( function_exists( 'is_account_page' ) && is_account_page() && ! is_user_logged_in() ) {
+		// Remove sidebar on login page
+		if( function_exists( 'is_account_page' ) && is_account_page() && ! get_query_var( 'et_is-loggedin', false) ) {
 			$layout['sidebar-size'] = 0;
 		}
 

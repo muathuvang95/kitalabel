@@ -3,11 +3,6 @@
   grid-template-columns: repeat(var(--cols, 3), 1fr);
   grid-gap: var(--rows-gap, 20px) var(--cols-gap, 20px);
 }
-.etheme-twitter-feed-masonry-tweets {
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-}
 .etheme-twitter-feed-tweet {
   display: block;
   position: relative;
@@ -28,7 +23,6 @@
   width: 100%;
   left: 0;
   border-bottom: var(--line-weight, 1px) var(--line-style, solid) var(--line-color, #e1e1e1);
-  z-index: 1;
 }
 .etheme-twitter-feed-tweet.has-divider:last-child:after {
   display: none;

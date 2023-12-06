@@ -63,4 +63,13 @@ class YouTube{
 		}
 		return $videos;
 	}
+
+	public function et_documentation_beacon(){
+		$_POST['value'] = $_POST['value'] == 'false' ? false : true;
+
+		$value = ( $_POST['value'] ) ? 'on' : 'off';
+
+		update_option( 'et_documentation_beacon', $value, 'no');
+		die();
+	}
 }

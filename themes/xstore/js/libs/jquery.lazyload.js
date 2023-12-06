@@ -119,12 +119,12 @@
                                         }
                                         if (src) {
                                             new_image.src = src;
-                                            if (etTheme.isotope !== undefined)
+                                            if (typeof etTheme !== 'undefined' && typeof etTheme.isotope && etTheme.isotope !== undefined)
                                                 etTheme.isotope();
                                         }
                                         if (srcset) {
                                             new_image.srcset = srcset;
-                                            if (etTheme.isotope !== undefined)
+                                            if (typeof etTheme !== 'undefined' && typeof etTheme.isotope && etTheme.isotope !== undefined)
                                                 etTheme.isotope();
                                         }
                                         new_image.classList.remove('et-lazyload-fadeIn');
@@ -151,12 +151,12 @@
                             }
                             if (src) {
                                 entry.target.src = src;
-                                if ( etTheme.isotope !== undefined )
+                                if ( typeof etTheme !== 'undefined' && typeof etTheme.isotope !== 'undefined' && etTheme.isotope !== undefined )
                                     etTheme.isotope();
                             }
                             if (srcset) {
                                 entry.target.srcset = srcset;
-                                if ( etTheme.isotope !== undefined )
+                                if ( typeof etTheme !== 'undefined' && typeof etTheme.isotope && etTheme.isotope !== undefined )
                                     etTheme.isotope();
                             }
                             entry.target.classList.remove('et-lazyload-fadeIn');
@@ -199,12 +199,12 @@
                 if ("img" === image.tagName.toLowerCase()) {
                     if (src) {
                         image.src = src;
-                        if ( etTheme.isotope !== undefined )
+                        if ( typeof etTheme !== 'undefined' && typeof etTheme.isotope && etTheme.isotope !== undefined )
                             etTheme.isotope();
                     }
                     if (srcset) {
                         image.srcset = srcset;
-                        if ( etTheme.isotope !== undefined )
+                        if ( typeof etTheme !== 'undefined' && typeof etTheme.isotope && etTheme.isotope !== undefined )
                             etTheme.isotope();
                     }
                     image.classList.remove('et-lazyload-fadeIn');

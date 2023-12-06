@@ -26,8 +26,7 @@ ob_start();
     if ( $is_activated ) : ?>
         <p>Thank you for choosing XStore. We hope you’ll like it!</p>
     <?php else: ?>
-        <p>Thank you for choosing XStore. We hope you’ll like it!<br/> To enjoy the full experience we strongly
-        recommend to activate a theme with your purchase code.</p>
+        <p>Thank you for choosing XStore. We hope you will find it to be a great fit for your website.<br/>In order to fully experience all of the features and benefits of the theme, we highly recommend activating it with your purchase code.</p>
     <?php endif; ?>
 
     <svg width="400" height="229" viewBox="0 0 400 229" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -291,31 +290,31 @@ if ( count($xstore_branding_settings) && isset($xstore_branding_settings['contro
             <h4 class="text-uppercase"><?php esc_html_e( 'Where can I find my purchase code?', 'xstore' ); ?></h4>
     
             <ul>
-                <li><b><?php esc_html_e( 'If you bought theme on  ', 'xstore' ); ?> <a
-                            href="https://themeforest.net/">https://themeforest.net/ : </a></b>
-                </li>
-                <li>1. <?php esc_html_e( 'Please enter your Envato account and find ', 'xstore' ); ?> <a
+<!--                <li><b>--><?php //esc_html_e( 'If you bought theme on  ', 'xstore' ); ?><!-- <a-->
+<!--                            href="https://themeforest.net/">https://themeforest.net/ : </a></b>-->
+<!--                </li>-->
+                <li>1. <?php esc_html_e( ' Log in to your Envato account and navigate to ', 'xstore' ); ?> <a
                             href="https://themeforest.net/downloads"><?php esc_html_e( 'Downloads tab', 'xstore' ); ?></a>
                 </li>
-                <li>2. <?php esc_html_e( 'Find XStore theme in the list and click on the opposite', 'xstore' ); ?>
+                <li>2. <?php esc_html_e( 'Locate the XStore theme in the list and click the corresponding', 'xstore' ); ?>
                     <span><?php echo esc_html__( 'Download', 'xstore' ); ?></span> <?php esc_html_e( 'button', 'xstore' ); ?>
                 </li>
-                <li>3. <?php esc_html_e( 'Select', 'xstore' ); ?>
-                    <span><?php echo esc_html__( 'License Certificate & Purchase code', 'xstore' ); ?></span> <?php esc_html_e( 'for download', 'xstore' ); ?>
+                <li>3. <?php esc_html_e( 'Select the', 'xstore' ); ?>
+                    <span><?php echo esc_html__( '"License Certificate & Purchase Code"', 'xstore' ); ?></span> <?php esc_html_e( 'option to download the file', 'xstore' ); ?>
                 </li>
-                <li>4. <?php esc_html_e( 'Copy the', 'xstore' ); ?>
-                    <span><?php esc_html_e( 'Item Purchase Code', 'xstore' ); ?> </span><?php esc_html_e( 'from the downloaded document', 'xstore' ); ?>
+                <li>4. <?php esc_html_e( 'Open the downloaded document and copy ', 'xstore' ); ?>
+                    <span><?php esc_html_e( '"Item Purchase Code" ', 'xstore' ); ?> </span><?php esc_html_e( 'the to your clipboard.', 'xstore' ); ?>
                 </li>
-                <br/>
-                <li><b><?php esc_html_e( 'If you bought a subscription on  ', 'xstore' ); ?> <a
-                            href="https://www.8theme.com/">https://www.8theme.com/ :</a></b>
-                </li>
-                <li>1. <?php esc_html_e( 'Please enter your 8theme account and find the Subscription License Key section', 'xstore' ); ?>
-                </li>
-                <li>2. <?php esc_html_e( 'Copy the existing code or generate the new one if you already used previously generated code. You need to generate separate codes for every single activation on different domains.', 'xstore' ); ?>
-                </li>
-                <li>3. <?php esc_html_e( 'Use it to activate the theme', 'xstore' ); ?>
-                </li>
+<!--                <br/>-->
+<!--                <li><b>--><?php //esc_html_e( 'If you bought a subscription on  ', 'xstore' ); ?><!-- <a-->
+<!--                            href="https://www.8theme.com/">https://www.8theme.com/ :</a></b>-->
+<!--                </li>-->
+<!--                <li>1. --><?php //esc_html_e( 'Please enter your 8theme account and find the Subscription License Key section', 'xstore' ); ?>
+<!--                </li>-->
+<!--                <li>2. --><?php //esc_html_e( 'Copy the existing code or generate the new one if you already used previously generated code. You need to generate separate codes for every single activation on different domains.', 'xstore' ); ?>
+<!--                </li>-->
+<!--                <li>3. --><?php //esc_html_e( 'Use it to activate the theme', 'xstore' ); ?>
+<!--                </li>-->
             </ul>
             <br/>
         <?php endif; ?>
@@ -323,11 +322,13 @@ if ( count($xstore_branding_settings) && isset($xstore_branding_settings['contro
     <?php endif;
     
     if ( !$settings['hide_buy_license'] ) : ?>
-        <h3><?php echo esc_html__( 'Buy License', 'xstore' ); ?></h3>
-        <p><?php echo sprintf( esc_html__( 'If you don\'t have a license or need another one for a new website, click on a Buy button. Interested in more than 10 licenses? Contact us via %1scontact form%2s for more details about discounts and premium support for you.', 'xstore' ), '<a href="http://8theme.com/contact-us/" target="_blank">', '</a>' ); ?></p>
-        <?php $ntb_class = ( ! etheme_is_activated() ) ? 'et-button-grey' : 'et-button-green'; ?>
+        <h3><?php echo esc_html__( 'Buy XStore License', 'xstore' ); ?></h3>
+        <p>
+            If you do not have a license or require one for a new website, please click on the "Buy" button. If you are interested in purchasing more than 10 licenses, please contact us via our <a href="http://8theme.com/contact-us/" target="_blank">contact</a> form for more information regarding discounts and premium support.
+        </p>
+        <?php $ntb_class = ( ! etheme_is_activated() ) ? 'et-button-black' : 'et-button-green'; ?>
         <a
-                href="https://themeforest.net/cart/configure_before_adding/15780546&size=source&support=bundle_12month&utm_source=8theme%20Shop&utm_medium=shop&utm_campaign=demo"
+                href="https://1.envato.market/2rXmmA" target="_blank"
                 class="et-button <?php echo esc_attr( $ntb_class ); ?> last-button no-loader"><?php esc_html_e( 'Purchase now', 'xstore' ); ?>
         </a>
     <?php endif; ?>

@@ -35,6 +35,40 @@ div.et-message {
     padding-right: 5px;
 }
 
+/* tips */
+/* mtips */
+@keyframes et-patchInfoLeft {
+    0% {
+        left: calc(100% + 20px);
+    }
+
+    100% {
+        left: calc(100% + 10px);
+    }
+}
+@keyframes et-patchInfoArrowLeft {
+    0% {
+        left: calc(100% + 15px);
+    }
+
+    100% {
+        left: calc(100% + 5px);
+    }
+}
+.mtips.mtips-left span.mt-mes {
+    right: auto;
+    left: calc(100% + 10px);
+}
+.mtips-left:after {
+    right: auto;
+    left: calc(100% + 5px);
+}
+
+/* patcher */
+.patch-action .mtips-left:before {
+    right: auto;
+    left: 100%;
+}
 /* columns */
 
 .et-col-7, .et-col-5 {

@@ -125,6 +125,7 @@ article.content-timeline:hover .meta-post-timeline,
 .content-grid2:hover .meta-post-timeline,
 .content-grid2:hover .meta-post-timeline,
 .btn-view-wishlist,
+.btn-view-compare,
 .btn-checkout {
   background-color: var(--et_active-color, #a4004f);
 }

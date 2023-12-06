@@ -510,6 +510,10 @@ if( ! function_exists( 'etheme_the_post_field' ) ) {
 		
 		switch ( $field ) {
 			case 'video':
+				/*
+                * Video parse from url
+                * ******************************************************************* */
+				require_once( apply_filters('etheme_file_url', ETHEME_CODE_3D . 'parse-video/VideoUrlParser.class.php') );
 				$embed =  VideoUrlParser::get_url_embed( $data );
 				if( ! empty( $embed ) ){
 					echo '

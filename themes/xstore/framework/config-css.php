@@ -362,11 +362,6 @@ return array(
 		'name' => 'et-advance-tabs',
 		'file'=> '/css/modules/builders/elementor/et-advance-tabs',
 	),
-	'elementor-mailchimp' => array(
-		'title' => esc_html__('Elementor Etheme mailchimp', 'xstore'),
-		'name' => 'elementor-mailchimp',
-		'file'=> '/css/modules/builders/elementor/etheme-mailchimp',
-	),
 	'elementor-contact-form-7' => array(
 		'title' => esc_html__('Elementor Etheme contact form 7', 'xstore'),
 		'name' => 'elementor-contact-form-7',
@@ -546,6 +541,18 @@ return array(
 		'file'=> '/css/modules/builders/elementor/etheme-posts',
 	),
 	
+	'elementor-slides' => array(
+		'title' => esc_html__('Elementor slides', 'xstore'),
+		'name' => 'elementor-slides',
+		'file'=> '/css/modules/builders/elementor/etheme-slides',
+	),
+
+    'elementor-content-switcher' => array(
+        'title' => esc_html__('Elementor content switcher', 'xstore'),
+        'name' => 'elementor-content-switcher',
+        'file'=> '/css/modules/builders/elementor/etheme-content-switcher',
+    ),
+	
 	// wpbakery
 	'wpb-autoscrolling-text' => array(
 		'title' => esc_html__('WPBakery autoscrolling-text', 'xstore'),
@@ -557,6 +564,12 @@ return array(
 		'name' => 'wpb-banners',
 		'file'=> '/css/modules/builders/wpb/banners',
 	),
+	'wpb-twitter' => array(
+		'title' => esc_html__('WPBakery twitter', 'xstore'),
+		'name' => 'wpb-twitter',
+		'file'=> '/css/modules/builders/wpb/twitter',
+	),
+
 //	'wpb-categories-lists' => array(
 //		'title' => esc_html__('WPBakery categories-lists', 'xstore'),
 //		'name' => 'wpb-categories-lists',
@@ -942,4 +955,17 @@ return array(
 		'name' => 'elementor-style',
 		'file'=> '/css/elementor',
 	),
+	
+	// sales booster
+	'sale-booster-cart-checkout-progress-bar' => array(
+		'title' => esc_html__('Cart/Checkout progress bar shortcode', 'xstore'),
+		'name' => 'sale-booster-cart-checkout-progress-bar',
+		'file'=> '/css/modules/woocommerce/sales-booster/cart-checkout-progress-bar',
+	),
+
+    'sale-booster-quantity-discounts' => array(
+        'title' => esc_html__('Quantity Discounts', 'xstore'),
+        'name' => 'sale-booster-quantity-discounts',
+        'file'=> '/css/modules/woocommerce/sales-booster/quantity-discounts',
+    ),
 );

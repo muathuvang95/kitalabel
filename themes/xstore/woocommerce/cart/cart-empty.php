@@ -13,7 +13,7 @@
  * @see 	    https://docs.woothemes.com/document/template-structure/
  * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.5.0
+ * @version 7.0.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,7 +25,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 wc_print_notices();
 
-$empty_cart_content = etheme_get_option('empty_cart_content', '<h1 style="text-align: center;">YOUR SHOPPING CART IS EMPTY</h1><p style="text-align: center;">We invite you to get acquainted with an assortment of our shop.Surely you can find something for yourself!</p> ');
+$empty_cart_content = etheme_get_option('empty_cart_content', '<h1 style="text-align: center;">YOUR SHOPPING CART IS EMPTY</h1><p style="text-align: center;">We invite you to get acquainted with an assortment of our shop. Surely you can find something for yourself!</p> ');
+
+$woo_new_7_0_1_version = etheme_woo_version_check();
+$button_class = '';
+if ( $woo_new_7_0_1_version ) {
+    $button_class = wc_wp_theme_get_element_class_name( 'button' );
+}
 
 ?>
 
@@ -39,6 +45,6 @@ $empty_cart_content = etheme_get_option('empty_cart_content', '<h1 style="text-a
 		<?php echo do_shortcode( $empty_cart_content ); ?>
 	<?php endif; ?>
 	<?php if ( wc_get_page_id( 'shop' ) > 0 ) : ?>
-		<p><a class="btn black" href="<?php echo get_permalink(wc_get_page_id('shop')); ?>"><span><?php esc_html_e('Return To Shop', 'xstore') ?></span></a></p>
+		<p><a class="btn black<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?>" href="<?php echo get_permalink(wc_get_page_id('shop')); ?>"><span><?php esc_html_e('Return To Shop', 'xstore') ?></span></a></p>
 	<?php endif; ?>
 </div>

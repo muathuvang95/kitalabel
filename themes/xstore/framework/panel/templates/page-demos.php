@@ -12,7 +12,7 @@ $versions = etheme_get_demo_versions();
 
 if ( ! $versions ){
 	echo '<p class="et-message et-error" style="width: 100%;">' .
-	     esc_html__('Can not connect to 8theme API to get versions list', 'xstore') .
+	     esc_html__('We are unable to connect to the 8Theme API to retrieve the list of versions.', 'xstore') .
 	     '</p>';
 	return;
 }
@@ -36,9 +36,11 @@ if ( $installed_version ) {
 <div class="etheme-import-section <?php echo esc_attr( $class ); ?>">
     <div class="import-demos-wrapper admin-demos">
         <h1 class="etheme-page-title etheme-page-title-type-2">Import Demos
-            <span class="etheme-page-title-label green"><span class="et-counter">110+</span><span><?php echo esc_html__('Demos', 'xstore');?></span></span>
+            <span class="etheme-page-title-label green"><span class="et-counter">120+</span><span><?php echo esc_html__('Demos', 'xstore');?></span></span>
         </h1>
-        <p class="et-message et-info">Importing pre-built website is the easiest way to setup theme. It will allow you to quickly edit everything instead of creating content from scratch. </p>
+        <p class="et-message et-info">
+            Importing a pre-built website is the easiest way to set up your theme. It allows you to quickly edit existing content, rather than starting from scratch.
+        </p>
         <div class="import-demos-header">
             <ul class="et-filters import-demos-filter et-filters-type-1">
                 <li>
@@ -134,6 +136,7 @@ if ( $installed_version ) {
 					$engine = 0;
 				}
 
+
 				?>
                 <div
                         class="version-preview <?php echo esc_attr( $imported ); ?> version-preview-<?php echo esc_attr( $key ); ?> <?php echo strpos($version['filter'], 'elementor' ) > 0 ? '' : 'et-hide'; ?>" data-filter="<?php echo esc_js($version['filter']); ?>"
@@ -141,11 +144,17 @@ if ( $installed_version ) {
                 >
                     <div class="version-screenshot">
                         <img
-                                src="http://8theme.com/import/xstore-demos/<?php echo esc_attr( $key ); ?>/screenshot.jpg"
+                                class="lazyload lazyload-simple et-lazyload-fadeIn"
+                                src="<?php echo esc_html( ETHEME_BASE_URI . ETHEME_CODE ); ?>assets/images/placeholder-350x268.png"
+                                data-src="<?php echo apply_filters('etheme_protocol_url', ETHEME_BASE_URL . 'import/xstore-demos/' . esc_attr( $key ) . '/screenshot.jpg'); ?>"
+                                data-old-src="<?php echo esc_html( ETHEME_BASE_URI . ETHEME_CODE ); ?>assets/images/placeholder-350x268.png"
                                 alt="<?php echo esc_attr( $key ); ?>">
 						<?php if ( in_array($key, $installed_versions)) { ?>
-                            <span class="version-badge"><?php esc_html_e('Imported', 'xstore'); ?></span>
+                            <span class="version-badge green-badge"><?php esc_html_e('Imported', 'xstore'); ?></span>
 						<?php } ?>
+	                    <?php if ( isset($version['badge']) ) { ?>
+                            <span class="version-badge red-badge"><?php echo esc_html($version['badge']); ?></span>
+	                    <?php } ?>
                         <div class="version-footer">
                             <a href="<?php echo esc_url( $version['preview_url'] ); ?>" <?php echo (isset($version['preview_elementor_url'])) ? 'data-href="'.esc_url( $version['preview_elementor_url'] ).'"' : ''; ?> target="_blank" class="button-preview et-button et-button-dark-grey no-loader">
 								<?php echo esc_html__('Preview', 'xstore'); ?>
@@ -203,7 +212,7 @@ if ( $installed_version ) {
             <br>
             <img src="' . ETHEME_BASE_URI . ETHEME_CODE .'assets/images/' . 'success-icon.png" alt="installed icon" style="margin-bottom: -7px;"><br/><br/>
             <h3 class="et_step-title text-center">' . esc_html__('Theme successfully activated!', 'xstore') . '</h3>
-            <p>'.esc_html__('Now you have lifetime updates, top-notch 24/7 live support and much more.', 'xstore').'</p>
+            <p> Now you have access to lifetime updates, top-notch 24/7 live support, and much more features.</p>
         </div>
         <span class="et-button et-button-green no-loader et_close-popup" onclick="window.location=\'' . admin_url( 'admin.php?page=et-panel-demos' ) . '\'">ok</span><br><br>' ?>
 	<?php echo '<div class="et_popup-activeted-content hidden">' . $out . '</div>'; ?>

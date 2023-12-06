@@ -2,7 +2,7 @@
 /**
  * Description
  *
- * @package    form-checkout-multistep.php
+ * @package    form-checkout-separated.php
  * @since      1.0.0
  * @author     Stas
  * @link       http://xstore.8theme.com
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <?php
 
 // If checkout registration is disabled and not logged in, the user cannot checkout
-if ( ! $checkout->enable_signup && ! $checkout->enable_guest_checkout && ! is_user_logged_in() ) {
+if ( ! $checkout->enable_signup && ! $checkout->enable_guest_checkout && ! get_query_var( 'et_is-loggedin', false) ) {
 	echo esc_html( apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'You must be logged in to checkout.', 'xstore' ) ) );
 	return;
 }
@@ -74,17 +74,10 @@ $is_payment_step = $check_page['is_payment'];
                     </h3>
                     <div class="tab-content">
     
-                        <!--				<div class="col-1">-->
-    
                         <?php do_action( 'woocommerce_checkout_billing' ); ?>
-    
-                        <!--				</div>-->
-                        <!--				-->
-                        <!--				<div class="col-2">-->
     
                         <?php do_action( 'woocommerce_checkout_shipping' ); ?>
     
-                        <!--				</div>-->
                     </div>
                 </div>
             </div>

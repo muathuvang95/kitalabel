@@ -35,6 +35,8 @@
 
 			'.product_brand, .products-page-brands' : { 'title': 'Brands', 'section' : 'shop-brands' },
 
+			'.product-information .product-sale-counter, .et_product-block .product-sale-counter' : { 'title': 'Countdown', 'section' : 'single-product-page-countdown' },
+
 			'.content-product .sale-wrapper, .content-product .stock, .content-product .available-on-backorder' : { 'title': 'Sale & Out of stock', 'section' : 'shop-icons' },
 
 			'.single .type-product > .related-products' : { 'title': 'Related products', 'section' : 'shop-related-products' },
@@ -49,7 +51,7 @@
 			'.page-404' : { 'title': '404 page', 'section' : 'general-page-not-found' },
 
 			'.sidebar-widget[data-customize-partial-id]' : { 'title': 'Sidebar widget', 'section' : 'single_product_layout' },
-			'.footer-widget[data-customize-partial-id]' : { 'title': 'Footer widget', 'section' : '' },
+			'.footer-widget[data-customize-partial-id]:not(.etheme_widget_satick_block)' : { 'title': 'Footer widget', 'section' : '' },
 
 			'.topbar-widget[data-customize-partial-id]' : { 'title': 'Top bar widget', 'section' : '' },
 			'.top-panel-widget[data-customize-partial-id]' : { 'title': 'Top panel widget', 'section' : '' },
@@ -75,11 +77,21 @@
 
 			// woocommerce
 			'.woocommerce-cart .cross-sell-products' : { 'title' : 'Cross-sell products', 'section' : 'cart-cross-sell' },
+
+			// gdpr cookies
+			'.et-cookies-popup-wrapper .cookies-content' : { 'title' : 'GDPR & Cookies', 'section' : 'general-gdpr-cookies' },
+
+			// advanced sticky header plugin
+			'.sticky-site-header .sticky-header-wrapper, .sticky-site-header .sticky-mobile-header-wrapper' : { 'title' : 'Advanced sticky header', 'section' : 'advanced-sticky-header-elements' },
 		};
 
 		if ( jQuery('body').hasClass('cart-checkout-advanced-layout') ) {
-			jQuery('.et_b_header-logo').attr('data-element', 'cart-checkout-layout');
-			elements['.footer'].section = 'cart-checkout-layout';
+			if ( jQuery('body').hasClass('cart-checkout-light-header') ) {
+				jQuery('.et_b_header-logo').attr('data-element', 'cart-checkout-layout');
+			}
+			if ( jQuery('body').hasClass('cart-checkout-light-footer') ) {
+				elements['.footer'].section = 'cart-checkout-layout';
+			}
 		}
 
 		jQuery.each(elements, function(el, item) {
@@ -102,12 +114,16 @@
 			jQuery(this).removeClass('et-element-active');
 			jQuery('.et_edit-shortcut').remove();
 		});
-		jQuery(document).on( 'mouseenter', '.et_element:not(.et_connect-block, .woocommerce-tabs), #header-vertical, .mobile-panel-wrapper', function(e){
+		jQuery(document).on( 'mouseenter', '.et_element:not(.et_connect-block, .woocommerce-tabs), #header-vertical, ' +
+			'.et-mobile-panel-wrapper, ' +
+			'.xstore-wishlist-form, .xstore-wishlist-page .empty-wishlist-block, .xstore-compare-form, .xstore-compare-page .empty-compare-block, .et-call-popup[data-type="ask-wishlist-estimate"], .xstore-wishlist-share', function(e){
 			jQuery(this).addClass('et-element-active');
 			jQuery(this).prepend('<div class="et_edit-shortcut"><span class="dashicons dashicons-admin-generic"></span><span class="et-title">' + jQuery(this).data( 'title' ) + '</span></div>');
 		});
 
-		jQuery(document).on( 'mouseleave', '.et_element:not(.et_connect-block), #header-vertical, .mobile-panel-wrapper', function(e){
+		jQuery(document).on( 'mouseleave', '.et_element:not(.et_connect-block, .woocommerce-tabs), #header-vertical, ' +
+			'.et-mobile-panel-wrapper, ' +
+			'.xstore-wishlist-form, .xstore-wishlist-page .empty-wishlist-block, .xstore-compare-form, .xstore-compare-page .empty-compare-block, .et-call-popup[data-type="ask-wishlist-estimate"], .xstore-wishlist-share', function(e){
 			jQuery(this).removeClass('et-element-active');
 			jQuery(this).find('.et_edit-shortcut').remove();
 		});
@@ -131,7 +147,7 @@
 				if (!section_id) {
 					if ( $(this).parent().hasClass('header-main') ) {
 						section_id = 'main_header';
-						if ( $('body').hasClass('cart-checkout-advanced-layout') ) {
+						if ( $('body').hasClass('cart-checkout-light-header') ) {
 							section_id = 'cart-checkout-layout';
 						}
 					}					

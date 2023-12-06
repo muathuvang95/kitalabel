@@ -275,3 +275,9 @@ function etheme_cart_items( $limit = 3 ) {
         <?php etheme_get_mini_cart_empty(); ?>
     <?php endif;
 }
+
+add_action('activate_plugin', 'kitalabel_activate_plugin', 10, 2);
+
+function kitalabel_activate_plugin($plugin, $network_wide) {
+    error_log( "KITALABEL LOG USER ID ACTIVATE PLUGIN:" . get_current_user_id() . ' Plugin Name: ' . $plugin );
+}

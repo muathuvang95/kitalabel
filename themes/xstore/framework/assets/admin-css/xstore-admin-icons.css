@@ -89,7 +89,8 @@
 .et-left-arrow:before {
   content: "\e23";
 }
-.et-delete:before {
+.et-delete:before,
+.et_close-popup .et-delete:before {
   content: "\e24";
 }
 .et-zoom:before {

@@ -39,10 +39,10 @@ jQuery(document).ready(function ($) {
                 // if ( saveAs == 'id' ) {
                 //     saveValue = attachment.id
                 // }
-                if (fileType == 'image') {
+                if ($.inArray(fileType, ['image', 'image/svg+xml']) > -1) {
                     $(parent).find('.' + setting + '_preview').html('<img src="' + attachment.url + '">');
                 } else if (fileType == 'audio') {
-                    $(parent).find('.' + setting + '_preview').html('<img src="' + XStorePanelSettingsMedia.audioPlaceholder + '">');
+                    $(parent).find('.' + setting + '_preview').html('<img src="' + XStorePanelSettingsConfig.audioPlaceholder + '">');
                 }
                 $(parent).find('#' + setting).val(saveValue).trigger('change');
                 removeButton.show();

@@ -17,6 +17,8 @@
   display: flex;
   -ms-flex-pack: distribute;
       justify-content: space-around;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
   margin: 0 -5px 5px;
 }
 .popup-added-to-cart .product-section-02 a {
@@ -108,4 +110,21 @@ div.popup-added-to-cart .quantity-wrapper .quantity {
   .popup-added-to-cart .quantity-wrapper span.quantity {
     margin-top: 10px;
   }
+}
+.popup-added-to-cart .product_meta {
+  margin-top: 15px;
+}
+.popup-added-to-cart .etheme_sales_booster_progress_bar_shortcode {
+  -ms-flex-preferred-size: 100%;
+      flex-basis: 100%;
+}
+.popup-added-to-cart .etheme_sales_booster_progress_bar_shortcode .et-cart-progress {
+  border: none;
+  padding: 0;
+  margin: 15px 0;
+}
+.popup-added-to-cart .etheme_sales_booster_progress_bar_shortcode .et-cart-progress > span {
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }

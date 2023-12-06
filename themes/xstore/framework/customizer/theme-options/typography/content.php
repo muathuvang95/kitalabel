@@ -1,32 +1,33 @@
-<?php  
+<?php
 /**
- * The template created for displaying typography content options 
+ * The template created for displaying typography content options
  *
  * @version 0.0.1
- * @since 6.0.0
+ * @since   6.0.0
  */
-add_filter( 'et/customizer/add/sections', function($sections){
-
+add_filter( 'et/customizer/add/sections', function ( $sections ) {
+	
 	$args = array(
-		'typography-content'	 => array(
-			'name'        => 'typography-content',
-			'title'          => esc_html__( 'Typography', 'xstore' ),
-			'icon' => 'dashicons-media-document',
-			'type'		=> 'kirki-lazy',
-			'dependency'    => array()
+		'typography-content' => array(
+			'name'       => 'typography-content',
+			'title'      => esc_html__( 'Typography', 'xstore' ),
+			'icon'       => 'dashicons-media-document',
+			'type'       => 'kirki-lazy',
+			'dependency' => array()
 		)
 	);
+	
 	return array_merge( $sections, $args );
-});
+} );
 
-$hook = class_exists('ETC_Initial') ? 'et/customizer/add/fields/typography-content' : 'et/customizer/add/fields';
+$hook = class_exists( 'ETC_Initial' ) ? 'et/customizer/add/fields/typography-content' : 'et/customizer/add/fields';
 add_filter( $hook, function ( $fields ) {
 	$args = array();
-
+	
 	// Array of fields
 	$args = array(
-		'sfont' => array(
-			'name'		  => 'sfont',
+		'sfont'                 => array(
+			'name'        => 'sfont',
 			'type'        => 'typography',
 			'settings'    => 'sfont',
 			'label'       => esc_html__( 'Body Font', 'xstore' ),
@@ -48,33 +49,33 @@ add_filter( $hook, function ( $fields ) {
 //					'element' => 'body, .quantity input[type="number"], .page-wrapper',
 //				),
 				array(
-					'context'   => array('editor', 'front'),
+					'context' => array( 'editor', 'front' ),
 					'element' => 'body, body.yith-woocompare-popup',
 				),
 				array(
-					'choice' => 'color',
-					'context'   => array('editor', 'front'),
-					'element' => 'body, [data-mode="dark"]',
+					'choice'   => 'color',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body, [data-mode="dark"]',
 					'property' => '--et_font-color',
 				),
 			),
 		),
-
+		
 		// paragraph_font_size 
-		'paragraph_font_size'	=>	 array(
-			'name'		  => 'paragraph_font_size',
-			'type'        => 'slider',
-			'settings'    => 'paragraph_font_size',
-			'label'       => esc_html__( 'Paragraph font-size (px)', 'xstore' ),
-			'section'     => 'typography-content',
-			'default'     => 16,
-			'choices'     => array(
+		'paragraph_font_size'   => array(
+			'name'      => 'paragraph_font_size',
+			'type'      => 'slider',
+			'settings'  => 'paragraph_font_size',
+			'label'     => esc_html__( 'Paragraph font-size (px)', 'xstore' ),
+			'section'   => 'typography-content',
+			'default'   => 16,
+			'choices'   => array(
 				'min'  => '10',
 				'max'  => '35',
 				'step' => '1',
 			),
 			'transport' => 'auto',
-			'output' => array(
+			'output'    => array(
 //				array(
 //					'context'   => array('editor', 'front'),
 //					'element' => 'p, .content-article, blockquote p, .testimonials-slider .swiper-container:not(.with-grid) blockquote, .posts-slider article .content-article, .posts-slider article .content-article p, #wcfmmp-store p',
@@ -82,44 +83,44 @@ add_filter( $hook, function ( $fields ) {
 //					'units' => 'px'
 //				),
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body',
 					'property' => '--p-font-size',
-					'units' => 'px'
+					'units'    => 'px'
 				),
 			)
 		),
-
+		
 		// paragraph_line_height 
-		'paragraph_line_height'	=>	 array(
-			'name'		  => 'paragraph_line_height',
-			'type'        => 'slider',
-			'settings'    => 'paragraph_line_height',
-			'label'       => esc_html__( 'Paragraph line-height (proportion)', 'xstore' ),
-			'section'     => 'typography-content',
-			'default'     => 1.6,
-			'choices'     => array(
+		'paragraph_line_height' => array(
+			'name'      => 'paragraph_line_height',
+			'type'      => 'slider',
+			'settings'  => 'paragraph_line_height',
+			'label'     => esc_html__( 'Paragraph line-height (proportion)', 'xstore' ),
+			'section'   => 'typography-content',
+			'default'   => 1.6,
+			'choices'   => array(
 				'min'  => '1',
 				'max'  => '2',
 				'step' => '.01',
 			),
 			'transport' => 'auto',
-			'output' => array(
+			'output'    => array(
 //				array(
 //					'context'   => array('editor', 'front'),
 //					'element' => 'p, .content-article, blockquote p, .testimonials-slider .swiper-container:not(.with-grid) blockquote, .posts-slider article .content-article, .posts-slider article .content-article p, #wcfmmp-store p',
 //					'property' => 'line-height',
 //				),
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 'body',
+					'context'  => array( 'editor', 'front' ),
+					'element'  => 'body',
 					'property' => '--p-line-height',
 				),
 			)
 		),
-
-		'headings'	=>	 array(
-			'name'		  => 'headings',
+		
+		'headings' => array(
+			'name'        => 'headings',
 			'type'        => 'typography',
 			'settings'    => 'headings',
 			'label'       => esc_html__( 'Headings', 'xstore' ),
@@ -128,7 +129,7 @@ add_filter( $hook, function ( $fields ) {
 			'default'     => array(
 				'font-family'    => 'Lato',
 				'variant'        => 'regular',
-						// 'font-size'      => '',
+				// 'font-size'      => '',
 				'line-height'    => '',
 				'letter-spacing' => '',
 				'color'          => '',
@@ -137,9 +138,9 @@ add_filter( $hook, function ( $fields ) {
 			'transport'   => 'postMessage',
 			'output'      => array(
 				array(
-					'context'   => array('editor', 'front'),
-					'element' => 
-					'.title h3,
+					'context' => array( 'editor', 'front' ),
+					'element' =>
+						'.title h3,
 					blockquote,
 					.share-post .share-title,
 					.sidebar-widget .tabs .tab-title,
@@ -160,34 +161,34 @@ add_filter( $hook, function ( $fields ) {
 					.et-tabs-wrapper .tabs .accordion-title span',
 				),
 				array(
-					'choice' => 'font-family',
-					'context'   => array('editor', 'front'),
+					'choice'  => 'font-family',
+					'context' => array( 'editor', 'front' ),
 					'element' => 'h1, h2, h3, h4, h5, h6, .products-title',
 				),
 				array(
-					'choice' => 'variant',
-					'context'   => array('editor', 'front'),
+					'choice'  => 'variant',
+					'context' => array( 'editor', 'front' ),
 					'element' => 'h1, h2, h3, h4, h5, h6, .products-title',
 				),
 				array(
-					'choice' => 'letter-spacing',
-					'context'   => array('editor', 'front'),
+					'choice'  => 'letter-spacing',
+					'context' => array( 'editor', 'front' ),
 					'element' => 'h1, h2, h3, h4, h5, h6, .products-title',
 				),
 				array(
-					'choice' => 'color',
-					'context'   => array('editor', 'front'),
+					'choice'  => 'color',
+					'context' => array( 'editor', 'front' ),
 					'element' => 'h1, h2, h3, h4, h5, h6, .products-title',
 				),
 				array(
-					'choice' => 'text-transform',
-					'context'   => array('editor', 'front'),
+					'choice'  => 'text-transform',
+					'context' => array( 'editor', 'front' ),
 					'element' => 'h1, h2, h3, h4, h5, h6, .products-title',
 				)
 			),
 		),
 	);
-
-return array_merge( $fields, $args );
-
-});
+	
+	return array_merge( $fields, $args );
+	
+} );

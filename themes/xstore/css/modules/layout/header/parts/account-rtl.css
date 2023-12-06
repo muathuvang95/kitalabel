@@ -138,6 +138,9 @@ form#loginform input[type="submit"]:hover {
 .et_b_header-account.et-content-toTop .et-mini-content {
   min-width: 180px;
 }
+.header-account-content .woocommerce-form-register .woocommerce-password-strength {
+  margin-top: 10px;
+}
 .login-link .lost-password {
   width: 50%;
   float: left;

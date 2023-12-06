@@ -64,51 +64,10 @@ if ( get_query_var('et_cart-checkout-layout', 'default') == 'separated' && !$che
 //} elseif ( isset( $wp->query_vars['order-received'] ) ) {
 //    $is_order = true;
 //}
-
-$classes = array(
-    'cart' => '',
-    'checkout' => '',
-    'order' => 'no-click'
-);
-
-if ( $check_pages['is_order'] ) {
-    $classes['cart'] = $classes['checkout'] = $classes['order'] = 'active';
-}
-elseif ( $check_pages['is_checkout'] ) {
-    $classes['cart'] = $classes['checkout'] = 'active';
-    $classes['checkout'] .= ' no-click';
-}
-elseif ( $check_pages['is_cart'] ) {
-    $classes['cart'] = 'active no-click';
-}
-
-$cart_url = wc_get_cart_url();
-$checkout_url = wc_get_checkout_url();
-$arrow = '<span class="et-icon et-'.(get_query_var('et_is-rtl', false) ? 'left' : 'right').'-arrow"></span>';
 ob_start();
-if ( $check_pages['is_order'] ) :
-	echo '<a class="active"><i class="et-icon et_b-icon et-checked"></i><span>' . esc_html__('Your order has been received', 'xstore') . '</span></a>';
-elseif ( get_query_var('et_cart-checkout-layout', 'default') == 'default' ) :
-    echo '<a href="'. $cart_url .'" class="' . esc_attr($classes['cart']) . '" data-step="1"> ' . esc_html__('Shopping cart', 'xstore') . '</a>' . $arrow;
-
-    echo '<a href="' . $checkout_url . '" class="'. esc_attr($classes['checkout']) . '" data-step="2"> ' . esc_html__('Checkout', 'xstore') . '</a>' . $arrow;
-
-    echo '<a href="#" class="'. esc_attr($classes['order']) . '" data-step="3">'. esc_html__('Order status', 'xstore') . '</a>';
-else :
-
-    echo '<a href="'. $cart_url .'" class="' . ($check_pages['is_cart'] ? 'active' : '') . '" data-step="shopping-cart"> ' . esc_html__('Shopping cart', 'xstore') . '</a>' . $arrow;
-
-    echo '<a href="' . $checkout_url . '" class="' . ($check_pages['is_billing'] ? 'active' : '') . '" '.($check_pages['is_checkout'] ? 'data-step="billing"' : '') . '> ' . esc_html__('Billing details', 'xstore') . '</a>' . $arrow;
-
-    if ( WC()->cart->needs_shipping() )
-        echo '<a href="' . add_query_arg('step', 'shipping', $checkout_url) . '" class="' . ($check_pages['is_shipping'] ? 'active' : '') . '"' . ($check_pages['is_checkout'] ? 'data-step="shipping"' : '') . '> ' . esc_html__('Shipping', 'xstore') . '</a>' . $arrow;
-    
-    echo '<a href="' . add_query_arg('step', 'payment', $checkout_url) . '" class="' . ($check_pages['is_payment'] ? 'active' : '') . '"' . ($check_pages['is_checkout'] ? 'data-step="payment"' : '') . '> ' . esc_html__('Payment', 'xstore') . '</a>' . $arrow;
-    
-    echo '<a href="#" class="'. esc_attr($classes['order']) . '" data-step="order">'. esc_html__('Order status', 'xstore') . '</a>';
-    
-endif;
-$steps = ob_get_clean(); ?>
+$cart_checkout->header_steps(true);
+$steps = ob_get_clean();
+?>
 
 <div class="header-main-wrapper <?php echo esc_attr($header_options['class']); ?>">
     <div class="header-main" data-title="<?php esc_html_e( 'Header main', 'xstore' ); ?>">

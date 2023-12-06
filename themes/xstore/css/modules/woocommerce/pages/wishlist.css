@@ -219,6 +219,7 @@ table td.wishlist-empty {
 }
 /*=====  End of Wishlist page  ======*/
 .woocommerce-wishlist .page-heading,
+.woocommerce-compare .page-heading,
 .woocommerce-account .page-heading {
   padding: 2.3vw 0;
   margin-bottom: 2.3vw;
@@ -227,17 +228,21 @@ table td.wishlist-empty {
 }
 @media only screen and (max-width: 480px) {
   .woocommerce-wishlist .page-heading,
+  .woocommerce-compare .page-heading,
   .woocommerce-account .page-heading {
     padding: 15px 0;
   }
 }
 .woocommerce-wishlist .page-heading .breadcrumbs,
+.woocommerce-compare .page-heading .breadcrumbs,
 .woocommerce-account .page-heading .breadcrumbs,
 .woocommerce-wishlist .page-heading .back-history,
+.woocommerce-compare .page-heading .back-history,
 .woocommerce-account .page-heading .back-history {
   display: none;
 }
 .woocommerce-wishlist .page-heading .title,
+.woocommerce-compare .page-heading .title,
 .woocommerce-account .page-heading .title {
   display: block;
   font-size: 1.7rem;
@@ -245,13 +250,16 @@ table td.wishlist-empty {
   text-align: center;
 }
 .woocommerce-wishlist .page-heading .title:before,
+.woocommerce-compare .page-heading .title:before,
 .woocommerce-account .page-heading .title:before {
   font-family: 'xstore-icons';
   font-size: 0.75em;
-  margin-right: 7px;
+  -webkit-margin-end: 7px;
+          margin-inline-end: 7px;
   content: '\e1000';
 }
 .woocommerce-wishlist.et-header-overlap .page-heading,
+.woocommerce-compare.et-header-overlap .page-heading,
 .woocommerce-account.et-header-overlap .page-heading {
   padding: 7em 0 3em;
 }

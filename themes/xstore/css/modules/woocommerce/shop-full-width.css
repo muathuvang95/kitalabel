@@ -24,6 +24,10 @@
 }
 .shop-full-width .products-list .product-view-mask .footer-product .show-quickly,
 .shop-full-width .products-list .product-view-info .footer-product .show-quickly,
+.shop-full-width .products-list .product-view-mask .footer-product .xstore-wishlist,
+.shop-full-width .products-list .product-view-info .footer-product .xstore-wishlist,
+.shop-full-width .products-list .product-view-mask .footer-product .xstore-compare,
+.shop-full-width .products-list .product-view-info .footer-product .xstore-compare,
 .shop-full-width .products-list .product-view-mask .footer-product .et-wishlist-holder,
 .shop-full-width .products-list .product-view-info .footer-product .et-wishlist-holder,
 .shop-full-width .products-list .product-view-mask .footer-product .by-vendor-name-link,
@@ -40,6 +44,10 @@
 }
 .shop-full-width .products-list .product-view-mask .footer-product .show-quickly:after,
 .shop-full-width .products-list .product-view-info .footer-product .show-quickly:after,
+.shop-full-width .products-list .product-view-mask .footer-product .xstore-wishlist:after,
+.shop-full-width .products-list .product-view-info .footer-product .xstore-wishlist:after,
+.shop-full-width .products-list .product-view-mask .footer-product .xstore-compare:after,
+.shop-full-width .products-list .product-view-info .footer-product .xstore-compare:after,
 .shop-full-width .products-list .product-view-mask .footer-product .et-wishlist-holder:after,
 .shop-full-width .products-list .product-view-info .footer-product .et-wishlist-holder:after,
 .shop-full-width .products-list .product-view-mask .footer-product .by-vendor-name-link:after,

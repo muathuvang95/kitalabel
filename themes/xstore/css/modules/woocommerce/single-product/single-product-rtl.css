@@ -320,6 +320,12 @@ a.add_to_wishlist .et-tooltip {
 .single-product > .swiper-entry + .clear + .products-title {
   margin-top: 35px;
 }
+.product-images .xstore-wishlist {
+  position: absolute;
+  right: 35px;
+  top: 20px;
+  z-index: 1;
+}
 .single-product-booking .variations tr,
 .single-product-booking .variations td {
   vertical-align: middle;
@@ -658,6 +664,10 @@ a.add_to_wishlist .et-tooltip {
   }
   .single-product .products-slider .product-view-mask .footer-product .show-quickly,
   .single-product .products-slider .product-view-info .footer-product .show-quickly,
+  .single-product .products-slider .product-view-mask .footer-product .xstore-wishlist,
+  .single-product .products-slider .product-view-info .footer-product .xstore-wishlist,
+  .single-product .products-slider .product-view-mask .footer-product .xstore-compare,
+  .single-product .products-slider .product-view-info .footer-product .xstore-compare,
   .single-product .products-slider .product-view-mask .footer-product .et-wishlist-holder,
   .single-product .products-slider .product-view-info .footer-product .et-wishlist-holder,
   .single-product .products-slider .product-view-mask .footer-product .by-vendor-name-link,
@@ -674,6 +684,10 @@ a.add_to_wishlist .et-tooltip {
   }
   .single-product .products-slider .product-view-mask .footer-product .show-quickly:after,
   .single-product .products-slider .product-view-info .footer-product .show-quickly:after,
+  .single-product .products-slider .product-view-mask .footer-product .xstore-wishlist:after,
+  .single-product .products-slider .product-view-info .footer-product .xstore-wishlist:after,
+  .single-product .products-slider .product-view-mask .footer-product .xstore-compare:after,
+  .single-product .products-slider .product-view-info .footer-product .xstore-compare:after,
   .single-product .products-slider .product-view-mask .footer-product .et-wishlist-holder:after,
   .single-product .products-slider .product-view-info .footer-product .et-wishlist-holder:after,
   .single-product .products-slider .product-view-mask .footer-product .by-vendor-name-link:after,

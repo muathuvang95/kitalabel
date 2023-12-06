@@ -1,9 +1,20 @@
 <?php
-// **********************************************************************// 
-// ! Remove Default STYLES
-// **********************************************************************//
 
-add_filter( 'woocommerce_enqueue_styles', '__return_false' );
+// @todo Remove it in 2023, use only add_filter( 'woocommerce_enqueue_styles', 'etheme_return_empty_array');
+if ( etheme_woo_version_check('6.9.0')) {
+    add_filter( 'woocommerce_enqueue_styles', 'etheme_return_empty_array');
+} else {
+   add_filter( 'woocommerce_enqueue_styles', '__return_false' );
+}
+
+function etheme_woo_version_check($required = '7.0.1') {
+    return defined('WC_VERSION') && version_compare( WC_VERSION, $required, '>=' );
+}
+
+function etheme_return_empty_array(){
+    return array();
+};
+
 add_filter( 'pre_option_woocommerce_enable_lightbox', 'return_no' ); // Remove woocommerce prettyphoto
 
 function return_no( $option ) {
@@ -18,7 +29,8 @@ add_action( 'wp', 'etheme_template_hooks', 60 );
 if ( ! function_exists( 'etheme_template_hooks' ) ) {
 	function etheme_template_hooks() {
 
-		if ( get_query_var( 'etheme_single_product_builder', false ) ) {
+		if (
+		        get_query_var( 'etheme_single_product_builder', false ) ) {
 			
 			add_action( 'woocommerce_product_meta_start', function () {
 				$class = 'et-ghost-' . ( etheme_get_option( 'product_meta_direction_et-desktop', 'column' ) == 'column' ? 'block' : 'inline-block' );
@@ -49,37 +61,10 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 		remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20 );
 		
 		add_action( 'woocommerce_before_shop_loop', function () {
-			if ( wc_get_loop_prop( 'is_shortcode' ) || (function_exists('wcmp_is_store_page') && wcmp_is_store_page()) ) {
-				etheme_enqueue_style('filter-area', true ); ?>
-                <div class="filter-wrap">
-                <div class="filter-content">
-			<?php }
-		}, 0 );
-		
-		add_action( 'woocommerce_before_shop_loop', function () {
-			if ( wc_get_loop_prop( 'is_shortcode' ) || (function_exists('wcmp_is_store_page') && wcmp_is_store_page())) { ?>
-                </div>
-                </div>
-			<?php }
-		}, 99999 );
-		
-		add_action( 'woocommerce_before_shop_loop', function () {
 			if ( wc_get_loop_prop( 'is_shortcode' ) ) {
 				etheme_shop_filters_sidebar();
 			}
 		}, 100000 );
-		
-		// WCFM Marketplace compatibility
-		add_action( 'wcfmmp_woocommerce_before_shop_loop_before', function () {
-			etheme_enqueue_style('filter-area', true ); ?>
-            <div class="filter-wrap">
-            <div class="filter-content">
-		<?php }, 0 );
-		
-		add_action( 'wcfmmp_woocommerce_before_shop_loop_after', function () { ?>
-            </div>
-            </div>
-		<?php }, 100000 );
 		
 		remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_button_view_cart', 10 );
 		
@@ -92,7 +77,7 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 			return 'woocommerce_single';
 		} );
 		
-		if ( ! (class_exists( 'SB_WooCommerce_Infinite_Scroll' ) || class_exists('SBWIS_WooCommerce_Infinite_Scroll')) ) {
+		if ( ! get_query_var('et_sb_infinite_scroll', false) ) {
 			add_action( 'woocommerce_after_shop_loop', 'woocommerce_result_count', 5 );
 		}
 		
@@ -111,7 +96,7 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 			// Change rating position on the single product page
 			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_rating', 10 );
 			add_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_rating', 15 );
-			add_action( 'woocommerce_single_product_summary', 'etheme_product_share', 50 );
+			add_action( 'woocommerce_share', 'etheme_product_share', 50 );
 			
 			$single_layout        = etheme_get_option( 'single_layout', 'default' );
 			$single_layout_custom = etheme_get_custom_field( 'single_layout' );
@@ -171,6 +156,9 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 			if ( etheme_get_option( 'reviews_position', 'tabs' ) == 'outside' ) {
 				add_filter( 'woocommerce_product_tabs', 'etheme_remove_reviews_from_tabs', 98 );
 				add_action( 'woocommerce_after_single_product_summary', 'comments_template', 30 );
+				// maybe replace with origin wp_is_mobile()
+				if ( get_theme_mod('product_reviews_collapsed_et-mobile', false) && get_query_var('is_mobile', false) )
+				    add_action( 'woocommerce_after_single_product_summary', 'etheme_comments_template_mobile_button', 25 );
 			}
 			
 			if ( get_option( 'yith_wcwl_button_position' ) == 'shortcode' ) {
@@ -223,13 +211,13 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
 		remove_action( 'woocommerce_widget_shopping_cart_total', 'woocommerce_widget_shopping_cart_subtotal', 10 );
 		add_action( 'woocommerce_widget_shopping_cart_total', 'etheme_woocommerce_widget_shopping_cart_subtotal', 10 );
 		
-		// if ( etheme_get_option('advanced_stock_status') ) { 
-		// add_filter( 'woocommerce_get_stock_html', function($html, $product) {
-		//           if ( $product->get_type() == 'simple' && 'yes' === get_option( 'woocommerce_manage_stock' ) )
-		//             return et_product_stock_line($product);
-		// 	return $html;
-		// }, 2, 10);
-		// }
+        if ( get_query_var('et_product-advanced-stock', false) ) {
+		    add_filter( 'woocommerce_get_stock_html', 'etheme_advanced_stock_status_html', 2, 10);
+        }
+
+        if (! etheme_get_option( 'show_single_stock', 0 )){
+            add_filter( 'woocommerce_get_stock_html', '__return_empty_string', 2, 100);
+        }
 
 //        if ( apply_filters('etheme_single_product_variation_gallery', get_query_var( 'etheme_single_product_variation_gallery', false ) ) ) {
 		add_filter( 'woocommerce_available_variation', 'etheme_available_variation_gallery', 90, 3 );
@@ -315,95 +303,162 @@ if ( ! function_exists( 'etheme_template_hooks' ) ) {
             
             return $value;
         } );
-        if ( get_option('xstore_sales_booster_settings_fake_live_viewing') && is_singular('product') ) {
+        $fake_live_viewing = get_option('xstore_sales_booster_settings_fake_live_viewing');
+        $fake_product_sales = get_option('xstore_sales_booster_settings_fake_product_sales');
+        if ( $fake_live_viewing || $fake_product_sales ) {
+            $is_singular = is_singular('product');
+            $product_id = get_the_ID();
+             if ( $fake_live_viewing && $is_singular ) {
+    
+                $rendered_string = etheme_set_fake_live_viewing_count($product_id);
+    
+                $single_product_builder_hook_for_fake_live_viewing = apply_filters('single_product_builder_hook_for_fake_live_viewing', 'etheme_woocommerce_template_single_excerpt');
+                add_action( $single_product_builder_hook_for_fake_live_viewing, function ($id) use ($rendered_string) {
+                    echo '<p class="sales-booster-live-viewing">' . $rendered_string . '</p>';
+                }, apply_filters('single_product_builder_hook_priority_for_fake_live_viewing', 5));
+                add_action( 'woocommerce_single_product_summary', function ($id) use ($rendered_string) {
+                    echo '<p class="sales-booster-live-viewing">' . $rendered_string . '</p>';
+                }, 21 );
+            }
+             
+             if ( $fake_product_sales ) {
 
-            $rendered_string = etheme_set_fake_live_viewing_count(get_the_ID());
+                 if ( $is_singular ) {
+                    $rendered_string = etheme_get_fake_product_sales_count($product_id);
+                    if ( $rendered_string ) {
+                        $single_product_builder_hook_for_fake_live_viewing = apply_filters('single_product_builder_hook_for_fake_product_sales', 'etheme_woocommerce_template_single_excerpt');
+                        add_action( $single_product_builder_hook_for_fake_live_viewing, function ($id) use ($rendered_string) {
+                            echo '<p class="sales-booster-total-sales">' . $rendered_string . '</p>';
+                        }, apply_filters('single_product_builder_hook_priority_for_fake_product_sales', 5));
+                        add_action( 'woocommerce_single_product_summary', function ($id) use ($rendered_string) {
+                            echo '<p class="sales-booster-total-sales">' . $rendered_string . '</p>';
+                        }, 21 );
+                    }
+                }
+                
+                
+                 // if show on shop page @todo
+                //Display the Sales Count in other pages.
+                $xstore_sales_booster_settings = (array)get_option('xstore_sales_booster_settings', array());
 
-            $single_product_builder_hook_for_fake_live_viewing = apply_filters('single_product_builder_hook_for_fake_live_viewing', 'etheme_woocommerce_template_single_excerpt');
-            add_action( $single_product_builder_hook_for_fake_live_viewing, function ($id) use ($rendered_string) {
-                echo '<div class="sales-booster-live-viewing">' . $rendered_string . '</div>';
-            }, apply_filters('single_product_builder_hook_priority_for_fake_live_viewing', 5));
-            add_action( 'woocommerce_single_product_summary', function ($id) use ($rendered_string) {
-                echo '<div class="sales-booster-live-viewing">' . $rendered_string . '</div>';
-            }, 21 );
+                $xstore_sales_booster_settings_default = array(
+                    'message' => esc_html__('{fire} {count} items sold in {hours} hours', 'xstore'),
+                    'sales_type' => 'fake',
+                    'show_on_shop' => false,
+                    'min_count' => 3,
+                    'max_count' => 12,
+                    'hours' => 12,
+                    'transient_hours' => 24
+                );
+        
+                $xstore_sales_booster_settings_fake_product_sales = $xstore_sales_booster_settings_default;
+        
+                if (count($xstore_sales_booster_settings) && isset($xstore_sales_booster_settings['fake_product_sales'])) {
+                    $xstore_sales_booster_settings = wp_parse_args($xstore_sales_booster_settings['fake_product_sales'],
+                        $xstore_sales_booster_settings_default);
+        
+                    $xstore_sales_booster_settings_fake_product_sales = $xstore_sales_booster_settings;
+                }
+                
+                if ( !!$xstore_sales_booster_settings_fake_product_sales['show_on_shop'] ) {
+                    add_action( 'woocommerce_after_shop_loop_item_title', function () {
+                        global $product;
+                        $local_rendered_string = etheme_get_fake_product_sales_count($product->get_ID());
+                        if ( $local_rendered_string )
+                            {echo '<p class="sales-booster-total-sales">' . $local_rendered_string . '</p>';}
+                    }, 3 );
+                    
+                    // Elementor product grid / product carousel widgets
+                    add_action('after_etheme_product_grid_list_product_element_title', function () {
+                        global $product;
+                        $local_rendered_string = etheme_get_fake_product_sales_count($product->get_ID());
+                        if ( $local_rendered_string )
+                            {echo '<p class="sales-booster-total-sales">' . $local_rendered_string . '</p>';}
+                    });
+                }
+                
+            }
+            
         }
 		
-		$car_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
+		$cart_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
 
         if ( get_option('xstore_sales_booster_settings_cart_checkout_progress_bar') ) {
-//            $car_checkout_class = Etheme_WooCommerce_Cart_Checkout::get_instance();
+//            $cart_checkout_class = Etheme_WooCommerce_Cart_Checkout::get_instance();
             $action = 'woocommerce_before_cart_table';
             if ( get_query_var('et_is-cart-checkout-advanced', false) )
                 $action = 'etheme_woocommerce_before_cart_form';
-            add_action($action, array($car_checkout, 'sales_booster_progress_bar'), 3);
+            add_action($action, array($cart_checkout, 'sales_booster_progress_bar'), 3);
         }
 
         add_action( 'woocommerce_proceed_to_checkout', 'etheme_woocommerce_continue_shopping', 21 );
         
-        add_filter('woocommerce_order_button_html', function ($button_html) use ($car_checkout) {
+        add_filter('woocommerce_order_button_html', function ($button_html) use ($cart_checkout) {
             if ( !(get_theme_mod('cart_checkout_advanced_layout', false) && get_theme_mod('cart_checkout_layout_type', 'default') != 'default') )
                 return $button_html;
 		    ob_start();
 		    ?>
             <div class="etheme-checkout-multistep-footer-links">
 				<?php
-				$car_checkout->return_to_shop('payment');
+				$cart_checkout->return_to_shop('payment');
             return ob_get_clean() . str_replace('</button>', ' <i class="et-icon et-' . ( get_query_var( 'et_is-rtl', false ) ? 'left' : 'right' ) . '-arrow"></i></button>', $button_html) . '</div>';
         });
         
-//		$car_checkout->advanced_layout();
-
         if ( get_query_var('et_is-cart-checkout-advanced', false) ) {
 
             if ( get_query_var('et_cart-checkout-layout', 'default') != 'default' )
                 add_filter('etheme_form_billing_title', '__return_false');
-//            $car_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
-            $car_checkout->advanced_layout();
-//            remove_action( 'etheme_header', 'etheme_vertical_header', 1 );
-//            remove_action( 'etheme_header', 'etheme_header_top', 10 );
-//            remove_action( 'etheme_header', 'etheme_header_main', 20 );
-//            remove_action( 'etheme_header', 'etheme_header_bottom', 30 );
-//
-//            remove_action( 'etheme_header', 'etheme_header_banner', 2 );
-//
-//            remove_all_actions( 'etheme_header_mobile' );
-//            remove_all_actions( 'etheme_prefooter' );
-//            remove_all_actions( 'etheme_footer' );
-//            remove_action( 'after_page_wrapper', 'etheme_mobile_panel', 1 );
-//            remove_action('after_page_wrapper', 'etheme_btt_button', 30);
-//            remove_action('et_after_body', 'etheme_bordered_layout');
-//            remove_action('after_page_wrapper', 'etheme_photoswipe_template', 30);
-//            remove_action('after_page_wrapper', 'et_notify', 40);
-//            remove_action('after_page_wrapper', 'et_buffer', 40);
-
-//            add_action('etheme_header_start', function () {
-//                $sticky_header = get_theme_mod( 'cart_checkout_main_header_sticky_et-desktop', '1' );
-//                add_filter('theme_mod_top_header_sticky_et-mobile', '__return_false');
-//                add_filter('theme_mod_main_header_sticky_et-mobile', function($value) use ($sticky_header) {
-//                    return $sticky_header;
-//                });
-//                add_filter('theme_mod_bottom_header_sticky_et-mobile', '__return_false');
-//
-//                add_filter('theme_mod_top_header_sticky_et-desktop', '__return_false');
-//                add_filter('theme_mod_main_header_sticky_et-desktop', function($value) use ($sticky_header) {
-//                    return $sticky_header;
-//                });
-//                add_filter('theme_mod_bottom_header_sticky_et-desktop', '__return_false');
-//
-//                add_filter('theme_mod_header_sticky_type_et-desktop', function () {
-//                    return 'sticky';
-//                });
-//            }, 3);
+            
+            $cart_checkout->advanced_layout();
         
         }
 	}
 }
 
-$car_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
-add_filter('woocommerce_update_order_review_fragments', function ($fragments) use ($car_checkout)  {
-	$fragments['.etheme-shipping-fields'] = $car_checkout->cart_totals_shipping_html(true);
+if ( !function_exists('etheme_sales_booster_cart_checkout_progress_bar') ) {
+    function etheme_sales_booster_cart_checkout_progress_bar() {
+        etheme_enqueue_style( 'sale-booster-cart-checkout-progress-bar', true );
+        $cart_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
+        ob_start();
+        echo '<div class="etheme_sales_booster_progress_bar_shortcode">';
+            $cart_checkout->sales_booster_progress_bar();
+        echo '</div>';
+        return ob_get_clean();
+    }
+}
+
+if ( !function_exists('etheme_comments_template_mobile_button') ) {
+    function etheme_comments_template_mobile_button() {
+        ?>
+	<button class="btn medium open-reviews" data-open-text="<?php echo esc_attr('Open reviews', 'xstore'); ?>"
+	data-close-text="<?php echo esc_attr('Close reviews', 'xstore'); ?>">
+	    <?php echo esc_html__('Open Reviews', 'xstore'); ?>
+	</button>
+	<?php
+    }
+}
+
+$cart_checkout = Etheme_WooCommerce_Cart_Checkout::get_instance();
+add_filter('woocommerce_update_order_review_fragments', function ($fragments) use ($cart_checkout)  {
+	$fragments['.etheme-shipping-fields'] = $cart_checkout->cart_totals_shipping_html(true);
 	return $fragments;
 });
+
+add_action( 'wp_ajax_etheme_update_cart_checkout_progress_bar', array($cart_checkout, 'update_progress_bar') );
+add_action( 'wp_ajax_nopriv_etheme_update_cart_checkout_progress_bar', array($cart_checkout, 'update_progress_bar') );
+
+add_action( 'wp_ajax_etheme_bought_together_price', 'etheme_bought_together_price');
+add_action( 'wp_ajax_nopriv_etheme_bought_together_price', 'etheme_bought_together_price');
+
+if ( !function_exists('etheme_bought_together_price') ) {
+    function etheme_bought_together_price() {
+        if ( !isset($_POST['total_price'])) die();
+
+        wp_send_json(array(
+                'price_html' => wc_price($_POST['total_price'])
+            ));
+    }
+}
 
 if ( !function_exists('et_get_product_bought_together_ids') ) {
     function et_get_product_bought_together_ids($product) {
@@ -432,6 +487,19 @@ add_filter('woocommerce_add_to_cart_handler', function ($type) {
     }
     return $type;
 });
+
+if( ! function_exists('etheme_is_catalog') ){
+	function etheme_is_catalog(){
+		if ( etheme_get_option( 'just_catalog', 0 ) ){
+			if ( etheme_get_option( 'just_catalog_type', 'all' ) == 'unregistered' && is_user_logged_in()){
+				return false;
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+}
 
 if ( !function_exists('etheme_breadcrumbs_primary_category') ) {
 	function etheme_breadcrumbs_primary_category( $term, $terms ) {
@@ -690,6 +758,10 @@ if(!function_exists('etheme_products_menu_layout')) {
 			        etTheme.global_image_lazy();
 			        if ( etTheme.contentProdImages !== undefined )
 	                    etTheme.contentProdImages();
+                    if ( window.hoverSlider !== undefined ) { 
+			            window.hoverSlider.init({});
+                        window.hoverSlider.prepareMarkup();
+                    }
 			        if ( etTheme.countdown !== undefined )
 	                    etTheme.countdown();
 			        etTheme.customCss();
@@ -1048,6 +1120,7 @@ if( ! function_exists( 'etheme_fullscreen_products' ) ) {
             
             etheme_enqueue_style( 'products-full-screen', true );
 			etheme_enqueue_style('single-product', true);
+			etheme_enqueue_style( 'single-product-elements', true );
 			etheme_enqueue_style('single-post-meta');
 			// if comments allowed
 			etheme_enqueue_style('star-rating');
@@ -1077,7 +1150,7 @@ if( ! function_exists( 'etheme_fullscreen_products' ) ) {
 									
 									woocommerce_template_single_excerpt();
 									
-									if( isset($woocommerce_loop['show_counter']) && $woocommerce_loop['show_counter'] ) etheme_product_countdown();
+									if( isset($woocommerce_loop['show_counter']) && $woocommerce_loop['show_counter'] ) etheme_product_countdown('type2', false);
 									
 									woocommerce_template_loop_add_to_cart();
 									
@@ -1348,6 +1421,7 @@ if (!function_exists('et_mini_cart_linked_products')) {
 				'tablet_land'     => $extra['slides_per_view'],
 				'tablet_portrait' => $extra['slides_per_view_mobile'],
 				'mobile'          => $extra['slides_per_view_mobile'],
+				'navigation_position' => 'middle-inside',
 				'echo'            => false
 			);
 			
@@ -1529,7 +1603,7 @@ if ( ! function_exists( 'etheme_wc_get_availability_class' ) ) {
 	}
 }
 
-function et_product_stock_line( $product ) {
+function et_product_stock_line( $product, $default_html = false ) {
 	$stock_line     = '';
 	$stock_quantity = $product->get_stock_quantity();
 	$already_sold   = get_post_meta( $product->get_ID(), 'total_sales', true );
@@ -1554,6 +1628,10 @@ function et_product_stock_line( $product ) {
                                            style="width: <?php echo esc_attr( $stock_line_inner ); ?>%"></span></span>
         </div>
 		<?php $stock_line = ob_get_clean();
+	}
+	
+	elseif ( $default_html ) {
+	    return $default_html;
 	}
 	
 	return $stock_line;
@@ -1735,7 +1813,7 @@ if ( ! function_exists( 'etheme_get_single_product_class' ) ) {
 		if ( etheme_get_option( 'single_product_hide_sidebar', 0 ) ) {
 			$classes['class'][] = 'sidebar-mobile-hide';
 		}
-		if ( etheme_get_option( 'product_name_signle', 0 ) ) {
+		if ( etheme_get_option( 'product_name_signle', 0 ) && !etheme_get_option('product_name_single_duplicated', 0)) {
 			$classes['class'][] = 'hide-product-name';
 		}
 		
@@ -1824,16 +1902,57 @@ if ( ! function_exists( 'etheme_after_products_widgets' ) ) {
 // **********************************************************************//
 
 if ( ! function_exists( 'etheme_product_countdown' ) ) {
-	function etheme_product_countdown( $type = 'type2' ) {
-		$date       = get_post_meta( get_the_ID(), '_sale_price_dates_to', true );
-		$date_from  = get_post_meta( get_the_ID(), '_sale_price_dates_from', true );
-		$time_start = get_post_meta( get_the_ID(), '_sale_price_time_start', true );
-		$time_start = explode( ':', $time_start );
-		$time_end   = get_post_meta( get_the_ID(), '_sale_price_time_end', true );
-		$time_end   = explode( ':', $time_end );
-		if ( ! $date || ! class_exists( 'ETC\App\Controllers\Shortcodes\Countdown' ) ) {
-			return false;
-		}
+	function etheme_product_countdown( $type = 'type2', $is_single = true ) {
+	    global $product;
+	    $type = isset($type) && !empty($type) ? $type : 'type2';
+	    $timer_title = false;
+	    $remove_on_finish = true;
+	    $hide_title = true;
+	    if ( $is_single ) {
+	        $type = get_theme_mod('single_countdown_type', 'type2');
+        }
+	    if ( $type == 'type3') {
+	        $remove_on_finish = false;
+	        $hide_title = false;
+            $timer_title = esc_html__('{fire} Hurry up! Sale ends in:', 'xstore');
+            if ( $is_single ) {
+                $timer_title = get_theme_mod('single_countdown_title', $timer_title);
+            }
+            $timer_title = str_replace('{fire}', '🔥', $timer_title);
+        }
+	    $product_id = get_the_ID();
+	    $product_countdown_class = 'product-sale-counter';
+	    $date       = get_post_meta( $product_id, '_sale_price_dates_to', true );
+	    $date_from  = get_post_meta( $product_id, '_sale_price_dates_from', true );
+        $time_start = get_post_meta( $product_id, '_sale_price_time_start', true );
+        $time_start = explode( ':', $time_start );
+        $time_end   = get_post_meta( $product_id, '_sale_price_time_end', true );
+        $time_end   = explode( ':', $time_end );
+	    if( $product && is_object($product) && $product->is_type('variable') ) {
+	        $has_variation_on_sale = false;
+            $variation_ids = $product->get_visible_children();
+            foreach( $variation_ids as $variation_id ) {
+                if ( $has_variation_on_sale ) break;
+                $variation = wc_get_product( $variation_id );
+
+                if ( $variation->is_on_sale() ) {
+                    $has_variation_on_sale = true;
+                    $remove_on_finish = false;
+                    $date       = get_post_meta( $variation_id, '_sale_price_dates_to', true );
+                    $date_from  = get_post_meta( $variation_id, '_sale_price_dates_from', true );
+                    $time_start = get_post_meta( $variation_id, '_sale_price_time_start', true );
+                    $time_start = explode( ':', $time_start );
+                    $time_end   = get_post_meta( $variation_id, '_sale_price_time_end', true );
+                    $time_end   = explode( ':', $time_end );
+                }
+            }
+            if ( $has_variation_on_sale )
+                $product_countdown_class .= ' hidden';
+        }
+
+	    if ( ! $date || ! class_exists( 'ETC\App\Controllers\Shortcodes\Countdown' ) ) {
+            return false;
+        }
 
 		echo ETC\App\Controllers\Shortcodes\Countdown::countdown_shortcode( array(
 			'year'   => date( 'Y', $date ),
@@ -1847,9 +1966,12 @@ if ( ! function_exists( 'etheme_product_countdown' ) ) {
 			'start_day'    => date( 'd', (int) $date_from ),
 			'start_hour'   => ( isset( $time_start[0] ) && $time_start[0] != 'Array' && $time_start[0] > 0 ) ? $time_start[0] : '00',
 			'start_minute' => isset( $time_start[1] ) ? $time_start[1] : '00',
-			'type'         => ( isset( $type ) && ! empty( $type ) ) ? $type : 'type2',
+			'type'         => $type,
 			'scheme'       => etheme_get_option( 'dark_styles', 0 ) ? 'white' : 'dark',
-			'class'        => 'product-sale-counter'
+			'title'        => $timer_title,
+			'remove_finish'=> $remove_on_finish,
+			'hide_title'   => $hide_title,
+			'class'        => $product_countdown_class
 		) );
 	}
 }
@@ -1861,28 +1983,55 @@ if ( ! function_exists( 'etheme_product_countdown' ) ) {
 
 if ( ! function_exists( 'etheme_wishlist_btn' ) ) {
 	function etheme_wishlist_btn( $args = array() ) {
-		if ( ! class_exists( 'YITH_WCWL_Shortcode' ) ) {
-			return;
-		}
 		
 		// $args['type'] = etheme_get_option('single_wishlist_type');
 		// $args['position'] = etheme_get_option('single_wishlist_position');
 		// $args['type'] = ( $args['type'] ) ? $args['type'] : 'icon-text';
 		// $args['position'] = ( $args['position'] ) ? $args['position'] : 'under';
-		
+
+		$out = '';
+
 		if ( ! is_array( $args ) ) {
 			$args = array();
 		}
+
+		if (class_exists( 'YITH_WCWL_Shortcode' )) {
+
+		    // global param for custom vc product grid
+		    $args['type']     = ( isset( $args['type'] ) ) ? $args['type'] : 'icon-text';
+            $args['position'] = ( isset( $args['position'] ) ) ? $args['position'] : 'under';
+            $args['class']    = ( isset( $args['class'] ) ) ? $args['class'] : '';
+
+            $out .= '<div class="et-wishlist-holder type-' . $args['type'] . ' position-' . $args['position'] . ' ' . $args['class'] . '">';
+            $out .= do_shortcode( '[yith_wcwl_add_to_wishlist]' );
+            $out .= '</div>';
+
+		}
+		else {
+		    // global param for custom vc product grid
+		    if ( isset( $args['type'] ) ) {
+		        if ( isset($args['class'] ) )
+		            $args['class'] .= ' type-' . $args['type'];
+		        else
+		            $args['class'] = 'type-'.$args['type'];
+		        switch ($args['type']) {
+                    case 'icon':
+                        $args['only_icon'] = true;
+                        $args['show_icon'] = true;
+                    break;
+                    case 'text':
+                        $args['only_icon'] = false;
+                        $args['show_icon'] = false;
+                    break;
+                    case 'icon-text':
+                        $args['only_icon'] = false;
+                        $args['show_icon'] = true;
+                    break;
+		        }
+		    }
+		}
 		
-		$args['type']     = ( isset( $args['type'] ) ) ? $args['type'] : 'icon-text';
-		$args['position'] = ( isset( $args['position'] ) ) ? $args['position'] : 'under';
-		$args['class']    = ( isset( $args['class'] ) ) ? $args['class'] : '';
-		
-		$out = '<div class="et-wishlist-holder type-' . $args['type'] . ' position-' . $args['position'] . ' ' . $args['class'] . '">';
-		$out .= do_shortcode( '[yith_wcwl_add_to_wishlist]' );
-		$out .= '</div>';
-		
-		return $out;
+		return apply_filters('etheme_wishlist_btn_output', $out, $args);
 	}
 }
 
@@ -1916,8 +2065,8 @@ if ( ! function_exists( 'etheme_compare_css' ) ) {
 add_action( 'after_setup_theme', 'etheme_catalog_setup', 50 );
 
 if ( ! function_exists( 'etheme_catalog_setup' ) ) {
-	function etheme_catalog_setup() {
-		if ( is_admin() ) {
+	function etheme_catalog_setup($force_apply_filters = false) {
+		if ( !$force_apply_filters && is_admin() ) {
 			return;
 		}
 		
@@ -1931,7 +2080,18 @@ if ( ! function_exists( 'etheme_catalog_setup' ) ) {
 			remove_action( 'woocommerce_external_add_to_cart', 'woocommerce_external_add_to_cart', 30 );
 			
 			add_filter( 'woocommerce_loop_add_to_cart_link', 'etheme_add_to_cart_catalog_button', 50, 3 );
-			
+			add_filter('theme_mod_xstore_compare_page_content', function ($elements) {
+			    if ( in_array('price', $elements) ) {
+			        unset($elements[array_search('price', $elements)]);
+			    }
+			    return $elements;
+			});
+			add_filter('theme_mod_xstore_wishlist_page_content', function ($elements) {
+			    if ( in_array('price', $elements) ) {
+			        unset($elements[array_search('price', $elements)]);
+			    }
+			    return $elements;
+			});
 		}
 		
 		// **********************************************************************//
@@ -1965,49 +2125,43 @@ if ( ! function_exists( 'etheme_after_fix_just_catalog_link' ) ) {
 	}
 }
 
-// **********************************************************************//
-// ! Define image sizes
-// **********************************************************************//
-if ( ! function_exists( 'etheme_woocommerce_image_dimensions' ) ) {
-	function etheme_woocommerce_image_dimensions() {
-		global $pagenow;
-		
-		if ( ! isset( $_GET['activated'] ) || $pagenow != 'themes.php' ) {
-			return;
-		}
-		
-		$catalog = array(
-			'width'  => '555',    // px
-			'height' => '760',    // px
-			'crop'   => 0        // true
-		);
-		
-		$single = array(
-			'width'  => '720',    // px
-			'height' => '961',    // px
-			'crop'   => 0        // true
-		);
-		
-		$thumbnail = array(
-			'width'  => '205',    // px
-			'height' => '272',    // px
-			'crop'   => 0        // false
-		);
-		
-		// Image sizes
-		update_option( 'shop_catalog_image_size', $catalog );        // Product category thumbs
-		update_option( 'shop_single_image_size', $single );        // Single product image
-		update_option( 'shop_thumbnail_image_size', $thumbnail );    // Image gallery thumbs
-	}
-}
-
-add_action( 'after_switch_theme', 'etheme_woocommerce_image_dimensions', 1 );
-
 // popup added to cart
 add_action('woocommerce_add_to_cart','set_last_added_cart_item_key',10,6);
 function set_last_added_cart_item_key($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data) {
 	WC()->session->set('etheme_last_added_cart_key', $cart_item_key);
     WC()->session->set( 'etheme_last_added_cart_time', strtotime( 'now', current_time( 'timestamp' ) ));
+}
+
+add_action( 'wp_ajax_etheme_get_added_cart_product_info', 'etheme_get_added_cart_product_info' );
+add_action( 'wp_ajax_nopriv_etheme_get_added_cart_product_info', 'etheme_get_added_cart_product_info' );
+
+if ( !function_exists('etheme_get_added_cart_product_info') ) {
+    function etheme_get_added_cart_product_info() {
+        $cart_item_key = WC()->session->get('etheme_last_added_cart_key');
+
+	    if(!$cart_item_key)
+		    return;
+
+	    // could remove but we may change quantity of product so keep it in transients
+
+        $cart = WC()->cart->get_cart();
+
+        if ( ! $cart ) return;
+
+        $cart_item = $cart[$cart_item_key];
+
+        $_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+
+        $product_name      = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
+        $thumbnail         = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+        $product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
+
+        wp_send_json( array(
+            'product_link' => $product_permalink,
+            'product_image' => $thumbnail ? $thumbnail : wc_placeholder_img(),
+            'product_title' => sprintf(__('<a href="%s">%s</a> has been added to your cart', 'xstore'), $product_permalink, $product_name ),
+        ) );
+    }
 }
 
 add_action( 'wp_ajax_etheme_added_to_cart_popup', 'etheme_added_to_cart_popup' );
@@ -2117,6 +2271,29 @@ if ( ! function_exists( 'etheme_get_mini_cart' ) ) {
 	}
 }
 
+if ( !function_exists('etheme_category_size_guide') ) {
+    function etheme_category_size_guide($product_id = null) {
+        $primary_category  = etheme_get_custom_field( 'primary_category' );
+        if ( ! empty( $primary_category ) && $primary_category != 'auto' ) {
+            $primary = get_term_by( 'slug', $primary_category, 'product_cat' );
+            if ( ! is_wp_error( $primary ) && isset($primary->term_id) ) {
+                $product_primary_cat_size_guide_local_img = get_term_meta( $primary->term_id, '_et_size_guide', true );
+                if ( $product_primary_cat_size_guide_local_img )
+                    return $product_primary_cat_size_guide_local_img;
+            }
+        }
+        else {
+            $terms = get_the_terms ( $product_id, 'product_cat' );
+            foreach ( $terms as $term ) {
+                $product_cat_size_guide_local_img = get_term_meta( $term->term_id, '_et_size_guide', true );
+                if ( $product_cat_size_guide_local_img ) {
+                    return $product_cat_size_guide_local_img;
+                }
+            }
+        }
+    }
+}
+
 if ( ! function_exists( 'etheme_size_guide' ) ) {
 	function etheme_size_guide() {
 		
@@ -2128,6 +2305,11 @@ if ( ! function_exists( 'etheme_size_guide' ) ) {
 		$size_file    = etheme_get_option( 'size_guide_file' );
 		$attr         = array();
 		
+		if ( !$local_guide ) {
+		    $category_size_guide = etheme_category_size_guide(get_the_ID());
+		    if ( $category_size_guide )
+		        $local_guide = $category_size_guide;
+		}
 		if ( $local_guide ) {
 			$image = $local_guide;
 		} elseif ( $global_type == 'popup' && isset( $global_guide['url'] ) ) {
@@ -2160,8 +2342,11 @@ if ( ! function_exists( 'etheme_product_cats' ) ) {
 		global $post, $product;
 		$cat  = etheme_get_custom_field( 'primary_category', ( $product->get_type() == 'variation') ? $product->get_parent_id() : false );
 		$html = '';
-		if ( ! empty( $cat ) && $cat != 'auto' ) {
-			$primary = get_term_by( 'slug', $cat, 'product_cat' );
+		if (
+			! empty( $cat )
+			&& $cat != 'auto'
+			&& $primary = get_term_by( 'slug', $cat, 'product_cat' )
+		) {
 			if ( ! is_wp_error( $primary ) ) {
 				$term_link = get_term_link( $primary );
 				if ( ! is_wp_error( $term_link ) ) {
@@ -2224,9 +2409,9 @@ endif;
 // **********************************************************************//
 
 if ( ! function_exists( 'etheme_get_image_list' ) ) {
-	function etheme_get_image_list( $size = 'shop_catalog' ) {
+	function etheme_get_image_list( $size = 'woocommerce_thumbnail', $include_main_image = true ) {
 		global $post, $product, $woocommerce;
-		$images_string = '';
+		$prod_images = array();
 		
 		$product_id = $post->ID;
 		$attachment_ids = $product->get_gallery_image_ids();
@@ -2234,6 +2419,11 @@ if ( ! function_exists( 'etheme_get_image_list' ) ) {
 		     etheme_get_option('variable_products_detach', false) && $product->get_type() == 'variation' ) {
 			// take images from variation gallery meta
 			$variation_attachment_ids = get_post_meta( $product->get_id(), 'et_variation_gallery_images', true );
+
+			// Compatibility with WooCommerce Additional Variation Images plugin
+			if ( !(bool)$variation_attachment_ids )
+			    $variation_attachment_ids = array_filter( explode( ',', get_post_meta( $product->get_id(), '_wc_additional_variation_images', true )));
+
 			if ( (bool) $variation_attachment_ids && count((array) $variation_attachment_ids) ) {
 				$attachment_ids = $variation_attachment_ids;
 			}
@@ -2247,9 +2437,11 @@ if ( ! function_exists( 'etheme_get_image_list' ) ) {
 		$_i = 0;
 		
 		if ( count( $attachment_ids ) > 0 ) {
-			$image = wp_get_attachment_image_src( get_post_thumbnail_id( $product_id ), $size );
-			if ( is_array( $image ) && isset( $image[0] ) ) {
-				$images_string .= $image[0];
+		    if ( $include_main_image ) {
+                $image = wp_get_attachment_image_src( get_post_thumbnail_id( $product_id ), $size );
+                if ( is_array( $image ) && isset( $image[0] ) ) {
+                    $prod_images[] = $image[0];
+                }
 			}
 			foreach ( $attachment_ids as $id ) {
 				$_i ++;
@@ -2257,21 +2449,13 @@ if ( ! function_exists( 'etheme_get_image_list' ) ) {
 				if ( $image == '' ) {
 					continue;
 				}
-				if ( $_i == 1 && $images_string != '' ) {
-					$images_string .= ';';
-				}
-				
-				
-				$images_string .= $image[0];
-				
-				if ( $_i != count( $attachment_ids ) ) {
-					$images_string .= ';';
-				}
+
+				$prod_images[] = $image[0];
 			}
 			
 		}
 		
-		return $images_string;
+		return implode(';', $prod_images);
 	}
 }
 
@@ -2281,7 +2465,7 @@ if ( ! function_exists( 'etheme_get_image_list' ) ) {
 // **********************************************************************//
 
 if ( ! function_exists( 'etheme_get_second_image' ) ) {
-	function etheme_get_second_image( $size = 'shop_catalog' ) {
+	function etheme_get_second_image( $size = 'woocommerce_thumbnail' ) {
 		global $product, $woocommerce_loop;
 		
 		$attachment_ids = $product->get_gallery_image_ids();
@@ -2290,6 +2474,11 @@ if ( ! function_exists( 'etheme_get_second_image' ) ) {
 		     etheme_get_option('variable_products_detach', false) && $product->get_type() == 'variation' ) {
 		    // take images from variation gallery meta
 			$variation_attachment_ids = get_post_meta( $product->get_id(), 'et_variation_gallery_images', true );
+
+			// Compatibility with WooCommerce Additional Variation Images plugin
+			if ( !(bool)$variation_attachment_ids )
+			    $variation_attachment_ids = array_filter( explode( ',', get_post_meta( $product->get_id(), '_wc_additional_variation_images', true )));
+
 			if ( (bool) $variation_attachment_ids && count((array) $variation_attachment_ids) ) {
 			    $attachment_ids = $variation_attachment_ids;
             }
@@ -2395,13 +2584,13 @@ if ( ! function_exists( 'etheme_grid_list_switcher' ) ) {
 				
 				<?php endif; ?>
 
-                <div class="switch-list <?php if ( $current == 'list' || $current_view == 'list' ) { echo 'switcher-active'; } ?>">
+                <div class="switch-list <?php if ( in_array('list', array($current, $current_view)) ) { echo 'switcher-active'; } ?>">
                     <a data-type="list" data-row-count="3" href="<?php echo esc_url( $url_list ); ?>"><?php esc_html_e( 'List', 'xstore' ); ?></a>
                 </div>
 				
 				<?php if ( !$is_mobile ) : ?>
 
-                    <div class="switch-more <?php if ( $current == 'more' || $current_view == 'more' ) { echo 'switcher-active'; } ?>">
+                    <div class="switch-more <?php if ( in_array('more', array($current, $current_view)) ) { echo 'switcher-active'; } ?>">
                         <a data-type="more"><?php esc_html_e( 'More', 'xstore' ); ?></a>
                         <ul>
                             <li class="<?php if ( $current == 'grid' && $current_view == 5 ) { echo 'switcher-active'; } ?>"><a data-type="grid" data-row-count="5" href="<?php echo esc_url( add_query_arg( 'et_columns-count', '5', remove_query_arg( 'et_columns-count', $url_grid ) ) ); ?>"><?php esc_html_e( '5 columns grid', 'xstore' ); ?></a></li>
@@ -2429,7 +2618,7 @@ if ( ! function_exists( 'etheme_grid_list_switcher' ) ) {
 					} ?>">
                         <a data-type="list" href="<?php echo esc_url( $url_list ); ?>"><?php esc_html_e( 'List', 'xstore' ); ?></a>
                     </div>
-                    <div class="switch-grid <?php if ( $current == 'list' ) {
+                    <div class="switch-grid <?php if ( $current == 'grid' ) {
 						echo 'switcher-active';
 					} ?>">
                         <a data-type="grid" href="<?php echo esc_url( $url_grid ); ?>"><?php esc_html_e( 'Grid', 'xstore' ); ?></a>
@@ -2648,7 +2837,8 @@ if ( ! function_exists( 'etheme_products_per_page_select' ) ) {
 		
 		$out .= '<span class="mob-hide">' . esc_html__( 'Show', 'xstore' ) . '</span>';
 		$out .= '<form method="get" action="' . esc_url( $action ) . '">';
-		$out .= '<select name="et_per_page" onchange="'.$onchange.'" class="et-per-page-select">';
+		$out .= '<label for="et_per_page" class="screen-reader-text">'.esc_html__('Products per page', 'xstore').'</label>';
+		$out .= '<select name="et_per_page" id="et_per_page" onchange="'.$onchange.'" class="et-per-page-select">';
 		foreach ( $et_ppp as $key => $value ) {
 			$out .= sprintf(
 				'<option value="%s" %s>%s</option>',
@@ -2657,8 +2847,16 @@ if ( ! function_exists( 'etheme_products_per_page_select' ) ) {
 				( $value == - 1 ) ? esc_html__( 'All', 'xstore' ) : $value
 			);
 		}
+		$out .= '</select>';
 		foreach ( $_GET as $key => $val ) {
-			if ( 'et_per_page' === $key || 'submit' === $key ) {
+			if (
+                'et_per_page' === $key
+                || 'submit' === $key
+                || (
+                    'et_ajax' === $key &&
+                    ! etheme_get_option( 'ajax_product_filter', 0 )
+                )
+            ) {
 				continue;
 			}
 			if ( is_array( $val ) ) {
@@ -2669,7 +2867,6 @@ if ( ! function_exists( 'etheme_products_per_page_select' ) ) {
 				$out .= '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $val ) . '" />';
 			}
 		}
-		$out .= '</select>';
 		$out .= '</form>';
 		echo '<div class="products-per-page ' . $class . '">' . $out . '</div>';
 	}
@@ -2890,9 +3087,17 @@ if ( ! function_exists( 'etheme_cart_items' ) ) {
 										echo '<span class="quantity">' . ' &times; ' . $product_price . '</span>';
 										echo '</div>';
 									}
-									?>
 									
-									<?php echo apply_filters( 'woocommerce_widget_cart_item_quantity', '<span class="quantity">' . sprintf( '%s &times; %s', $cart_item['quantity'], $product_price ) . '</span>', $cart_item, $cart_item_key ); ?>
+									echo apply_filters( 'woocommerce_widget_cart_item_quantity', '<span class="quantity">' . sprintf( '%s &times; %s', $cart_item['quantity'], $product_price ) . '</span>', $cart_item, $cart_item_key );
+									
+                                    if ( in_array('mini-cart', (array)get_theme_mod('product_sku_locations', array('cart', 'popup_added_to_cart', 'mini-cart'))) && wc_product_sku_enabled() && $_product->get_sku() ) : ?>
+                                        <div class="product_meta">
+                                            <span class="sku_wrapper"><?php esc_html_e( 'SKU:', 'xstore' ); ?>
+                                                <span class="sku"><?php echo esc_html( ( $sku = $_product->get_sku() ) ? $sku : esc_html__( 'N/A', 'xstore' ) ); ?></span>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+                                
                                 </div>
                             </div>
 							
@@ -3230,7 +3435,8 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 					$element_options['variation_sale_prices'][] = (float) round( ( ( $key['display_regular_price'] - $key['display_price'] ) / $key['display_regular_price'] ) * 100 );
 				}
 				if ( count($element_options['variation_sale_prices']) )
-				    $element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['variation_sale_prices'] ) . '%';
+				    $element_options['sale_label_text'] = sprintf( esc_html__( 'Up to %s', 'xstore' ), max( $element_options['variation_sale_prices'] ) . '%' );
+//				    $element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['variation_sale_prices'] ) . '%';
 			}
 		} elseif ( $product_type == 'grouped' ) {
 			if ( $sale_variables ) {
@@ -3255,7 +3461,8 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 						}
 					}
 				}
-				$element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['grouped_sale_prices'] ) . '%';
+//				$element_options['sale_label_text'] = esc_html__( 'Up to', 'xstore' ) . ' ' . max( $element_options['grouped_sale_prices'] ) . '%';
+				$element_options['sale_label_text'] = sprintf( esc_html__( 'Up to %s', 'xstore' ), max( $element_options['grouped_sale_prices'] ) . '%' );
 			}
 //			else {
 //				$element_options['sale_label_text'] = $sale_text;
@@ -3272,7 +3479,8 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 				}
 //				$element_options['sale_label_text'] = $sale_text;
 				if ( $element_options['regular_price'] && $element_options['sale_price'] ) {
-					$element_options['sale_label_text'] .= ' ' . round( ( ( $element_options['regular_price'] - $element_options['sale_price'] ) / $element_options['regular_price'] ) * 100 ) . '%';
+//					$element_options['sale_label_text'] .= ' ' . round( ( ( $element_options['regular_price'] - $element_options['sale_price'] ) / $element_options['regular_price'] ) * 100 ) . '%';
+					$element_options['sale_label_text'] = sprintf( str_replace('{sales_text}', $element_options['sale_label_text'], __( '{sales_text} %s', 'xstore' )),round( ( ( $element_options['regular_price'] - $element_options['sale_price'] ) / $element_options['regular_price'] ) * 100 ) . '%' );
 				}
 			}
 		}
@@ -3288,7 +3496,8 @@ if ( ! function_exists( 'etheme_sale_label_percentage_text' ) ) {
 					$discount_obj = new WAD_Discount( $discount_id );
 					if ( $discount_obj->is_applicable( $product_id ) ) {
 						$settings                           = $discount_obj->settings;
-						$element_options['sale_label_text'] = $sale_text . ' ' . $settings['percentage-or-fixed-amount'] . '%';
+//						$element_options['sale_label_text'] = $sale_text . ' ' . $settings['percentage-or-fixed-amount'] . '%';
+						$element_options['sale_label_text'] = sprintf( esc_html__( 'Sale %s', 'xstore' ),$settings['percentage-or-fixed-amount'] . '%' );
 					}
 				}
 			}
@@ -3376,15 +3585,31 @@ if ( ! function_exists( 'etheme_available_variation_gallery' ) ):
 		$product_id         = absint( $variation->get_parent_id() );
 		$variation_id       = absint( $variation->get_id() );
 		$variation_image_id = absint( $variation->get_image_id() );
-		
-		$has_variation_gallery_images = (bool) get_post_meta( $variation_id, 'et_variation_gallery_images', true );
+
+		$variation_gallery_images_meta_key = 'et_variation_gallery_images';
+		$has_variation_gallery_images = (bool) get_post_meta( $variation_id, $variation_gallery_images_meta_key, true );
+
+		// Compatibility with WooCommerce Additional Variation Images plugin
+		if ( !$has_variation_gallery_images ) {
+		    $has_variation_gallery_images = (bool)get_post_meta( $variation_id, '_wc_additional_variation_images', true );
+		    if ( $has_variation_gallery_images )
+		        $variation_gallery_images_meta_key = '_wc_additional_variation_images';
+
+        }
 		//  $product                      = wc_get_product( $product_id );
 		
 		if ( $has_variation_gallery_images ) {
-			$gallery_images = (array) get_post_meta( $variation_id, 'et_variation_gallery_images', true );
+		    if ( $variation_gallery_images_meta_key == '_wc_additional_variation_images' )
+		        $gallery_images = (array) array_filter( explode( ',', get_post_meta( $variation_id, $variation_gallery_images_meta_key, true )));
+            else
+			    $gallery_images = (array) get_post_meta( $variation_id, $variation_gallery_images_meta_key, true );
 		} else {
 			// $gallery_images = $product->get_gallery_image_ids();
-			$gallery_images = $variationProductObject->get_gallery_image_ids();
+			if (method_exists('St_Woo_Shop', 'get_gallery_image_ids')) {
+				$gallery_images = $variationProductObject->get_gallery_image_ids();
+			} else {
+				$gallery_images = array();
+			}
 		}
 		
 		
@@ -3523,7 +3748,7 @@ function et_get_gallery_image_props( $attachment_id, $index = false ) {
 		'caption'                 => '',
 		'url'                     => '',
 		'alt'                     => '',
-		'class' => 'attachment-shop_single size-shop_single wp-post-image',
+		'class' => 'attachment-woocommerce_single size-woocommerce_single wp-post-image',
 		'full_src'                => '',
 		'full_src_w'              => '',
 		'full_src_h'              => '',
@@ -3565,13 +3790,13 @@ function et_get_gallery_image_props( $attachment_id, $index = false ) {
 		
 		
 		// Gallery thumbnail.
-		$thumbnail_size                = apply_filters('single_product_small_thumbnail_size', 'shop_catalog' );
+		$thumbnail_size                = apply_filters('single_product_small_thumbnail_size', 'woocommerce_thumbnail' );
 		$thumbnail_src            = wp_get_attachment_image_src( $attachment_id, $thumbnail_size );
 		$props['thumbnail_src']   = esc_url( $thumbnail_src[0] );
 		$props['thumbnail_src_w'] = esc_attr( $thumbnail_src[1] );
 		$props['thumbnail_src_h'] = esc_attr( $thumbnail_src[2] );
 		
-		$image_size     = apply_filters( 'woocommerce_gallery_image_size', 'shop_single' );
+		$image_size     = apply_filters( 'woocommerce_gallery_image_size', 'woocommerce_single' );
 		$src            = wp_get_attachment_image_src( $attachment_id, $image_size );
 		$props['src']   = esc_url( $src[0] );
 		$props['src_w'] = esc_attr( $src[1] );
@@ -3696,7 +3921,7 @@ if (!function_exists('etheme_buy_now_btn')) {
                     data-product_id="<?php echo esc_attr( $product->get_id() ); ?>"
                     class="et_product_variable-in-quick-view product_type_variable add_to_cart_button et-st-disabled et-single-buy-now single_add_to_cart_button button alt"
                 >
-                    <?php echo esc_html_e( 'Select options', 'xstore' ); ?>
+                    <?php echo esc_html__( 'Select options', 'xstore' ); ?>
                 </a>
 			<?php else : ?>
                 <button type="submit" data-quantity="" data-product_id="" class="et-single-buy-now single_add_to_cart_button button alt"><?php echo esc_html($btn_text); ?></button>
@@ -3716,19 +3941,71 @@ function etheme_show_single_stock(){
 		&& $product->get_stock_status() == 'instock'
         && !in_array($product->get_type(), array('variable', 'external'))
 	){
-		echo '<p class="et_stock et_in-stock stock in-stock step-1">'.esc_html__('In stock', 'xstore').'</p>';
+	    if ( get_theme_mod('advanced_stock_status', false) && in_array('single_product', (array)etheme_get_option( 'advanced_stock_locations', array('single_product', 'quick_view') )) && 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+	        echo et_product_stock_line($product, '<p class="et_stock et_in-stock stock in-stock step-1">'.esc_html__('In stock', 'xstore').'</p>');
+	    }
+	    else {
+		    echo '<p class="et_stock et_in-stock stock in-stock step-1">'.esc_html__('In stock', 'xstore').'</p>';
+		}
 	}
 }
 
 add_filter( 'woocommerce_available_variation', 'etheme_show_single_variation_stock', 10, 2 );
 function etheme_show_single_variation_stock($return,$variation){
+    // @todo advanced_stock_status option will work correctly once when woocommerce fix the issue of total sales for variations ->
+	// https://github.com/woocommerce/woocommerce/issues/25040
 	if ( ! etheme_get_option( 'show_single_stock', 0 ) ) {
+        if ( get_theme_mod('advanced_stock_status', false) && in_array('single_product', (array)etheme_get_option( 'advanced_stock_locations', array('single_product', 'quick_view') )) && 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+            $return['availability_html'] = et_product_stock_line($variation, (isset($return['availability_html']) ? $return['availability_html'] : false));
+        }
 		return $return;
 	}
 	if(empty($return['availability_html'])){
 		$return['availability_html'] = '<p class="et_stock et_in-stock stock in-stock step-1">'.esc_html__('In stock', 'xstore').'</p>';
 	}
+	if ( get_theme_mod('advanced_stock_status', false) && in_array('single_product', (array)etheme_get_option( 'advanced_stock_locations', array('single_product', 'quick_view') )) && 'yes' === get_option( 'woocommerce_manage_stock' ) ) {
+        $return['availability_html'] = et_product_stock_line($variation, $return['availability_html']);
+    }
 	return $return;
+}
+
+// -----------------------------------------
+// 3. Store custom field value into variation data
+
+add_filter( 'woocommerce_available_variation', 'et_add_custom_field_variation_data' );
+
+function et_add_custom_field_variation_data( $variations ) {
+    // add sale dates params to reinit countdown on changing in single product
+    $date_end = get_post_meta( $variations[ 'variation_id' ], '_sale_price_dates_to', true );
+    if ( $date_end ) {
+        $date_start = get_post_meta( $variations[ 'variation_id' ], '_sale_price_dates_from', true );
+        $time_start = get_post_meta( $variations[ 'variation_id' ], '_sale_price_time_start', true );
+        $time_start = explode( ':', $time_start );
+        $time_end = get_post_meta( $variations[ 'variation_id' ], '_sale_price_time_end', true );
+        $time_end = explode( ':', $time_end );
+        $start_sale_date = array(
+            'day'    => date( 'd', (int)$date_start ),
+            'month'  => date( 'M', (int)$date_start ),
+            'year'   => date( 'Y', (int)$date_start ),
+            'hour_minute'   => (( isset( $time_start[0] ) && $time_start[0] != 'Array' && $time_start[0] > 0 ) ? $time_start[0] : '00') . ':' .
+            (isset( $time_start[1] ) ? $time_start[1] : '00'),
+        );
+        $end_sale_date = array(
+            'day'    => date( 'd', (int)$date_end ),
+            'month'  => date( 'M', (int)$date_end ),
+            'year'   => date( 'Y', (int)$date_end ),
+            'hour_minute'   => (( isset( $time_end[0] ) && $time_end[0] != 'Array' && $time_end[0] > 0 ) ? $time_end[0] : '00') . ':' .
+            (isset( $time_end[1] ) ? $time_end[1] : '00'),
+
+        );
+        $variations['_sale_price_start'] = implode(' ', $start_sale_date);
+        $variations['_sale_price_end'] = implode(' ', $end_sale_date);
+    }
+
+    $gtin = get_post_meta( $variations[ 'variation_id' ], '_et_gtin', true );
+    if ( $gtin )
+        $variations['_et_gtin'] = $gtin;
+    return $variations;
 }
 
 function etheme_cross_sell_display( $limit = '-1', $columns = 4, $orderby = 'rand', $order = 'desc' ) {
@@ -3849,6 +4126,19 @@ function et_custom_price_html( $price, $product ) {
 	}
 }
 
+function etheme_variation_title($title, $product) {
+	if ( ! $product->is_type( 'variation' ) ) {
+		return $title;
+	}
+
+	$saved_title = get_post_meta( $product->get_id(), '_et_product_variation_title', true );
+
+	if ( ! empty( $saved_title ) ) {
+		return $saved_title;
+	}
+
+	return $title;
+}
 
 add_action('init', function() {
 	$variable_products_detach = etheme_get_option( 'variable_products_detach', false );
@@ -3856,6 +4146,10 @@ add_action('init', function() {
 	if ( ! $variable_products_detach ) {
 		return;
 	}
+	
+	add_filter( 'woocommerce_product_title', 'etheme_variation_title', 10, 2 );
+	
+	add_filter( 'woocommerce_product_variation_title', 'etheme_variation_title', 10, 2 );
 	
 	add_action( 'woocommerce_product_query', function ( $q, $_this ) {
 		
@@ -3927,6 +4221,7 @@ add_action('init', function() {
 			$max_price          = isset( $_GET['max_price'] ) ? wc_clean( wp_unslash( $_GET['max_price'] ) ) : 0; // WPCS: input var ok, CSRF ok.
 			$rating_filter      = isset( $_GET['rating_filter'] ) ? array_filter( array_map( 'absint', explode( ',', wp_unslash( $_GET['rating_filter'] ) ) ) ) : array(); // WPCS: sanitization ok, input var ok, CSRF ok.
 			$clauses['where'] .= " OR ({$wpdb->posts}.post_type = 'product_variation' AND {$wpdb->posts}.post_status = 'publish' ";
+//			$clauses['where'] .= " AND {$wpdb->posts}.post_parent IN (SELECT ID FROM $wpdb->posts WHERE post_type = 'product' AND post_status = 'publish' ) ";
             if( defined('WPML_TM_VERSION') && defined('WPML_ST_VERSION') && defined( 'ICL_LANGUAGE_CODE' ) ) {
 //                $clauses['where'] .= " AND {$wpdb->posts}.post_parent IN (SELECT $wpdb->icl_translations.element_id FROM $wpdb->icl_translations WHERE language_code = " . ICL_LANGUAGE_CODE . " )";
 	            $clauses['where'] .= " AND {$wpdb->posts}.post_parent IN (SELECT element_id FROM {$wpdb->prefix}icl_translations WHERE language_code = '" . ICL_LANGUAGE_CODE . "' )";
@@ -3935,7 +4230,7 @@ add_action('init', function() {
 				$clauses['where'] .= "AND {$wpdb->posts}.ID NOT IN (".implode(',', $query->query_vars['post__not_in']).")";
 			}
 			if ( isset($query->queried_object->term_id ) ) {
-				$clauses['where'] .= "AND {$wpdb->posts}.post_parent IN (SELECT $wpdb->term_relationships.object_id  FROM $wpdb->term_relationships WHERE term_taxonomy_id  IN (" . $query->queried_object->term_id . ") ) ";
+				$clauses['where'] .= "AND {$wpdb->posts}.post_parent IN (SELECT $wpdb->term_relationships.object_id FROM $wpdb->term_relationships WHERE term_taxonomy_id  IN (" . $query->queried_object->term_id . ") ) ";
 			}
 			if ( $min_price ) {
 				$clauses['where'] .= " AND {$wpdb->posts}.ID IN (SELECT $wpdb->postmeta.post_id FROM $wpdb->postmeta WHERE meta_key = '_price' AND meta_value >= $min_price)";
@@ -4152,10 +4447,11 @@ function etheme_product_variations_excluded($args = array()) {
             }
         }
 		// new - hide out of stock variations if woocommerce option is enabled
-		if ( $hide_outofstock && !$args['only_parent'] ) {
+		if ( !$args['only_parent'] ) {
 			$query_args = array(
 				'post_type' => 'product',
 				'numberposts'      => -1,
+				'post_status'    => 'any',
 				'tax_query' => array(
 					'relation' => 'AND',
 					array(
@@ -4169,15 +4465,40 @@ function etheme_product_variations_excluded($args = array()) {
 			$query         = http_build_query( $query_args );
 //			$query_hash    = md5( $query );
 			$results = get_posts( $query );
+			
+            $attribute_to_limit = get_theme_mod('variation_product_primary_attribute', 'et_none');
+            $attribute_to_limit_parse = $attribute_to_limit != 'et_none';
+	
 			foreach ( $results as $key => $post ) {
 				$product = wc_get_product( $post->ID );
 				$variations = $product->get_children();
 				if ( count( $variations ) ) {
+				    $ids_have_attributes = array();
 					foreach ( $variations as $variation_id ) {
 						$variation_product = wc_get_product( $variation_id );
-						if ( ! $variation_product->is_in_stock() || !$variation_product->variation_is_visible() ){
+						if ( !$variation_product || 'publish' != get_post_status($post->ID)) {
+						    $ids[] = $variation_id;
+						}
+						elseif ( $hide_outofstock && (!$variation_product || ! $variation_product->is_in_stock() || !$variation_product->variation_is_visible()) ){
 							$ids[] = $variation_id;
 						}
+						
+						if ( $attribute_to_limit_parse ) {
+                            $attributes = $variation_product->get_attributes();
+                            if (array_key_exists('pa_'.$attribute_to_limit, $attributes)) {
+                                if ( !empty($attributes['pa_'.$attribute_to_limit]) )
+                                    $ids_have_attributes['pa_'.$attribute_to_limit][$attributes['pa_'.$attribute_to_limit]][] = $variation_id;
+                                else
+                                    $ids[] = $variation_id;
+                            }
+						}
+					}
+					
+					if ( count($ids_have_attributes) ) {
+                        foreach ($ids_have_attributes['pa_'.$attribute_to_limit] as $ids_have_attribute_key => $ids_have_attribute) {
+                            array_shift($ids_have_attributes['pa_'.$attribute_to_limit][$ids_have_attribute_key]);
+                            $ids = array_merge($ids, $ids_have_attributes['pa_'.$attribute_to_limit][$ids_have_attribute_key]);
+                        }
 					}
 				}
             }
@@ -4454,24 +4775,55 @@ add_filter( 'woocommerce_product_categories_widget_args', function ( $args ) {
     $top_level = str_replace(array('current-cat', 'current-cat-parent'), array('hidden', 'hidden'), $top_level);
     $args['title_li'] = $top_level;
 
-    $siblings        = get_terms(
+    // old version
+//    $siblings        = get_terms(
+//        'product_cat',
+//        array(
+//            'fields'       => 'ids',
+//            'parent'       => $current_cat_parent,
+//            'hierarchical' => true,
+//            'hide_empty'   => false,
+//        )
+//    );
+//    $siblings2       = get_terms(
+//        'product_cat',
+//        array(
+//            'fields'       => 'ids',
+//            'hierarchical' => true,
+//            'hide_empty'   => false,
+//        )
+//    );
+//    $args['exclude'] = array_diff( $siblings2, $siblings, array( $current_cat_parent ) );
+
+    // new version
+    global $wp_query;
+    // Direct children are wanted
+    $direct_children = get_terms(
         'product_cat',
         array(
             'fields'       => 'ids',
-            'parent'       => $current_cat_parent,
+            'parent'       => $wp_query->queried_object->term_id,
             'hierarchical' => true,
             'hide_empty'   => false
         )
     );
-    $siblings2       = get_terms(
-        'product_cat',
-        array(
-            'fields'       => 'ids',
-            'hierarchical' => true,
-            'hide_empty'   => false
-        )
-    );
-    $args['exclude'] = array_diff( $siblings2, $siblings, array( $current_cat_parent ) );
+    $siblings = array();
+    if( $current_cat_parent ) {
+        // Siblings are wanted
+        $siblings = get_terms(
+            'product_cat',
+            array(
+                'fields'       => 'ids',
+                'parent'       => $current_cat_parent,
+                'hierarchical' => true,
+                'hide_empty'   => false
+            )
+        );
+    }
+				
+    $include = array_merge( array( $wp_query->queried_object->term_id, $current_cat_parent ), $direct_children, $siblings );
+
+    $args['include']     = implode( ',', $include );
 //    add_filter('wp_list_categories', function ($output) {
 //        return $output;
 //    });
@@ -4546,6 +4898,14 @@ function etheme_woocommerce_product_loop_start_filter($html) {
 			if ( $local_product_view != 'disable' )
 				etheme_enqueue_style( 'product-view-' . $local_product_view, true );
 		}
+		$product_img_hover = etheme_get_option('product_img_hover', 'slider');
+		if( !empty($woocommerce_loop['hover'])) {
+			$product_img_hover = $woocommerce_loop['hover'];
+		}
+
+		if ( $product_img_hover == 'carousel' ) {
+		    wp_enqueue_script( 'et_product_hover_slider');
+		}
 		
 //		$custom_template = get_query_var( 'et_custom_product_template' );
 		if ( ! empty( $woocommerce_loop['custom_template'] ) ) {
@@ -4566,6 +4926,56 @@ function etheme_woocommerce_product_loop_start_filter($html) {
 	}
 	
 	return $html;
+}
+
+// Attention Attention!
+// Do not move it inside of etheme_search_post_excerpt
+// Because etheme_search_post_excerpt called minimum 7 times
+// And it will add the same query several times
+add_filter( 'woocommerce_price_filter_sql', function( $sql, $meta_query_sql, $tax_query_sql ){
+	if ( isset( $_GET['filter_brand'] ) && ! empty($_GET['filter_brand']) ) {
+		global $wpdb;
+		$ids = et_get_active_brand_ids($_GET['filter_brand']);
+		if ($ids){
+			// change to str_contains for php 8
+			// else if dose not work here
+			if (strpos($sql, "product_id") !== false){
+				$sql .= "AND product_id IN(SELECT $wpdb->term_relationships.object_id  FROM $wpdb->term_relationships WHERE term_taxonomy_id  IN (" . $ids . "))";
+				return $sql;
+				
+			}
+			if (strpos($sql, "{$wpdb->posts}.ID") !== false) {
+				$sql .= "AND {$wpdb->posts}.ID IN(SELECT $wpdb->term_relationships.object_id  FROM $wpdb->term_relationships WHERE term_taxonomy_id  IN (" . $ids . "))";
+				return $sql;
+			}
+		}
+	}
+	return $sql;
+}, 10, 3 );
+
+if (!function_exists('et_get_active_brand_ids')){
+	function et_get_active_brand_ids($filter_brand){
+		if (! $filter_brand ) return false;
+		$brands = explode(',', $filter_brand);
+		$ids    = array();
+		
+		foreach ($brands as $key => $value) {
+			$term = get_term_by('slug', $value, 'brand');
+			if ( ! isset( $term->term_taxonomy_id ) || empty( $term->term_taxonomy_id ) ) // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			{
+			} else {
+				$ids[] = $term->term_taxonomy_id;
+			}
+		}
+		
+		if ( ! implode( ',', $ids ) ) {
+			$ids = 0;
+		} else {
+			$ids = implode( ',', $ids );
+		}
+		
+		return $ids;
+	}
 }
 
 add_action( 'template_redirect', 'et_wc_fake_live_viewing', 20 );
@@ -4621,7 +5031,142 @@ function etheme_set_fake_live_viewing_count($id) {
 
 }
 
-// Adding brands to woocommerce product application/ld+json schema 
+if ( !function_exists('etheme_get_fake_product_sales_count') ) {
+    function etheme_get_fake_product_sales_count($id) {
+        
+        $xstore_sales_booster_settings = (array)get_option('xstore_sales_booster_settings', array());
+
+        $xstore_sales_booster_settings_default = array(
+            'message' => esc_html__('{fire} {count} items sold in last {timeframe}', 'xstore'),
+            'sales_type' => 'fake',
+            'show_on_shop' => false,
+            'hide_on_outofstock' => false,
+            'min_count' => 3,
+            'max_count' => 12,
+            'shown_after' => 0,
+            'timeframe' => 3,
+            'timeframe_period' => 'hours',
+            'transient_hours' => 24
+        );
+        
+        $timeframe_period = $xstore_sales_booster_settings_default['timeframe'] . ' ' . esc_html__('hours', 'xstore');
+
+        $xstore_sales_booster_settings_fake_product_sales = $xstore_sales_booster_settings_default;
+
+        if (count($xstore_sales_booster_settings) && isset($xstore_sales_booster_settings['fake_product_sales'])) {
+            $xstore_sales_booster_settings = wp_parse_args($xstore_sales_booster_settings['fake_product_sales'],
+                $xstore_sales_booster_settings_default);
+
+            $xstore_sales_booster_settings_fake_product_sales = $xstore_sales_booster_settings;
+        }
+        
+        if ( $xstore_sales_booster_settings_fake_product_sales['hide_on_outofstock'] ) {
+            $this_product = wc_get_product( $id );
+            if ( !$this_product->is_in_stock() ) return false;
+        }
+        
+        $average_count = get_transient( 'etheme_fake_product_sales_' . $id );
+
+        $xstore_sales_booster_settings_fake_product_sales_timeframe = $xstore_sales_booster_settings_fake_product_sales['timeframe'];
+
+        switch ($xstore_sales_booster_settings_fake_product_sales['timeframe_period']) {
+            case 'minutes':
+                $timeframe_period = ($xstore_sales_booster_settings_fake_product_sales_timeframe > 1 ? $xstore_sales_booster_settings_fake_product_sales_timeframe . ' ' : '')  . _n( 'minute', 'minutes', (int)$xstore_sales_booster_settings_fake_product_sales_timeframe, 'xstore' );
+                break;
+            case 'hours':
+                $timeframe_period = ($xstore_sales_booster_settings_fake_product_sales_timeframe > 1 ? $xstore_sales_booster_settings_fake_product_sales_timeframe . ' ' : '')  . _n( 'hour', 'hours', (int)$xstore_sales_booster_settings_fake_product_sales_timeframe, 'xstore' );
+                break;
+            case 'days':
+                $timeframe_period = ($xstore_sales_booster_settings_fake_product_sales_timeframe > 1 ? $xstore_sales_booster_settings_fake_product_sales_timeframe . ' ' : '')  . _n( 'day', 'days', (int)$xstore_sales_booster_settings_fake_product_sales_timeframe, 'xstore' );
+                break;
+            case 'weeks':
+                $timeframe_period = ($xstore_sales_booster_settings_fake_product_sales_timeframe > 1 ? $xstore_sales_booster_settings_fake_product_sales_timeframe . ' ' : '')  . _n( 'week', 'weeks', (int)$xstore_sales_booster_settings_fake_product_sales_timeframe, 'xstore' );
+                break;
+            case 'months':
+                $timeframe_period = ($xstore_sales_booster_settings_fake_product_sales_timeframe > 1 ? $xstore_sales_booster_settings_fake_product_sales_timeframe . ' ' : '')  . _n( 'month', 'months', (int)$xstore_sales_booster_settings_fake_product_sales_timeframe, 'xstore' );
+                break;
+        }
+        
+        if ( $average_count === false ) {
+            if (!!$average_count) {}
+            else {
+                
+                if ( $xstore_sales_booster_settings_fake_product_sales['sales_type'] == 'fake' ) {
+                    $average_count = rand($xstore_sales_booster_settings_fake_product_sales['min_count'], $xstore_sales_booster_settings_fake_product_sales['max_count']);
+                }
+                else {
+                    $date_before = strtotime('-' . $xstore_sales_booster_settings_fake_product_sales_timeframe *
+                                str_replace(array(
+                                    'minutes',
+                                    'hours',
+                                    'days',
+                                    'weeks',
+                                    'months',
+                                ), array(
+                                    MINUTE_IN_SECONDS,
+                                    HOUR_IN_SECONDS,
+                                    DAY_IN_SECONDS,
+                                    WEEK_IN_SECONDS,
+                                    MONTH_IN_SECONDS
+                                ), $xstore_sales_booster_settings_fake_product_sales['timeframe_period'] ) . ' seconds');
+        
+                  $orders = get_posts( array(
+                        'numberposts' => -1,
+                        'post_type'   => array( 'shop_order' ),
+                        'post_status' => array( 'wc-completed', 'wc-processing' ),
+                        'date_query'  => array(
+                            'after'   => date('Y-m-d H:i:s', $date_before),
+                            'before'  => date('Y-m-d H:i:s', strtotime( 'now' )),
+                        )
+                    ));
+        
+                    $average_count = 0;
+                    foreach ( $orders as $order_id ) {
+                        $order = wc_get_order( $order_id );
+                        foreach ( $order->get_items() as $item_id => $item_values ) {
+                            $quantity = 0;
+                            $product_id = $item_values->get_product_id();
+                            if ( $product_id == $id )
+                                {$quantity = $item_values->get_quantity();}
+                            $average_count += $quantity;
+                            
+                        }
+                    }
+                
+                }
+        
+                set_transient('etheme_fake_product_sales_' . $id, $average_count, (int)$xstore_sales_booster_settings_fake_product_sales['transient_hours'] * HOUR_IN_SECONDS); // keep for 5 minutes
+                $saved_ids = (array)get_transient('etheme_fake_product_sales_ids', array());
+                $saved_ids[] = $id;
+                $saved_ids = array_unique($saved_ids);
+                set_transient('etheme_fake_product_sales_ids', $saved_ids);
+            }
+        }
+        
+        if ( $xstore_sales_booster_settings_fake_product_sales['sales_type'] == 'orders' && $xstore_sales_booster_settings_fake_product_sales['shown_after'] > $average_count) {
+            return false;
+        }
+        
+        return $average_count ? str_replace(
+                array('{fire}', '{bag}', '{count}', '{timeframe}'),
+                array('🔥', '🛍️', $average_count, $timeframe_period),
+                $xstore_sales_booster_settings_fake_product_sales['message']) : false;
+    }
+}
+
+if ( !function_exists('etheme_advanced_stock_status_html') ) {
+    function etheme_advanced_stock_status_html($html, $product) {
+        if ( ! etheme_get_option( 'show_single_stock', 0 ) ) {
+            return '';
+        }
+        if ( in_array($product->get_type(), array('simple', 'product_variation') ) && 'yes' === get_option( 'woocommerce_manage_stock' ) ){
+            return et_product_stock_line($product, $html);
+        }
+        return $html;
+    }
+}
+
+// Adding brands to woocommerce product application/ld+json schema
 add_filter('woocommerce_structured_data_product', function ($markup, $product) {
 	if ( etheme_xstore_plugin_notice() || !get_theme_mod( 'enable_brands', 1 ) ) {
 		return $markup;
@@ -4677,12 +5222,45 @@ add_filter('webexpert_skroutz_xml_custom_gallery','etheme_compatibility_webexper
  */
 function etheme_compatibility_webexpert_skroutz_xml_variation_gallery_images($gallery_image_ids,$product) {
 	if ( $product->is_type( 'variation' ) ) {
-		$has_variation_gallery_images = (bool) get_post_meta( $product->get_id(), 'et_variation_gallery_images', true );
-		if ( $has_variation_gallery_images ) {
-			$gallery_images = (array) get_post_meta( $product->get_id(), 'et_variation_gallery_images', true );
+		$has_variation_gallery_images = get_post_meta( $product->get_id(), 'et_variation_gallery_images', true );
+		if ( (bool)$has_variation_gallery_images ) {
+			$gallery_images = (array) $has_variation_gallery_images;
+			return $gallery_images;
+		}
+
+		// Compatibility with WooCommerce Additional Variation Images plugin
+        $has_variation_gallery_images_wc_additional_variation_images = get_post_meta( $product->get_id(), '_wc_additional_variation_images', true );
+		if ( (bool)$has_variation_gallery_images_wc_additional_variation_images ) {
+		    $gallery_images = (array) array_filter( explode( ',', $has_variation_gallery_images_wc_additional_variation_images));
 			return $gallery_images;
 		}
 		return $gallery_image_ids;
 	}
 	return $gallery_image_ids;
+}
+
+add_filter('woocommerce_get_breadcrumb',function($crumbs,$_this){
+    if ( etheme_get_option('bc_page_numbers', 0) ){
+        if(strpos($crumbs[count($crumbs)-1][0],'Page ')===0){
+            unset($crumbs[count($crumbs)-1]);
+            $args["breadcrumb"][count($crumbs)-1][1]='';
+        }
+    }
+	return $crumbs;
+},10,2);
+
+// new
+if ( class_exists('Etheme_Sales_Booster_Estimated_Delivery') ) {
+    $estimated_delivery = new Etheme_Sales_Booster_Estimated_Delivery();
+    $estimated_delivery->init();
+}
+
+if ( class_exists('Etheme_Sales_Booster_Safe_Checkout') ) {
+    $safe_checkout = Etheme_Sales_Booster_Safe_Checkout::get_instance();
+    $safe_checkout->init();
+}
+
+if ( class_exists('Etheme_Sales_Booster_Quantity_Discounts') ) {
+    $safe_checkout = Etheme_Sales_Booster_Quantity_Discounts::get_instance();
+    $safe_checkout->init();
 }

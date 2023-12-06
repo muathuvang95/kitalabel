@@ -20,12 +20,7 @@
 
             <p class="product-title"><a href="<?php echo esc_url( get_permalink( dokan_get_prop( $product, 'id' ) ) ); ?>" title="<?php echo esc_attr( $product->get_title() ); ?>"><?php echo esc_html( $product->get_title() ); ?></a></p>
 
-            <!-- For WC < 3.0.0  backward compatibility  -->
-            <?php if ( version_compare( WC_VERSION, '2.7', '>' ) ) : ?> 
-                <?php  echo ( ! empty( $show_rating ) ) ? wc_get_rating_html( $product->get_average_rating() ) : '';  ?>
-            <?php else: ?>
-                <?php  echo ( ! empty( $show_rating ) ) ? $product->get_rating_html() : '';  ?>
-            <?php endif ?>
+            <?php  echo ( ! empty( $show_rating ) ) ? wc_get_rating_html( $product->get_average_rating() ) : '';  ?>
 
              <div class="price">
                 <?php echo wp_kses_post($product->get_price_html()); ?>

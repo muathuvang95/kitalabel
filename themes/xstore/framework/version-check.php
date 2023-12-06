@@ -9,11 +9,12 @@ class ETheme_Version_Check {
     private $ignore_key = 'etheme_notice';
     public $information;
     public $api_key;
-    public $url = 'http://8theme.com/demo/xstore/change-log.php';
+    public $url = '';
     public $notices;
     private $theme_id = 15780546;
     public $is_subscription = false;
     public $activated_data = array();
+    public $is_license = true;
 
 
     function __construct($update_transient = true) {
@@ -21,7 +22,8 @@ class ETheme_Version_Check {
 	    $this->activated_data = $activated_data = get_option( 'etheme_activated_data' );
         $this->current_version = $theme_data->get('Version');
         $this->theme_name = strtolower($theme_data->get('Name'));
-        $this->api_url = ETHEME_API;
+        $this->api_url = apply_filters('etheme_protocol_url', ETHEME_API);
+	    $this->url = apply_filters('etheme_protocol_url', ETHEME_BASE_URL . 'import/demo/xstore/change-log.php');
         $this->api_key = ( ! empty( $activated_data['api_key'] ) ) ? $activated_data['api_key'] : false;
 	    $this->is_subscription = ( isset($activated_data['item']) && isset($activated_data['item']['license']) && $activated_data['item']['license'] == '8theme-subscription' );
 
@@ -29,6 +31,7 @@ class ETheme_Version_Check {
         add_action('admin_notices', array($this, 'show_notices'), 50 );
 
 	    add_action( 'wp_ajax_et_support_refresh', array($this, 'et_support_refresh') );
+	    add_action('wp_ajax_etheme_deactivate_theme', array($this, 'deactivate'));
 
         if( ! etheme_is_activated() ) {
             #$this->activation_notice();
@@ -70,12 +73,12 @@ class ETheme_Version_Check {
 
 		            ?>
 
-                    <p><?php esc_html_e('Your theme is activated! Now you have lifetime updates, top-notch 24/7 live support and much more.', 'xstore'); ?></p>
+                    <p><?php esc_html_e('Congratulations, your theme has been successfully activated! You now have access to lifetime updates, high-quality 24/7 customer support, and many other great features. Enjoy!', 'xstore'); ?></p>
                     <?php $this->process_form(); ?>
                     <p class="etheme-purchase"><i class="et-admin-icon et-key"></i> <span><?php echo substr($purchase, 0, -8) . '********'; ?></span></p>
 
                     <?php //if (!$this->is_subscription): ?>
-                        <span class="et-button et-button-semiactive  et_theme-deactivator no-loader last-button"><?php esc_html_e( 'Deactivate theme', 'xstore' ); ?></span>
+                        <span class="et-button et_theme-deactivator no-loader last-button"><?php esc_html_e( 'Unregister', 'xstore' ); ?></span>
                     <?php //endif; ?>
 
 
@@ -86,18 +89,34 @@ class ETheme_Version_Check {
                             <?php esc_html_e('Due to the Envato\'s license policy one standard license is valid only for 1 project.', 'xstore'); ?>
                                 <br>
                                 <?php esc_html_e('Running multiple projects on a single license is a copyright violation.', 'xstore');?>
-                                <br> If you want to use this theme more than one project or unlimited, please check our <a href="https://www.8theme.com/woocommerce-themes/#price-section-anchor" target="_blank">8theme's subscription plan.</a>
+                                <a style="color: #2271b1;" href="https://themeforest.net/licenses/terms/regular" target="_blank">More info.</a>
+<!--                                <br> If you want to use this theme more than one project or unlimited, please check our <a href="https://www.8theme.com/woocommerce-themes/#price-section-anchor" target="_blank">8theme's subscription plan.</a>-->
+
                             </p>
 		                <?php endif; ?>
             <?php else: ?>
         
-                <p class="et-message et-warning"><?php echo sprintf(esc_html__('Your product should be activated so you may get the access to all the XStore %1$1sdemos%2$2s, auto theme %3$3s updates %4$4s and included premium %5$5splugins%6$6s. The instructions below in toggle format must be followed exactly.', 'xstore'), '<b>', '</b>', '<b>', '</b>', '<b>', '</b>'); ?></p>
-                <p class="et-message et-info"><?php esc_html_e( 'By clicking Register Theme, you agree that your purchase code and your user data will be stored by 8theme.com', 'xstore' ); ?></p>
+                <p class="">
+                    It is important to activate the XStore theme using the provided purchase code. This will give you access to all available demos, automatic theme updates, and included premium plugins.
+                </p>
                 <?php $this->process_form(); ?>
 
                 <form class="xstore-form" method="post">
                     <input type="text" name="purchase-code" placeholder="Example: f20b1cdd-ee2a-1c32-a146-66eafea81761" id="purchase-code" />
-                    <input class="et-button et-button-green no-transform no-loader active" name="xstore-purchase-code" type="submit" value="<?php esc_attr_e( 'Register theme', 'xstore' ); ?>" />
+                    <input class="et-button et-button-green no-transform no-loader active" name="xstore-purchase-code" type="submit" value="<?php esc_attr_e( 'Register', 'xstore' ); ?>" />
+                    <p <?php if(!$this->is_license ) echo 'style = "color: #ff0000;"'; ?> >
+                        <input type="checkbox" id="form-license" name="form-license">
+                        <label for="form-license">
+                           Please confirm that, according to Envato's license policy, a single standard license is only valid for one project. Using a single license for multiple projects is a violation of copyright. For more information, please refer to
+                        </label>
+
+                        <a style="color: #2271b1;" href="https://themeforest.net/licenses/terms/regular" target="_blank">Envato's license policy.
+                        </a>
+                    </p>
+                    <p class="et-message et-info">
+                        By clicking "Register," you agree to allow 8theme.com to store your purchase code and user data.
+                    </p>
+
                 </form>
 
             <?php endif; ?>
@@ -242,15 +261,15 @@ class ETheme_Version_Check {
         
         $last_check = get_option( 'xstore-update-time' );
         if( $last_check == false ){ 
-            update_option( 'xstore-update-time', time() );
+            update_option( 'xstore-update-time', time(), 'no' );
         }
         
         if( time() - $last_check > 172800 || $force || $last_check == false ){
             
             $version_information = $this->api_info();
 
-            if( isset( $version_information ) ) {
-                update_option( 'xstore-update-time', time() );
+            if( $version_information ) {
+                update_option( 'xstore-update-time', time(), 'no' );
                 
                 $this->information          = $version_information;
                 $this->information->checked = time();
@@ -272,7 +291,7 @@ class ETheme_Version_Check {
         $response_code = wp_remote_retrieve_response_code( $response );
 
         if( $response_code != '200' ) {
-            return array();
+            return false;
         }
 
         $response = json_decode( wp_remote_retrieve_body( $response ) );
@@ -290,7 +309,7 @@ class ETheme_Version_Check {
     }
 
     public function download_url() {
-        $url = ETHEME_API . 'files/get/' . $this->theme_name . '.zip?token=' . $this->api_key;
+        $url = $this->api_url . 'files/get/' . $this->theme_name . '.zip?token=' . $this->api_key;
         return apply_filters( 'etheme_theme_url', $url );
     }
     public function release_version() {
@@ -320,8 +339,23 @@ class ETheme_Version_Check {
     }
 
     public function process_form() {
-        if( isset( $_POST['xstore-purchase-code'] ) && ! empty( $_POST['xstore-purchase-code'] ) ) {
-            $code = trim( str_replace(' ', '', $_POST['purchase-code']) );
+
+        if (
+	        isset( $_POST['xstore-purchase-code'] )
+	        && ! empty( $_POST['xstore-purchase-code'] )
+            && ! isset($_POST['form-license'])
+            && empty( $_POST['form-license'] )
+        ){
+	        $this->is_license = false;
+        }
+
+        if(
+                isset( $_POST['xstore-purchase-code'] )
+                && ! empty( $_POST['xstore-purchase-code'] )
+                && isset($_POST['form-license'])
+                && ! empty( $_POST['form-license'] )
+        ) {
+            $code = trim( $_POST['purchase-code'] );
 
             if( empty( $code ) ) {
                echo  '<p class="et-message et-error">Oops, the code is missing, please, enter it to continue.</p>';
@@ -336,6 +370,11 @@ class ETheme_Version_Check {
             $response_code = wp_remote_retrieve_response_code( $response );
 
             if( $response_code != '200' ) {
+
+	            if( is_wp_error( $response ) ) {
+		            echo '<p class="et-message et-error">' . $response->get_error_message() . '</p>';
+	            }
+
                 if (!$response_code){
 	                echo  '<p class="et-message et-error">API request call error. Common problem caused by SSL certificate. Please check it  <a href="https://www.sslshopper.com/ssl-checker.html" target="_blank" rel="nofollow">here</a>. Contact your server provider in case your certificate does not exist or has some errors.</p>';
 	                return;
@@ -359,7 +398,7 @@ class ETheme_Version_Check {
             $this->activate( $code, $data );
 
             echo '<div class="purchase-default"><p class="etheme-purchase"><i class="et-admin-icon et-key"></i> <span>' . substr($code, 0, -8) . '********' . '</span></p>
-                <span class="et-button et-button-active et_theme-deactivator no-loader last-button">' . esc_html__( 'Deactivate theme', 'xstore' ) . '</span>
+                <span class="et-button et-button-active et_theme-deactivator no-loader last-button">' . esc_html__( 'Unregister', 'xstore' ) . '</span>
                     <p class="et-message et-error">
                     ' . esc_html__('One standard license is valid only for 1 website. Running multiple websites on a single license is a copyright violation. When moving a site from one domain to another please deactivate the theme first.', 'xstore') . '
                 </p></div>';
@@ -383,7 +422,7 @@ class ETheme_Version_Check {
     public function major_update( $type = 'msg' ) {
 
         // ! major update versions
-        $versions = array( '4.0', '4.18', '5.0', '6.0', '7.0', '8.0', '9.0', '10.0', '11.0', '12.0' );
+        $versions = array( '4.0', '4.18', '5.0', '6.0', '7.0', '8.0', '9.0', '10.0', '11.0', '12.0', '13.0', '14.0', '15.0' );
 
         // ! current release version
         $release = $this->release_version();
@@ -481,7 +520,7 @@ class ETheme_Version_Check {
 		$left = $daysleft . ' ' . _nx( 'day left', 'days left', $daysleft, 'Support day/days left', 'xstore' );
 
 		$icon = '<span style="cursor: pointer; font-size: 18px; padding-top: 3px; padding-left: 5px;" class="et_support-refresh dashicons dashicons-image-rotate"></span>';
-		$renew = __('You can renew your support ', 'xstore') . '<a href="https://themeforest.net/item/xstore-responsive-woocommerce-theme/15780546" target="_blank">' . __('here', 'xstore') . '</a>';
+		$renew = __('You can renew your support ', 'xstore') . '<a href="https://1.envato.market/2rXmmA" target="_blank">' . __('here', 'xstore') . '</a>';
 
 		if ($support == 'expire-soon') {
 			$status = 'et-warning';
@@ -514,6 +553,50 @@ class ETheme_Version_Check {
 		    );
         }
 	}
+
+	public function deactivate_action(){
+		if ( $this->api_url ) {
+			$remote_response = wp_remote_get( $this->api_url . 'deactivate/' . $this->api_key . '?domain=' . $this->domain() );
+			//wp_remote_retrieve_response_code( $remote_response );
+			//wp_remote_retrieve_body( $remote_response );
+		}
+    }
+
+    public function prepare_deactivation(){
+	    $url = add_query_arg(
+		    array(
+			    'deactivate' => true,
+			    'data' => json_encode(
+				    array(
+					    'theme'=> ETHEME_THEME_VERSION,
+					    'plugin' => ET_CORE_VERSION,
+					    'code' => isset($this->activated_data['purchase']) ? $this->activated_data['purchase'] : false,
+					    'domain' => $this->domain()
+				    )
+			    ),
+		    ),
+            $this->api_url
+        );
+	    wp_remote_get($url);
+    }
+
+    public function update_options(){
+	    update_option( 'etheme_activated_data',
+            maybe_unserialize( array(
+                'api_key' => 0,
+                'theme' => 0,
+                'purchase' => 0,
+            ) )
+        );
+	    update_option( 'envato_purchase_code_15780546', '' );
+    }
+
+	public function deactivate() {
+		$this->prepare_deactivation();
+		$this->deactivate_action();
+		$this->update_options();
+		wp_send_json( array('status' => 'deleted') );
+    }
 
 }
 

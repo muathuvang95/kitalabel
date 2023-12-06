@@ -14,6 +14,22 @@
     background: #fff;
     padding: 10px 15px;
 }
+
+.et_customize-search .et_search-wrapper.loading .et_customizer-search-input {
+    background-image: none !important;
+}
+.et_customize-search .et_search-wrapper.loading:after {
+    content: '';
+    position: absolute;
+    right: 20px;
+    top: calc(50% - 10px);
+    animation: rotate .5s linear infinite;
+    border: 1px solid #555;
+    border-left-color: #e1e1e1;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
 .et_search-wrapper {
     position: relative;
 }
@@ -127,4 +143,26 @@
 .wp-full-overlay-sidebar-content.search-is-opened {
     pointer-events: none;
     overflow: hidden !important;
+}
+
+
+@-webkit-keyframes rotate {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg)
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
+}
+@keyframes rotate {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg)
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
 }

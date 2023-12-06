@@ -2,12 +2,22 @@
 .products-slider .et-timer {
   margin: 15px auto 5px;
 }
+.products-grid .et-timer.type2 .timer-info,
+.products-slider .et-timer.type2 .timer-info,
+.products-grid .et-timer.type3 .timer-info,
+.products-slider .et-timer.type3 .timer-info {
+  font-size: 1.1em;
+}
 .products-grid .et-timer.type2 .time-block,
-.products-slider .et-timer.type2 .time-block {
+.products-slider .et-timer.type2 .time-block,
+.products-grid .et-timer.type3 .time-block,
+.products-slider .et-timer.type3 .time-block {
   font-size: 0.8em;
 }
 .products-grid .et-timer.type2 .time-block .timer-count,
-.products-slider .et-timer.type2 .time-block .timer-count {
+.products-slider .et-timer.type2 .time-block .timer-count,
+.products-grid .et-timer.type3 .time-block .timer-count,
+.products-slider .et-timer.type3 .time-block .timer-count {
   font-size: 1.5em;
 }
 .et-timer {
@@ -30,8 +40,13 @@
 .et-timer.type1 .time-block:last-of-type {
   margin-right: 0;
 }
-.et-timer.type2 .circle-box {
+.et-timer.type2 .circle-box,
+.et-timer.type3 .circle-box {
   display: none;
+}
+.et-timer.type2 .time-block span,
+.et-timer.type3 .time-block span {
+  padding: 0 0.5em;
 }
 .et-timer.type2 .time-block:not(:last-child) .timer-count {
   position: relative;
@@ -45,8 +60,25 @@
           transform: translate(50%, -50%);
   color: currentColor;
 }
-.et-timer.type2 .time-block span {
-  padding: 0 0.5em;
+.et-timer.type3 {
+  --et_main-color: var(--et_red-color);
+  --et_dark-color: var(--et_red-color);
+}
+.et-timer.type3 .timer-info {
+  color: var(--et_red-color);
+}
+.et-timer.type3 .time-block:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--et_red-color);
+  opacity: 0.1;
+}
+.et-timer.type3 .time-block {
+  padding: 1em 0;
 }
 .et-timer .time-block {
   position: relative;
@@ -144,9 +176,14 @@
 .products-list .product-sale-counter .time-block {
   text-align: center;
 }
+.et-quick-view-wrapper .product-sale-counter {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
 .product-information .product-sale-counter,
-.et_product-block .product-sale-counter {
-  font-size: 0.7rem;
+.et_product-block .product-sale-counter,
+.et-quick-view-wrapper .product-sale-counter {
+  font-size: 0.55rem;
 }
 @media only screen and (max-width: 1200px) {
   .et-timer.type1 {

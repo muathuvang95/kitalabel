@@ -28,7 +28,8 @@
 }
 .product_meta > span *:first-child,
 .product_meta .products-page-cats a:first-child {
-  padding-left: 3px;
+  -webkit-padding-start: 3px;
+          padding-inline-start: 3px;
 }
 .product_meta .product_brand,
 .product_meta .product_seller {

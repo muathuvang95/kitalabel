@@ -306,7 +306,7 @@ $check_update = new ETheme_Version_Check();
         </div>
 
 		<?php if ( ! $is_activated || ! $is_et_core ) : ?>
-            <button class="et-button et-button-lg no-transform inline-flex align-items-center et-open-installation-video no-loader"
+            <button class="et-button et-button-lg no-transform inline-flex align-items-center et-open-installation-video no-loader <?php if( get_option('et_close_installation_video', false) ) echo 'hide_installation_video'; ?>"
                     data-text="<?php echo esc_html__( 'Watch now', 'xstore' ); ?>">
                 <span class="inline-flex align-items-center"><svg height="1.2em" viewBox="0 -77 512.00213 512"
                                                                   width="1.2em" xmlns="http://www.w3.org/2000/svg"
@@ -314,7 +314,7 @@ $check_update = new ETheme_Version_Check();
                                 d="m501.453125 56.09375c-5.902344-21.933594-23.195313-39.222656-45.125-45.128906-40.066406-10.964844-200.332031-10.964844-200.332031-10.964844s-160.261719 0-200.328125 10.546875c-21.507813 5.902344-39.222657 23.617187-45.125 45.546875-10.542969 40.0625-10.542969 123.148438-10.542969 123.148438s0 83.503906 10.542969 123.148437c5.90625 21.929687 23.195312 39.222656 45.128906 45.128906 40.484375 10.964844 200.328125 10.964844 200.328125 10.964844s160.261719 0 200.328125-10.546875c21.933594-5.902344 39.222656-23.195312 45.128906-45.125 10.542969-40.066406 10.542969-123.148438 10.542969-123.148438s.421875-83.507812-10.546875-123.570312zm0 0"
                                 fill="#f00"></path><path
                                 d="m204.96875 256 133.269531-76.757812-133.269531-76.757813zm0 0"
-                                fill="#fff"></path></svg>How to install XStore</span></button>
+                                fill="#fff"></path></svg>Watch Guide: How to Install & Use XStore Theme</span></button>
 		<?php endif; ?>
         <div class="text-center">
 			<?php if ( $is_child_theme ) { ?>
@@ -328,7 +328,7 @@ $check_update = new ETheme_Version_Check();
                                 <h4 class="text-left"><?php echo esc_html__('Your theme is activated!', 'xstore'); ?></h4>
                                     <p><?php esc_html_e('Now you have lifetime updates, top-notch 24/7 live support and much more. One standard license is valid only for 1 project.', 'xstore'); ?></p>
                                     <br>
-                                    <p>If you want to use this theme more than one project or unlimited, please check our <a href="https://www.8theme.com/woocommerce-themes/#price-section-anchor" target="_blank">8theme's subscription plan.</a></p>
+<!--                                    <p>If you want to use this theme more than one project or unlimited, please check our <a href="https://www.8theme.com/woocommerce-themes/#price-section-anchor" target="_blank">8theme's subscription plan.</a></p>-->
                             </span>
 	                    <?php endif; ?>
                     <?php } ?>

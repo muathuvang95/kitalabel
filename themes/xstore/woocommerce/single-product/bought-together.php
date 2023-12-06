@@ -4,6 +4,7 @@
  *
  * @package    bought-together.php
  * @since      8.1.7
+ * @version    1.0.1
  * @author     stas
  * @link       http://xstore.8theme.com
  * @license    Themeforest Split Licence
@@ -12,6 +13,7 @@
 global $product;
 
 if ( !$product->is_in_stock() ) return;
+
 if ( !in_array($product->get_type(), array('simple', 'external')) ) return;
 
 $current_product_id = $product->get_id();
@@ -56,23 +58,9 @@ $total_price 			= 0;
 $total_price_suffix		= 0;
 $count 					= 0;
 
-$price_args = apply_filters(
-    'wc_price_args',
-    array(
-        'ex_tax_label'       => false,
-        'currency'           => '',
-        'decimal_separator'  => wc_get_price_decimal_separator(),
-        'thousand_separator' => wc_get_price_thousand_separator(),
-        'decimals'           => wc_get_price_decimals(),
-        'price_format'       => get_woocommerce_price_format(),
-    )
-);
 if ( $products->have_posts() ) :
-    
-    // filters separators to make it work ok with script
-    $wc_get_price_thousand_separator = wc_get_price_thousand_separator();
-    $wc_get_price_decimal_separator = wc_get_price_decimal_separator();
-    ?>
+	wp_enqueue_script( 'et_single_product_bought_together');
+?>
 <div class="bought-together-products-wrapper">
     <div class="bought-together-products">
         <?php if ( $title ) echo '<h3 class="title products-title text-left"><span>'.$title.'</span></h3>'; ?>
@@ -105,8 +93,6 @@ if ( $products->have_posts() ) :
                 echo etheme_slider( $args, 'product', $slider_args );
                 unset($woocommerce_loop['product_content_elements']);
 
-                // woocommerce_product_loop_start();
-
                 while ( $products->have_posts() ) : $products->the_post();
 
                     global $product;
@@ -118,14 +104,6 @@ if ( $products->have_posts() ) :
                     if ( !$in_stock && 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) ) continue;
 
                     $display_price = wc_get_price_to_display( $product );
-
-//                    $display_price = apply_filters( 'formatted_woocommerce_price', number_format( $display_price, $price_args['decimals'],
-//                        $price_args['decimal_separator'], $price_args['thousand_separator'] ), $display_price, $price_args['decimals'],
-//                        $price_args['decimal_separator'], $price_args['thousand_separator'], $display_price );
-//
-//                    if ( apply_filters( 'woocommerce_price_trim_zeros', false ) && $price_args['decimals'] > 0 ) {
-//                        $display_price = wc_trim_zeros( $display_price );
-//                    }
 
                     $input_value = $product->get_min_purchase_quantity();
                     $checked = ( $current_product_id == $product_id ) ? 'checked disabled' : 'checked';
@@ -173,28 +151,11 @@ if ( $products->have_posts() ) :
                 </div>
                 <div class="col-md-4">
                     <form action="<?php echo esc_url( apply_filters( 'woocommerce_add_to_cart_form_action', $redirect_link ) ); ?>" method="post" enctype='multipart/form-data'>
-                        <div class="bought-together-products-list">
-                             <?php echo $add_to_cart_checkbox; ?>
-                        </div>
-                        <?php if( $total_price > 0 ) :
-                            $total_price_attr = $total_price;
-//                            $total_price_attr = apply_filters( 'formatted_woocommerce_price', number_format( $total_price, $price_args['decimals'],
-//                                $price_args['decimal_separator'], $price_args['thousand_separator'] ), $total_price, $price_args['decimals'],
-//                                $price_args['decimal_separator'], $price_args['thousand_separator'], $total_price );
-//
-//                            if ( apply_filters( 'woocommerce_price_trim_zeros', false ) && $price_args['decimals'] > 0 ) {
-//                                $total_price_attr = wc_trim_zeros( $total_price );
-//                            }
-                            if ( $total_price >= 1000) {
-	                            add_filter('wc_get_price_thousand_separator', function ($old) {
-		                            return '.';
-	                            });
-	                            add_filter('wc_get_price_decimal_separator', function ($old) {
-		                            return ',';
-	                            });
-                            }
-                            ?>
-                            <div class="total-price-wrapper" data-force-format="<?php echo 1000 < $total_price ? 'yes' : ''; ?>" data-total="<?php echo esc_attr( $total_price ); ?>">
+
+                        <?php echo '<div class="bought-together-products-list">' . $add_to_cart_checkbox . '</div>'; ?>
+
+                        <?php if( $total_price > 0 ) : ?>
+                            <div class="total-price-wrapper">
                                 <?php
                                 $total_price_html = '<div class="total-price">' . wc_price( $total_price ) . '</div>';
                                 $total_price = sprintf( __( '%s <div class="total-products">For %s item(s)</div>', 'xstore' ), $total_price_html, $count );
@@ -216,18 +177,7 @@ if ( $products->have_posts() ) :
 </div>
 <?php
 
-if ( $total_price >= 1000) {
-    // reset to old values
-	add_filter( 'wc_get_price_thousand_separator', function ( $old ) use ( $wc_get_price_thousand_separator ) {
-		return $wc_get_price_thousand_separator;
-	} );
-	add_filter( 'wc_get_price_decimal_separator', function ( $old ) use ( $wc_get_price_decimal_separator ) {
-		return $wc_get_price_decimal_separator;
-	} );
-}
 endif;
 
 wp_reset_postdata();
 wc_reset_loop();
-        ?>
-

@@ -4,7 +4,7 @@
  *
  * @author 		WooThemes
  * @package 	WooCommerce/Templates
- * @version     4.4.0
+ * @version     7.4.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -19,6 +19,14 @@ if ( defined('ELEMENTOR_PRO_VERSION') ) {
 $elementor_cart_builder = apply_filters('etheme_elementor_cart_page', $elementor_cart_builder);
 
 $cross_sells_after_content = true;
+
+$show_sku_field = in_array('cart', (array)get_theme_mod('product_sku_locations', array('cart', 'popup_added_to_cart', 'mini-cart'))) && wc_product_sku_enabled();
+
+$woo_new_7_0_1_version = etheme_woo_version_check();
+$button_class = '';
+if ( $woo_new_7_0_1_version ) {
+    $button_class = wc_wp_theme_get_element_class_name( 'button' );
+}
 
 do_action( 'woocommerce_before_cart' ); ?>
 
@@ -41,6 +49,9 @@ do_action( 'woocommerce_before_cart' ); ?>
                 <tr>
                     <th class="product-details" colspan="2"><?php esc_html_e( 'Product', 'xstore' ); ?></th>
                     <th class="product-price"><?php esc_html_e( 'Price', 'xstore' ); ?></th>
+                    <?php if ( $show_sku_field ) : ?>
+                        <th class="product-sku"><?php esc_html_e( 'SKU', 'xstore' ); ?></th>
+                    <?php endif; ?>
                     <th class="product-quantity"><?php esc_html_e( 'Quantity', 'xstore' ); ?></th>
                     <th class="product-subtotal" colspan="2"><?php esc_html_e( 'Subtotal', 'xstore' ); ?></th>
                 </tr>
@@ -115,10 +126,20 @@ do_action( 'woocommerce_before_cart' ); ?>
 
                             <td class="product-price" data-title="<?php esc_attr_e( 'Price', 'xstore' ); ?>">
                                 <?php
-                                echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
+                                    echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
                                 ?>
                             </td>
-
+	
+                            <?php if ( $show_sku_field ) : ?>
+                                <td class="product-sku" data-title="<?php esc_attr_e( 'SKU', 'xstore' ); ?>">
+		                            <?php
+                                        if ( $_product->get_sku() ) {
+                                            echo esc_html( ( $sku = $_product->get_sku() ) ? $sku : esc_html__( 'N/A', 'xstore' ) );
+                                        }
+		                            ?>
+                                </td>
+                            <?php endif; ?>
+                            
                             <td class="product-quantity" data-title="<?php esc_attr_e( 'Quantity', 'xstore' ); ?>">
                                 <?php
                                 if ( $_product->is_sold_individually() ) {
@@ -164,8 +185,9 @@ do_action( 'woocommerce_before_cart' ); ?>
                     <form class="checkout_coupon" method="post">
                         <div class="coupon">
 
+                            <label for="coupon_code" class="screen-reader-text"><?php esc_html_e( 'Coupon:', 'xstore' ); ?></label>
                             <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_html_e( 'Coupon code', 'xstore' ); ?>" />
-                            <input type="submit" class="btn" name="apply_coupon" value="<?php esc_attr_e('OK', 'xstore'); ?>" />
+                            <input type="submit" class="btn<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?>" name="apply_coupon" value="<?php esc_attr_e('OK', 'xstore'); ?>" />
 
                             <?php do_action('woocommerce_cart_coupon'); ?>
 
@@ -207,7 +229,7 @@ do_action( 'woocommerce_before_cart' ); ?>
                         </g>
                     </svg>
                     <?php esc_html_e('Clear shopping cart', 'xstore'); ?></a>
-                <button type="submit" class="btn gray medium bordered hidden" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'xstore' ); ?>"><?php esc_html_e( 'Update cart', 'xstore' ); ?></button>
+                <button type="submit" class="btn gray medium bordered hidden<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?>" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'xstore' ); ?>"><?php esc_html_e( 'Update cart', 'xstore' ); ?></button>
                 <?php wp_nonce_field( 'woocommerce-cart' ); ?>
                 <?php do_action( 'woocommerce_cart_actions' ); ?>
             </div>
@@ -233,7 +255,8 @@ do_action( 'woocommerce_before_cart' ); ?>
                 <div class="cart-collaterals">
                     <?php do_action( 'woocommerce_cart_collaterals' ); ?>
                 </div>
-                <?php  if((!function_exists('dynamic_sidebar') || !dynamic_sidebar('cart-area'))): ?>
+                <?php do_action('etheme_woocommerce_cart_after_collaterals'); ?>
+                <?php if((!function_exists('dynamic_sidebar') || !dynamic_sidebar('cart-area'))): ?>
                 <?php endif; ?>
         </div>
     </div>

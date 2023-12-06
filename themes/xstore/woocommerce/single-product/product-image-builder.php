@@ -66,6 +66,7 @@ $show_thumbs     = ( in_array( $gallery_type, array(
 	'thumbnails_left'
 ) ) );
 $thumbs_slider   = etheme_get_option( 'product_gallery_thumbnails_et-desktop', 1 );
+$video_position = etheme_get_option('product_video_position', 'last');
 
 if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 	$gallery_slider = true;
@@ -142,6 +143,8 @@ if ( $gallery_slider && ( count( $attachment_ids ) > 0 || $has_video || $force_c
 	$swiper_wrapper   = 'swiper-wrapper';
 }
 
+$gallery_slider_class = ( $gallery_slider ) ? 'swiper-slide' : '';
+
 $container_atts = array(
 	'class="swiper-control-top ' . esc_attr( $swiper_container ) . ' ' . esc_attr( $class ) . '"',
 	'data-effect="' . apply_filters( 'single_product_main_gallery_effect', 'slide' ) . '"',
@@ -166,86 +169,30 @@ if ( $gallery_type == 'full_width' ) {
 if ( $force_check ) {
 	$container_atts[] = "data-default-empty='true'";
 }
+
+$slides_speed = apply_filters('single_product_main_gallery_speed', false);
+if ( $slides_speed ) {
+	$container_atts[] = "data-speed='".$slides_speed."'";
+}
+
+$is_yith_wcbm_frontend = class_exists('YITH_WCBM_Frontend');
+
 ?>
     <div <?php echo implode( ' ', $container_atts ); ?>>
         <div class="<?php echo esc_attr( $swiper_wrapper ); ?> main-images clearfix">
-			<?php if ( has_post_thumbnail( $post_id ) ) {
-				
-				$index             = 0;
-				$columns           = apply_filters( 'woocommerce_product_thumbnails_columns', 4 );
-				$post_thumbnail_id = get_post_thumbnail_id( $post->ID );
-				$full_size_image   = wp_get_attachment_image_src( $post_thumbnail_id, 'full' );
-				$placeholder       = has_post_thumbnail() ? 'with-images' : 'without-images';
-
-				if (!$full_size_image){
-					echo apply_filters( 'woocommerce_single_product_image_html', sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src( 'woocommerce_single' ), esc_html__( 'Placeholder', 'xstore' ) ), $post_id );
-				} else {
-					// **********************************************************************************************
-					// ! Main product image
-					// **********************************************************************************************
-
-					$attributes = array(
-						'title'                   => get_post_field( 'post_title', $post_thumbnail_id ),
-						'data-caption'            => get_post_field( 'post_excerpt', $post_thumbnail_id ),
-						'data-src'                => $full_size_image[0],
-						'data-large_image'        => $full_size_image[0],
-						'data-large_image_width'  => $full_size_image[1],
-						'data-large_image_height' => $full_size_image[2]
-					);
-
-					$gallery_slider_class = ( $gallery_slider ) ? 'swiper-slide' : '';
-					$html                 = '<div class="' . $gallery_slider_class . ' images woocommerce-product-gallery woocommerce-product-gallery__wrapper"><div data-thumb="' . get_the_post_thumbnail_url( $post->ID, 'shop_catalog' ) . '" class="' . $et_zoom_class . '"><a class="woocommerce-main-image pswp-main-image zoom" href="' . esc_url( $full_size_image[0] ) . '" data-index="' . $index . '">';
-					$html                 .= get_the_post_thumbnail( $post->ID, 'shop_single', $attributes );
-					$html                 .= '</a></div></div>';
-
-					echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', $html, get_post_thumbnail_id( $post->ID ) );
-
-					// **********************************************************************************************
-					// ! Product slider
-					// **********************************************************************************************
-					if ( $main_slider_on ) {
-
-						if ( count( $attachment_ids ) > 0 ) {
-							foreach ( $attachment_ids as $key => $attachment_id ) {
-								$index ++;
-								$full_size_image = wp_get_attachment_image_src( $attachment_id, 'full' );
-								if ( !$full_size_image) continue;
-
-								$attributes = array(
-									'title'                   => esc_attr( get_the_title( $attachment_id ) ),
-									'data-caption'            => esc_attr( get_the_excerpt( $attachment_id ) ),
-									'data-src'                => $full_size_image[0],
-									'data-large_image'        => $full_size_image[0],
-									'data-large_image_width'  => $full_size_image[1],
-									'data-large_image_height' => $full_size_image[2],
-								);
-
-								$html = '<div class="' . esc_attr( $gallery_slider_class ) . ' images woocommerce-product-gallery woocommerce-product-gallery__wrapper"><div data-thumb="' . get_the_post_thumbnail_url( $attachment_id, 'shop_catalog' ) . '" class="' . $et_zoom_class . '"><a href="' . esc_url( $full_size_image[0] ) . '"  data-large="' . esc_url( $full_size_image[0] ) . '" data-width="' . esc_attr( $full_size_image[1] ) . '"  data-height="' . esc_attr( $full_size_image[2] ) . '" data-index="' . $index . '" itemprop="image" class="woocommerce-main-image zoom" >';
-
-
-								$html .= wp_get_attachment_image( $attachment_id, apply_filters( 'single_product_large_thumbnail_size', 'shop_single' ), false, $attributes );
-								$html .= '</a></div></div>';
-
-								echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', $html, get_post_thumbnail_id( $attachment_id ) );
-							}
-						}
-
-					}
-
-				}
-			} else {
-				echo apply_filters( 'woocommerce_single_product_image_html', sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src( 'woocommerce_single' ), esc_html__( 'Placeholder', 'xstore' ) ), $post_id );
-			}
-			?>
-			<?php if ( etheme_get_external_video( $product->get_id() ) ): ?>
-                <div class="<?php echo esc_attr( $gallery_slider_class ); ?> images woocommerce-product-gallery">
-					<?php echo etheme_get_external_video( $product->get_id() ); ?>
-                </div>
-			<?php endif; ?>
 			
-			<?php if ( count( $video_attachments ) > 0 ): ?>
+			<?php
+			
+			if ( $video_position == 'first') :
+				if ( etheme_get_external_video( $product->get_id() ) ): ?>
+                    <div class="<?php echo esc_attr( $gallery_slider_class ); ?> images woocommerce-product-gallery">
+						<?php echo etheme_get_external_video( $product->get_id() ); ?>
+                    </div>
+				<?php endif; ?>
+				
+				<?php if ( count( $video_attachments ) > 0 ): ?>
                 <div class="<?php echo esc_attr( $gallery_slider_class ); ?> images woocommerce-product-gallery">
-                    <?php $autoplay = ( get_post_meta( $post->ID, '_product_video_autoplay', true ) ) ? 'autoplay="true" muted="muted"' : ''; ?>
+					<?php $autoplay = ( get_post_meta( $post->ID, '_product_video_autoplay', true ) ) ? 'autoplay="true" muted="muted"' : ''; ?>
                     <video controls="controls" <?php echo esc_html($autoplay); ?>>
 						<?php foreach ( $video_attachments as $video ): ?>
 							<?php $video_ogg = $video_mp4 = $video_webm = false; ?>
@@ -263,10 +210,131 @@ if ( $force_check ) {
 								<?php esc_html_e( 'Video is not supporting by your browser', 'xstore' ); ?>
                                 <a href="<?php echo esc_url( $video->guid ); ?>"><?php esc_html_e( 'Download Video', 'xstore' ); ?></a>
 							<?php endif; ?>
+							<?php if ( $video->post_mime_type == 'video/videopress' && !$video_ogg && ! $video_mp4 && ! $video_webm ): ?>
+                                <source src="<?php echo esc_url( $video->guid ); ?>"
+                                        type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+							<?php endif; ?>
 						<?php endforeach; ?>
                     </video>
                 </div>
-			<?php endif; ?>
+			<?php endif;
+			endif; ?>
+			
+			<?php if ( has_post_thumbnail( $post_id ) ) {
+				
+				$index             = 0;
+				$columns           = apply_filters( 'woocommerce_product_thumbnails_columns', 4 );
+				$post_thumbnail_id = get_post_thumbnail_id( $post->ID );
+				$full_size_image   = wp_get_attachment_image_src( $post_thumbnail_id, 'full' );
+				$placeholder       = has_post_thumbnail() ? 'with-images' : 'without-images';
+				
+				if (!$full_size_image){
+					echo apply_filters( 'woocommerce_single_product_image_html', sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src( 'woocommerce_single' ), esc_html__( 'Placeholder', 'xstore' ) ), $post_id );
+				} else {
+					// **********************************************************************************************
+					// ! Main product image
+					// **********************************************************************************************
+					
+					$attributes = array(
+						'title'                   => get_post_field( 'post_title', $post_thumbnail_id ),
+						'data-caption'            => get_post_field( 'post_excerpt', $post_thumbnail_id ),
+						'data-src'                => $full_size_image[0],
+						'data-large_image'        => $full_size_image[0],
+						'data-large_image_width'  => $full_size_image[1],
+						'data-large_image_height' => $full_size_image[2]
+					);
+					
+					$html                 = '<a class="woocommerce-main-image pswp-main-image zoom" href="' . esc_url( $full_size_image[0] ) . '" data-index="' . $index . '">';
+					$html                 .= get_the_post_thumbnail( $post->ID, 'woocommerce_single', $attributes );
+					$html                 .= '</a>';
+					
+					echo '<div class="' . $gallery_slider_class . ' images woocommerce-product-gallery woocommerce-product-gallery__wrapper"><div data-thumb="' . get_the_post_thumbnail_url( $post->ID, 'woocommerce_thumbnail' ) . '" class="' . $et_zoom_class . '">';
+					
+					echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', $html, get_post_thumbnail_id( $post->ID ) );
+					
+					echo '</div></div>';
+					
+					// **********************************************************************************************
+					// ! Product slider
+					// **********************************************************************************************
+					if ( $main_slider_on ) {
+						
+						if ( count( $attachment_ids ) > 0 ) {
+							foreach ( $attachment_ids as $key => $attachment_id ) {
+								$index ++;
+								$full_size_image = wp_get_attachment_image_src( $attachment_id, 'full' );
+								if ( !$full_size_image) continue;
+								
+								$attributes = array(
+									'title'                   => esc_attr( get_the_title( $attachment_id ) ),
+									'data-caption'            => esc_attr( get_the_excerpt( $attachment_id ) ),
+									'data-src'                => $full_size_image[0],
+									'data-large_image'        => $full_size_image[0],
+									'data-large_image_width'  => $full_size_image[1],
+									'data-large_image_height' => $full_size_image[2],
+								);
+								
+								$html = '<a href="' . esc_url( $full_size_image[0] ) . '"  data-large="' . esc_url( $full_size_image[0] ) . '" data-width="' . esc_attr( $full_size_image[1] ) . '"  data-height="' . esc_attr( $full_size_image[2] ) . '" data-index="' . $index . '" itemprop="image" class="woocommerce-main-image zoom" >';
+								
+								$html .= wp_get_attachment_image( $attachment_id, apply_filters( 'single_product_large_thumbnail_size', 'woocommerce_single' ), false, $attributes );
+								
+								$html .= '</a>';
+								
+								echo '<div class="' . esc_attr( $gallery_slider_class ) . ' images woocommerce-product-gallery woocommerce-product-gallery__wrapper"><div data-thumb="' . get_the_post_thumbnail_url( $attachment_id, 'woocommerce_thumbnail' ) . '" class="' . $et_zoom_class . '">';
+								
+								echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', $html, get_post_thumbnail_id( $attachment_id ) );
+								
+								echo '</div></div>';
+							}
+						}
+						
+					}
+					
+				}
+			} else {
+				echo apply_filters( 'woocommerce_single_product_image_html', sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src( 'woocommerce_single' ), esc_html__( 'Placeholder', 'xstore' ) ), $post_id );
+			}
+			
+			if ($is_yith_wcbm_frontend) {
+				remove_filter( 'woocommerce_single_product_image_thumbnail_html', array( YITH_WCBM_Frontend::get_instance(), 'show_badge_on_product_thumbnail' ), 99 );
+			}
+			
+			if ( $video_position == 'last') :
+				if ( etheme_get_external_video( $product->get_id() ) ): ?>
+                    <div class="<?php echo esc_attr( $gallery_slider_class ); ?> images woocommerce-product-gallery">
+						<?php echo etheme_get_external_video( $product->get_id() ); ?>
+                    </div>
+				<?php endif; ?>
+				
+				<?php if ( count( $video_attachments ) > 0 ): ?>
+                <div class="<?php echo esc_attr( $gallery_slider_class ); ?> images woocommerce-product-gallery">
+					<?php $autoplay = ( get_post_meta( $post->ID, '_product_video_autoplay', true ) ) ? 'autoplay="true" muted="muted"' : ''; ?>
+                    <video controls="controls" <?php echo esc_html($autoplay); ?>>
+						<?php foreach ( $video_attachments as $video ): ?>
+							<?php $video_ogg = $video_mp4 = $video_webm = false; ?>
+							<?php if ( $video->post_mime_type == 'video/mp4' && ! $video_mp4 ): $video_mp4 = true; ?>
+                                <source src="<?php echo esc_url( $video->guid ); ?>"
+                                        type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+							<?php endif; ?>
+							<?php if ( $video->post_mime_type == 'video/webm' && ! $video_webm ): $video_webm = true; ?>
+                                <source src="<?php echo esc_url( $video->guid ); ?>"
+                                        type='video/webm; codecs="vp8, vorbis"'>
+							<?php endif; ?>
+							<?php if ( $video->post_mime_type == 'video/ogg' && ! $video_ogg ): $video_ogg = true; ?>
+                                <source src="<?php echo esc_url( $video->guid ); ?>"
+                                        type='video/ogg; codecs="theora, vorbis"'>
+								<?php esc_html_e( 'Video is not supporting by your browser', 'xstore' ); ?>
+                                <a href="<?php echo esc_url( $video->guid ); ?>"><?php esc_html_e( 'Download Video', 'xstore' ); ?></a>
+							<?php endif; ?>
+							<?php if ( $video->post_mime_type == 'video/videopress' && !$video_ogg && ! $video_mp4 && ! $video_webm ): ?>
+                                <source src="<?php echo esc_url( $video->guid ); ?>"
+                                        type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+							<?php endif; ?>
+						<?php endforeach; ?>
+                    </video>
+                </div>
+			<?php endif;
+			endif; ?>
 
         </div>
 		<?php // if ( count( $attachment_ids ) > 0 || $force_check ) {
@@ -292,7 +360,7 @@ if ( $gallery_slider && $show_thumbs ) {
 	
 	$zoom_plugin = etheme_is_zoom_activated();
 	
-	$thums_size = apply_filters( 'single_product_small_thumbnail_size', 'shop_catalog' );
+	$thums_size = apply_filters( 'single_product_small_thumbnail_size', 'woocommerce_thumbnail' );
 	
 	$ul_class = '';
 	if ( ! $vertical_slider ) {
@@ -344,6 +412,11 @@ if ( $gallery_slider && $show_thumbs ) {
 		
 		$ul_p_class .= ( $force_check && ! $vertical_slider ) ? ' dt-hide mob-hide' : '';
 		
+		$type_slider = ( $vertical_slider ) ? 'slick-slide' : 'swiper-slide';
+		
+		// force space 10 for thumbnails
+		$space = 10;
+		
 		?>
         <div class="<?php echo esc_attr( $ul_p_class ); ?>" <?php if ( ! $vertical_slider ) : ?>data-breakpoints="1"
              data-xs-slides="3" data-sm-slides="<?php echo esc_attr( $res_slides ); ?>"
@@ -354,13 +427,32 @@ if ( $gallery_slider && $show_thumbs ) {
 			<?php etheme_loader(); ?>
             <ul
                     class="<?php echo esc_attr( $ul_class ); ?>"
-	            <?php if ( $vertical_slider ) { ?>
+				<?php if ( $vertical_slider ) { ?>
                     data-slick-slides-per-view="<?php echo esc_attr( $res_slides ); ?>"
-	            <?php } ?>>
+				<?php } ?>>
 				<?php
 				
+				if ( $video_position == 'first') :
+					if ( etheme_get_external_video( $product->get_id() ) ): ?>
+                        <li class="video-thumbnail thumbnail-item <?php echo esc_attr( $type_slider ); ?>">
+                            <a href="#product-video-popup" class="open-video-popup">
+                                <span class="et-icon et-play-button"></span>
+                                <p><?php esc_html_e( 'video', 'xstore' ); ?></p>
+                            </a>
+                        </li>
+					<?php endif; ?>
+					
+					<?php if ( count( $video_attachments ) > 0 ): ?>
+                    <li class="video-thumbnail thumbnail-item <?php echo esc_attr( $type_slider ); ?>">
+                        <a href="#product-video-popup" class="open-video-popup">
+                            <span class="et-icon et-play-button"></span>
+                            <p><?php esc_html_e( 'video', 'xstore' ); ?></p>
+                        </a>
+                    </li>
+				<?php endif;
+				endif;
+				
 				if ( count( $attachment_ids ) > 0 || $has_video || $force_check ) {
-					$type_slider = ( $vertical_slider ) ? 'slick-slide' : 'swiper-slide';
 					$classes     = array( 'zoom' );
 					
 					$image       = wp_get_attachment_image( $main_attachment_id, $thums_size );
@@ -370,9 +462,9 @@ if ( $gallery_slider && $show_thumbs ) {
 					
 					$image_link = wp_get_attachment_image_src( $main_attachment_id, 'full' );
 					
-					list( $thumbnail_url, $thumbnail_width, $thumbnail_height ) = wp_get_attachment_image_src( $main_attachment_id, "shop_single" );
+					list( $thumbnail_url, $thumbnail_width, $thumbnail_height ) = wp_get_attachment_image_src( $main_attachment_id, "woocommerce_single" );
 					list( $magnifier_url, $magnifier_width, $magnifier_height ) = wp_get_attachment_image_src( $main_attachment_id, "shop_magnifier" );
-
+					
 					if ( $image_link && has_post_thumbnail( $post_id ) ) {
 						echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', sprintf( '<li class="' . $type_slider . ' thumbnail-item %s"><a class="pswp-additional %s" title="%s" data-small="%s" data-large="%s" data-width="%s" data-height="%s">%s</a></li>', $image_class, $image_class, $image_title, $thumbnail_url, $image_link[0], $image_link[1], $image_link[2], $image ), $post_id, $post_id, $image_class );
 					}
@@ -393,32 +485,33 @@ if ( $gallery_slider && $show_thumbs ) {
 						$image_title = esc_attr( get_the_title( $attachment_id ) );
 						$image_link  = wp_get_attachment_image_src( $attachment_id, 'full' );
 						
-						list( $thumbnail_url, $thumbnail_width, $thumbnail_height ) = wp_get_attachment_image_src( $attachment_id, "shop_single" );
+						list( $thumbnail_url, $thumbnail_width, $thumbnail_height ) = wp_get_attachment_image_src( $attachment_id, "woocommerce_single" );
 						list( $magnifier_url, $magnifier_width, $magnifier_height ) = wp_get_attachment_image_src( $attachment_id, "shop_magnifier" );
 						
 						echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', sprintf( '<li class="' . $type_slider . ' thumbnail-item %s"><a data-large="%s" data-width="%s" data-height="%s" class="pswp-additional %s" title="%s" data-small="%s">%s</a></li>', $image_class, $image_link[0], $image_link[1], $image_link[2], $image_class, $image_title, $thumbnail_url, $image ), $attachment_id, $post_id, $image_class );
 						$loop ++;
 					}
 				}
-				?>
 				
-				<?php if ( etheme_get_external_video( $product->get_id() ) ): ?>
+				if ( $video_position == 'last') :
+					if ( etheme_get_external_video( $product->get_id() ) ): ?>
+                        <li class="video-thumbnail thumbnail-item <?php echo esc_attr( $type_slider ); ?>">
+                            <a href="#product-video-popup" class="open-video-popup">
+                                <span class="et-icon et-play-button"></span>
+                                <p><?php esc_html_e( 'video', 'xstore' ); ?></p>
+                            </a>
+                        </li>
+					<?php endif; ?>
+					
+					<?php if ( count( $video_attachments ) > 0 ): ?>
                     <li class="video-thumbnail thumbnail-item <?php echo esc_attr( $type_slider ); ?>">
                         <a href="#product-video-popup" class="open-video-popup">
                             <span class="et-icon et-play-button"></span>
                             <p><?php esc_html_e( 'video', 'xstore' ); ?></p>
                         </a>
                     </li>
-				<?php endif; ?>
-				
-				<?php if ( count( $video_attachments ) > 0 ): ?>
-                    <li class="video-thumbnail thumbnail-item <?php echo esc_attr( $type_slider ); ?>">
-                        <a href="#product-video-popup" class="open-video-popup">
-                            <span class="et-icon et-play-button"></span>
-                            <p><?php esc_html_e( 'video', 'xstore' ); ?></p>
-                        </a>
-                    </li>
-				<?php endif; ?>
+				<?php endif;
+				endif; ?>
 
             </ul>
 			<?php if ( $vertical_slider && $thumbs_slider ) { ?>
@@ -431,8 +524,12 @@ if ( $gallery_slider && $show_thumbs ) {
         </div>
 		<?php
 	}
-} ?>
+}
 
-<?php if ( ! defined( 'DOING_AJAX' ) && ! isset( $etheme_global['quick_view'] ) ): ?>
+if  ($is_yith_wcbm_frontend){
+	add_filter( 'woocommerce_single_product_image_thumbnail_html', array( YITH_WCBM_Frontend::get_instance(), 'show_badge_on_product_thumbnail' ), 99 );
+}
+
+if ( ! defined( 'DOING_AJAX' ) && ! isset( $etheme_global['quick_view'] ) ): ?>
     </div>
 <?php endif;

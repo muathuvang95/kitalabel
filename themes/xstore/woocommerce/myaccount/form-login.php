@@ -12,16 +12,22 @@
  *
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @package WooCommerce/Templates
- * @version 4.1.0
+ * @version 7.0.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+$woo_new_7_0_1_version = etheme_woo_version_check();
+$button_class = '';
+if ( $woo_new_7_0_1_version ) {
+    $button_class = wc_wp_theme_get_element_class_name( 'button' );
+}
+
 do_action( 'woocommerce_before_customer_login_form' ); ?>
 
-<?php if ( 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ) ) : ?>
+<?php if ( get_query_var('et_account-registration', false) ) : ?>
 
 <div class="u-columns col2-set" id="customer_login">
 
@@ -54,7 +60,7 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 			</p>
 			<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide m0">
 				<?php wp_nonce_field( 'woocommerce-login', 'woocommerce-login-nonce' ); ?>
-				<button type="submit" class="woocommerce-button button woocommerce-form-login__submit" name="login" value="<?php esc_attr_e( 'Log in', 'xstore' ); ?>"><?php esc_html_e( 'Log in', 'xstore' ); ?></button>
+				<button type="submit" class="woocommerce-button button<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?> woocommerce-form-login__submit" name="login" value="<?php esc_attr_e( 'Log in', 'xstore' ); ?>"><?php esc_html_e( 'Log in', 'xstore' ); ?></button>
 			</p>
             <p class="text-center lost_password dt-hide">
                 <a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Lost your password?', 'xstore' ); ?></a>
@@ -64,7 +70,7 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 
 		</form>
 
-<?php if ( 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ) ) : ?>
+<?php if ( get_query_var('et_account-registration', false) ) : ?>
 
 	</div>
 
@@ -89,8 +95,8 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 				<label for="reg_email"><?php esc_html_e( 'Email address', 'xstore' ); ?>&nbsp;<span class="required">*</span></label>
 				<input type="email" class="woocommerce-Input woocommerce-Input--text input-text" name="email" id="reg_email" autocomplete="email" value="<?php echo ( ! empty( $_POST['email'] ) ) ? esc_attr( wp_unslash( $_POST['email'] ) ) : ''; ?>" /><?php // @codingStandardsIgnoreLine ?>
 			</p>
-
-			<?php if ( 'no' === get_option( 'woocommerce_registration_generate_password' ) ) : ?>
+			
+			<?php if ( !get_query_var('et_account-registration-generate-pass', false) ) : ?>
 
 				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 					<label for="reg_password"><?php esc_html_e( 'Password', 'xstore' ); ?>&nbsp;<span class="required">*</span></label>
@@ -99,7 +105,7 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 
 			<?php else : ?>
 
-				<p><?php esc_html_e( 'A password will be sent to your email address.', 'xstore' ); ?></p>
+				<p><?php esc_html_e( 'A link to set a new password will be sent to your email address.', 'xstore' ); ?></p>
 
 			<?php endif; ?>
 
@@ -107,7 +113,7 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 
 			<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 				<?php wp_nonce_field( 'woocommerce-register', 'woocommerce-register-nonce' ); ?>
-				<button type="submit" class="woocommerce-Button woocommerce-button button woocommerce-form-register__submit" name="register" value="<?php esc_attr_e( 'Register', 'xstore' ); ?>"><?php esc_html_e( 'Register', 'xstore' ); ?></button>
+				<button type="submit" class="woocommerce-Button woocommerce-button button<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?> woocommerce-form-register__submit" name="register" value="<?php esc_attr_e( 'Register', 'xstore' ); ?>"><?php esc_html_e( 'Register', 'xstore' ); ?></button>
 			</p>
 
 			<?php do_action( 'woocommerce_register_form_end' ); ?>

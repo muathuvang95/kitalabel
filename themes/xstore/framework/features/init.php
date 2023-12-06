@@ -27,9 +27,19 @@ require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/lazyload-
 require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/lazyload.php') );
 
 /*
+* XStore_GDPR Class
+* ******************************************************************* */
+require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/gdpr.php') );
+
+/*
 * Optimization
 * ******************************************************************* */
 require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/optimization.php') );
+
+/*
+* SEO
+* ******************************************************************* */
+require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/seo.php') );
 
 /*
 * WooCommerce
@@ -37,3 +47,8 @@ require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/optimizat
 if ( class_exists('WooCommerce') ) {
 	require_once( apply_filters( 'etheme_file_url', ETHEME_CODE . 'features/woocommerce/init.php' ) );
 }
+
+/*
+* Search page results
+* ******************************************************************* */
+require_once( apply_filters('etheme_file_url', ETHEME_CODE . 'features/search-page.php') );

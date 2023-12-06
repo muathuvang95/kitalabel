@@ -14,14 +14,20 @@
  *
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @package WooCommerce\Templates
- * @version 2.4.0
+ * @version 7.0.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+$woo_new_7_0_1_version = etheme_woo_version_check();
+$button_class = '';
+if ( $woo_new_7_0_1_version ) {
+    $button_class = wc_wp_theme_get_element_class_name( 'button' );
+}
 ?>
 
-<a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="checkout-button button alt wc-forward">
+<a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="checkout-button button alt wc-forward<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?>">
 	<?php echo apply_filters('etheme_proceed_to_checkout_button_text', esc_html__( 'Proceed to checkout', 'xstore' )); ?>
 </a>

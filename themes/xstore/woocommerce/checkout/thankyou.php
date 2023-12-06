@@ -41,7 +41,7 @@ if ( get_query_var('et_is-cart-checkout-advanced', false ) ) {
 
         <p class="woocommerce-notice woocommerce-notice--error woocommerce-thankyou-order-failed-actions">
             <a href="<?php echo esc_url( $order->get_checkout_payment_url() ); ?>" class="button pay"><?php esc_html_e( 'Pay', 'xstore' ); ?></a>
-			<?php if ( is_user_logged_in() ) : ?>
+			<?php if ( get_query_var( 'et_is-loggedin', false) ) : ?>
                 <a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" class="button pay"><?php esc_html_e( 'My account', 'xstore' ); ?></a>
 			<?php endif; ?>
         </p>
@@ -56,30 +56,30 @@ if ( get_query_var('et_is-cart-checkout-advanced', false ) ) {
     
                 <li class="woocommerce-order-overview__order order">
                     <?php esc_html_e( 'Order number:', 'xstore' ); ?>
-                    <strong><?php echo $order->get_order_number(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
+                    <?php echo '<strong>'. $order->get_order_number() . '</strong>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </li>
     
                 <li class="woocommerce-order-overview__date date">
                     <?php esc_html_e( 'Date:', 'xstore' ); ?>
-                    <strong><?php echo wc_format_datetime( $order->get_date_created() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
+                    <?php echo '<strong>' . wc_format_datetime( $order->get_date_created() ) . '</strong>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </li>
                 
-                <?php if ( is_user_logged_in() && $order->get_user_id() === get_current_user_id() && $order->get_billing_email() ) : ?>
+                <?php if ( get_query_var( 'et_is-loggedin', false) && $order->get_user_id() === get_current_user_id() && $order->get_billing_email() ) : ?>
                     <li class="woocommerce-order-overview__email email">
                         <?php esc_html_e( 'Email:', 'xstore' ); ?>
-                        <strong><?php echo $order->get_billing_email(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
+                        <?php echo '<strong>' . $order->get_billing_email() . '</strong>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </li>
                 <?php endif; ?>
     
                 <li class="woocommerce-order-overview__total total">
                     <?php esc_html_e( 'Total:', 'xstore' ); ?>
-                    <strong><?php echo $order->get_formatted_order_total(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
+                    <?php echo '<strong>' . $order->get_formatted_order_total() . '</strong>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </li>
                 
                 <?php if ( $order->get_payment_method_title() ) : ?>
                     <li class="woocommerce-order-overview__payment-method method">
                         <?php esc_html_e( 'Payment method:', 'xstore' ); ?>
-                        <strong><?php echo wp_kses_post( $order->get_payment_method_title() ); ?></strong>
+                        <?php echo '<strong>' . wp_kses_post( $order->get_payment_method_title() ) . '</strong>'; ?>
                     </li>
                 <?php endif; ?>
     

@@ -126,6 +126,8 @@ form.cart,
 .product_brand .customize-partial-edit-shortcut,
 .products-page-brands .customize-partial-edit-shortcut,
 
+.product-sale-counter .customize-partial-edit-shortcut,
+
 .sale-wrapper .customize-partial-edit-shortcut,
 .content-product .stock .customize-partial-edit-shortcut,
 .content-product .available-on-backorder .customize-partial-edit-shortcut,
@@ -159,7 +161,12 @@ form.cart,
 .header-wrapper .customize-partial-edit-shortcut,
 .mobile-header-wrapper .customize-partial-edit-shortcut,
 .et_element .customize-partial-edit-shortcut,
-.et_column .customize-partial-edit-shortcut {
+.et_column .customize-partial-edit-shortcut,
+
+.et-cookies-popup-wrapper .customize-partial-edit-shortcut,
+
+.sticky-site-header .customize-partial-edit-shortcut,
+.sticky-site-header .et_b_header-logo .customize-partial-edit-shortcut {
     display: none;
 }
 

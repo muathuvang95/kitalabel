@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html <?php language_attributes(); ?> <?php echo (get_query_var('et_is_customize_preview', false)) ? 'class="no-scrollbar"' : ''; ?>>
+<head>
+	<meta charset="<?php bloginfo( 'charset' ); ?>" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0<?php if ( !get_theme_mod('mobile_scalable', false) ) : ?>, maximum-scale=1.0, user-scalable=0<?php endif; ?>"/>
+	<?php wp_head(); ?>
+
+	<!-- Google Tag Manager NDI-->
+	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-5N2FDKX');</script>
+	<!-- End Google Tag Manager -->
+	
+	<!-- Google Tag Manager NDI Arief08mei23 -->
+	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-MMB5RDS');</script>
+	<!-- End Google Tag Manager -->
+	
+	<!-- Google Tag Manager NAKAMA 8mar2023 Steve-->
+	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-N8XX9Z5');</script>
+	<!-- End Google Tag Manager -->
+	
+	<!-- Added meta tage by Steve 21 feb 2023 -->
+	<meta name="facebook-domain-verification" content="hinrle82q18ycp9wk0fvhkwwouyrg2" />
+	<!-- End of meta tag -->
+</head>
+<?php $mode = etheme_get_option('dark_styles', 0) ? 'dark' : 'light'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited valid use case ?>
+<body <?php body_class(); ?> data-mode="<?php echo esc_attr( $mode ); ?>">
+
+	<!-- Google Tag Manager NDI (noscript) -->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5N2FDKX"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->
+	
+	<!-- Google Tag Manager  NDI Arief08mei23 (noscript) -->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MMB5RDS"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->
+	
+	<!-- Google Tag Manager (noscript) NAKAMA 8mar2023 steve-->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N8XX9Z5"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->
+
+
+<?php if ( function_exists( 'wp_body_open' ) ) {
+			wp_body_open();
+	} else {
+		do_action( 'wp_body_open' );
+} ?>
+
+<?php if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_location( 'header' ) ) : ?>
+
+<?php do_action( 'et_after_body', true ); ?>
+
+<div class="template-container">
+
+	<?php
+		/**
+		 * Hook: etheme_header_before_template_content.
+		 *
+		 * @hooked etheme_top_panel_content - 10
+		 * @hooked etheme_mobile_menu_content - 20
+		 *
+		 * @version 6.0.0 +
+		 * @since 6.0.0 +
+		 *
+		 */
+		do_action( 'etheme_header_before_template_content' );
+	 ?>
+	<div class="template-content">
+		<div class="page-wrapper">
+			<?php 
+			/**
+			 * Hook: etheme_header.
+			 *
+			 * @hooked etheme_header_content - 10
+			 *
+			 * @version 6.0.0 +
+			 * @since 6.0.0 +
+			 *
+			 */
+            do_action( 'etheme_header_start' );
+			if ( get_query_var('et_mobile-optimization', false) ) {
+			    if ( get_query_var('is_mobile', false) ) {
+				    do_action( 'etheme_header_mobile' );
+                }
+			    else {
+				    do_action( 'etheme_header' );
+                }
+            }
+			else {
+				do_action( 'etheme_header' );
+				do_action( 'etheme_header_mobile' );
+			}
+            do_action( 'etheme_header_end' );
+			
+endif;

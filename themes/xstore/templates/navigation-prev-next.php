@@ -3,7 +3,7 @@
  * The template for displaying post/project/product prev-next navigation
  *
  * @since   8.0.3
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 global $post;
@@ -113,8 +113,13 @@ if ( $post->post_type == 'product' ) {
 		$prev_post_id = $prev_post->ID;
 	}
 }
+
+if (class_exists('YITH_WCBM_Frontend')) {
+	remove_filter( 'post_thumbnail_html', array( YITH_WCBM_Frontend(), 'show_badge_on_product' ), 999 );
+}
+
 ?>
-	<div class="posts-navigation hidden">
+    <div class="posts-navigation hidden">
 		<?php if(!empty($prev_post)) :
 			if ( function_exists('mb_strlen') ) {
 				$prev_symbols = (mb_strlen(get_the_title($prev_post_id)) > 30) ? '...' : '';
@@ -124,27 +129,27 @@ if ( $post->post_type == 'product' ) {
 				$prev_symbols = (strlen(get_the_title($prev_post_id)) > 30) ? '...' : '';
 				$title = substr(get_the_title($prev_post_id),0,30) . $prev_symbols;
 			}
-            ?>
-			<div class="posts-nav-btn prev-post">
-				<div class="post-info">
-					<div class="post-details">
-						<a href="<?php echo get_permalink($prev_post_id); ?>" class="post-title">
+			?>
+            <div class="posts-nav-btn prev-post">
+                <div class="post-info">
+                    <div class="post-details">
+                        <a href="<?php echo get_permalink($prev_post_id); ?>" class="post-title">
 							<?php echo apply_filters('etheme_prev_next_title', esc_attr( $title ), get_the_title($prev_post_id)); ?>
-						</a>
+                        </a>
 						<?php if ( $is_product ) {
 							$p = wc_get_product($prev_post);
 							echo '<p class="price">'.$p->get_price_html().'</p>';
 						} ?>
-					</div>
-					<a href="<?php echo get_permalink($prev_post_id); ?>">
+                    </div>
+                    <a href="<?php echo get_permalink($prev_post_id); ?>">
 						<?php $img = get_the_post_thumbnail( $prev_post_id, array(90, 90));
 						echo (!empty($img) ) ? $img : '<img src="'.ETHEME_BASE_URI.'images/placeholder.jpg">';  ?>
-					</a>
-				</div>
-				<span class="post-nav-arrow">
+                    </a>
+                </div>
+                <span class="post-nav-arrow">
                         <i class="et-icon et-<?php echo get_query_var('et_is-rtl', false) ? 'right' : 'left'; ?>-arrow"></i>
                     </span>
-			</div>
+            </div>
 		<?php endif; ?>
 
 		<?php if(!empty($next_post)) :
@@ -156,26 +161,31 @@ if ( $post->post_type == 'product' ) {
 				$next_symbols = (strlen(get_the_title($next_post_id)) > 30) ? '...' : '';
 				$title = substr(get_the_title($next_post_id),0,30) . $next_symbols;
 			} ?>
-			<div class="posts-nav-btn next-post">
+            <div class="posts-nav-btn next-post">
 					<span class="post-nav-arrow">
                         <i class="et-icon et-<?php echo get_query_var('et_is-rtl', false) ? 'left' : 'right'; ?>-arrow"></i>
                     </span>
-				<div class="post-info">
-					<a href="<?php echo get_permalink($next_post_id); ?>">
+                <div class="post-info">
+                    <a href="<?php echo get_permalink($next_post_id); ?>">
 						<?php $img = get_the_post_thumbnail( $next_post_id, array(90, 90));
 						echo (!empty($img) ) ? $img : '<img src="'.ETHEME_BASE_URI.'images/placeholder.jpg">';  ?>
-					</a>
-					<div class="post-details">
-						<a href="<?php echo get_permalink($next_post_id); ?>" class="post-title">
-                            <?php echo apply_filters('etheme_prev_next_title', esc_attr( $title ), get_the_title($next_post_id)); ?>
+                    </a>
+                    <div class="post-details">
+                        <a href="<?php echo get_permalink($next_post_id); ?>" class="post-title">
+							<?php echo apply_filters('etheme_prev_next_title', esc_attr( $title ), get_the_title($next_post_id)); ?>
                         </a>
 						<?php if ( $is_product ) {
 							$p = wc_get_product($next_post);
 							echo '<p class="price">'.$p->get_price_html().'</p>';
 						} ?>
-					</div>
-				</div>
-			</div>
+                    </div>
+                </div>
+            </div>
 		<?php endif; ?>
-	</div>
+    </div>
+<?php
+if (class_exists('YITH_WCBM_Frontend')) {
+	remove_filter( 'post_thumbnail_html', array( YITH_WCBM_Frontend(), 'show_badge_on_product' ), 999 );
+}
+?>
 <?php wp_reset_query();

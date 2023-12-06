@@ -70,7 +70,8 @@ if ( ! class_exists( 'XStore_LazyLoad' ) ) :
 				     preg_match( "/src=['\"]data:image/is", $img_html ) ||
 				     false !== strpos( $img_html, 'rev-slidebg' ) ||
 				     false !== strpos( $img_html, 'rs-lazyload' ) ||
-				     false !== strpos( $img_html, 'avatar' )) {
+				     false !== strpos( $img_html, 'avatar' ) ||
+                     false !== strpos( $img_html, 'main-hover-slider-img' ) ) {
 					continue;
 				}
 				

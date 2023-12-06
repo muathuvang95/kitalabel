@@ -6,12 +6,6 @@
 	 * @since 6.0.0
 	 */
 	
-	// section woocommerce_off
-	// Kirki::add_section( 'woocommerce_off', array(
-	//     'title'          => esc_html__( 'WooCommerce (Shop)', 'xstore' ),
-	//     'icon' => 'dashicons-cart',
-	//     'priority' => $priorities['woocommerce']
-	// 	) );
 add_filter( 'et/customizer/add/sections', function($sections) use($priorities){
 
 	$args = array(
@@ -26,15 +20,6 @@ add_filter( 'et/customizer/add/sections', function($sections) use($priorities){
 	);
 	return array_merge( $sections, $args );
 });
-
-		// Kirki::add_field( 'theme_config_id', array (
-		// 	'type'     => 'custom',
-		// 	'settings' => 'woocommerce_off_text',
-		// 	'section'  => 'woocommerce_off',
-	 //        'default'     => esc_html__('To use WooCommerce options please install ', 'xstore') . '<a href="https://uk.wordpress.org/plugins/woocommerce/" rel="nofollow" target="_blank">' . esc_html__('WooCommerce', 'xstore') . '</a>',
-		// ) );
-		
-
 
 $hook = class_exists('ETC_Initial') ? 'et/customizer/add/fields/woocommerce_off' : 'et/customizer/add/fields';
 add_filter( $hook, function ( $fields ) {
@@ -55,4 +40,3 @@ add_filter( $hook, function ( $fields ) {
 	return array_merge( $fields, $args );
 
 });
-?>

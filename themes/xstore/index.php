@@ -114,7 +114,7 @@ if ( in_array($content_layout, array('grid', 'grid2'))  ) {
 							case 'button': ?>
 								<?php if ( get_next_posts_link(null) != '' ) : ?>
 									<div class="et-load-block text-center et_load-posts button-loading" data-loaded="<?php esc_html_e( 'No more posts to load', 'xstore' ) ?>">
-										<?php etheme_loader() ?>
+										<?php etheme_loader(true, 'no-lqip'); ?>
 										<span class="btn"><?php next_posts_link( esc_html__( 'Load More Posts', 'xstore' ) ); ?></span>
 									</div>
 								<?php endif; ?>
@@ -123,7 +123,7 @@ if ( in_array($content_layout, array('grid', 'grid2'))  ) {
 							case 'lazy': ?>
 								<?php if ( get_next_posts_link(null) != '' ) : ?>
 									<div class="et-load-block et_load-posts lazy-loading" data-loaded="<?php esc_html_e( 'No more posts to load', 'xstore' ) ?>" data-loading="<?php esc_html_e( 'Loading', 'xstore' ) ?>">
-										<?php etheme_loader() ?>
+										<?php etheme_loader(true, 'no-lqip'); ?>
 										<span class="btn"><?php next_posts_link(); ?></span>
 									</div>
 								<?php endif; ?>
@@ -150,4 +150,3 @@ if ( in_array($content_layout, array('grid', 'grid2'))  ) {
 
 <?php
 get_footer();
-?>

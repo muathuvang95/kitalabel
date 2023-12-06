@@ -22,11 +22,9 @@ class Etheme_Customize_Search {
      * @version 0.0.1
      */
     public function actions(){
-        if ( is_admin() ) {
-            // // ! Add scripts and templates
-            add_action( 'customize_controls_enqueue_scripts', array( $this, 'scripts' ) );
-            add_action( 'customize_controls_print_footer_scripts', array( $this, 'template' ) );
-        }  
+        // // ! Add scripts and templates
+        add_action( 'customize_controls_enqueue_scripts', array( $this, 'scripts' ) );
+        add_action( 'customize_controls_print_footer_scripts', array( $this, 'template' ) );
     }
 
     /**

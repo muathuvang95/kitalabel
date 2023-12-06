@@ -4,13 +4,19 @@
  *
  * @author 		WooThemes
  * @package 	WooCommerce/Templates
- * @version     3.6.0
+ * @version     7.1.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if ( is_user_logged_in() ) 
+if ( get_query_var( 'et_is-loggedin', false) )
 	return;
+
+$woo_new_7_0_1_version = etheme_woo_version_check();
+$button_class = '';
+if ( $woo_new_7_0_1_version ) {
+    $button_class = wc_wp_theme_get_element_class_name( 'button' );
+}
 ?>
 <form method="post" class="woocommerce-form woocommerce-form-login login" <?php if ( $hidden ) echo 'style="display:none;"'; ?>>
 
@@ -24,7 +30,7 @@ if ( is_user_logged_in() )
 	</p>
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 		<label for="password"><?php esc_html_e( 'Password', 'xstore' ); ?> <span class="required">*</span></label>
-		<input class="input-text" type="password" name="password" id="password" />
+		<input class="input-text woocommerce-Input" type="password" name="password" id="password" />
 	</p>
 	<div class="clear"></div>
 
@@ -39,7 +45,7 @@ if ( is_user_logged_in() )
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide m0">
 		<?php wp_nonce_field( 'woocommerce-login', 'woocommerce-login-nonce' ); ?>
 		<input type="hidden" name="redirect" value="<?php echo esc_url( $redirect ) ?>" />
-		<button type="submit" class="button" name="login" value="<?php esc_attr_e( 'Login', 'xstore' ); ?>"><?php esc_html_e( 'Login', 'xstore' ); ?></button>
+		<button type="submit" class="button<?php echo esc_attr( $button_class ? ' ' . $button_class : '' ); ?>" name="login" value="<?php esc_attr_e( 'Login', 'xstore' ); ?>"><?php esc_html_e( 'Login', 'xstore' ); ?></button>
 	</p>
 
 	<div class="clear"></div>

@@ -70,31 +70,36 @@ var etCustomizerSearch;
             var timer = null;
             $(document).on( 'keyup', '#et_customizer-search', function(e){
                 e.preventDefault();
-                var search = $(this).val();
+                var search_wrapper = $(this).parent();
+                var search_value = $(this).val();
+                search_wrapper.addClass('loading');
 
                 clearTimeout(timer); 
                 timer = setTimeout(function(){
 
-                    if( ! search.length ) {
+                    if( ! search_value.length ) {
                         etCustomizerSearch.et_clear_results();
                         $( '#customize-theme-controls' ).removeClass( 'et_hide-controls' );
                         $('.wp-full-overlay-sidebar-content').removeClass('search-is-opened');
+                        search_wrapper.removeClass('loading');
                         return;
                     }
 
-                    // Avoide ajax search
+                    // Avoid ajax search
                     if ( ! xstoreCustomizerSearch.etcCore ) {
-                        let results = etCustomizerSearch.et_render_results( search, [] );
+                        let results = etCustomizerSearch.et_render_results( search_value, [] );
                         etCustomizerSearch.et_handle_results($(this),results);
+                        search_wrapper.removeClass('loading');
                         return;
                     }
 
                     // Do ajax search
-                    var result = etCustomizerSearch.searchString(search);
+                    var result = etCustomizerSearch.searchString(search_value);
 
                     result.done(function(result){
-                        let results = etCustomizerSearch.et_render_results( search, result );
+                        let results = etCustomizerSearch.et_render_results( search_value, result );
                         etCustomizerSearch.et_handle_results($(this),results);
+                        search_wrapper.removeClass('loading');
                     });
 
                 }, 1000);

@@ -1,6 +1,6 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit( 'No direct script access allowed' );
 /**
- * Template "Welcome" for 8theme dashboard.
+ * Template "Maintenance mode" for 8theme dashboard.
  *
  * @since   8.1.2
  * @version 1.0.0

@@ -168,7 +168,7 @@ $no_users_class = ' hidden';
             </a>
             <br>
             <?php esc_html_e('Check', 'xstore');?>
-            <a href="https://xstore.helpscoutdocs.com/article/87-facebook-login" target="blank">
+            <a href="<?php etheme_documentation_url('87-facebook-login'); ?>" target="blank">
                 <?php esc_html_e('theme documentation', 'xstore');?>
             </a>
             <?php echo esc_html__('if it does not work for you', 'xstore') . ' ' . esc_html__('or watch the', 'xstore'); ?>
@@ -221,7 +221,7 @@ $no_users_class = ' hidden';
             </a>
             <br>
             <?php esc_html_e('Check', 'xstore');?>
-            <a href="https://xstore.helpscoutdocs.com/article/87-google-login" target="blank">
+            <a href="<?php etheme_documentation_url('87-google-login'); ?>" target="blank">
                 <?php esc_html_e('theme documentation', 'xstore');?>
             </a>
 	        <?php echo esc_html__('if it does not work for you', 'xstore') . ' ' . esc_html__('or watch the', 'xstore'); ?>
@@ -252,29 +252,6 @@ $no_users_class = ' hidden';
         </p>
     </form>
 </div>
-
-<!--<div class="etheme-div etheme-social-tab etheme-social-mail-chimp hidden">-->
-<!--    <form>-->
-<!--        <p>Non lorem vivamus nec facilisi ultrices consectetur nec cursus sagittis torquent a cum praesent pulvinar est. Et vestibulum fames iaculis duis pulvinar eu porta convallis per sagittis ut mi maecenas vestibulum sem suspendisse mus ante. Cursus suspendisse himenaeos fringilla consectetur adipiscing condimentum scelerisque hac at metus penatibus orci a parturient.</p>-->
-<!---->
-<!--        <p class="et-message et-info">Non lorem vivamus nec facilisi ultrices consectetur nec cursus sagittis torquent a cum praesent pulvinar est. Et vestibulum fames iaculis duis pulvinar eu porta convallis per sagittis ut mi maecenas vestibulum sem suspendisse mus ante. Cursus suspendisse himenaeos fringilla consectetur adipiscing condimentum scelerisque hac at metus penatibus orci a parturient.</p>-->
-<!--        <p>-->
-<!--            <label for="mail_chimp_api">Mail Chimp API Key</label>-->
-<!--        </p>-->
-<!--        <p>-->
-<!--            <input id="mail_chimp_api" name="mail_chimp_api" type="text" value="--><?php //echo get_theme_mod('mail_chimp_api'); ?><!--">-->
-<!--        </p>-->
-<!--        <p>-->
-<!--            <input class="etheme-network-save et-button no-loader" data-network="mail-chimp" type="submit" value="save">-->
-<!--        </p>-->
-<!--        <p class="etheme-network-save-info info-success hidden">-->
-<!--		    --><?php //esc_html_e('Saved', 'xstore');?>
-<!--        </p>-->
-<!--        <p class="etheme-network-save-info info-error hidden">-->
-<!--		    --><?php //esc_html_e('Error while saving', 'xstore');?>
-<!--        </p>-->
-<!--    </form>-->
-<!--</div>-->
 
 <div class="etheme-div etheme-social-tab etheme-social-google-map hidden">
     <form>

@@ -3,7 +3,7 @@
  * Template "Changelog" for 8theme dashboard.
  *
  * @since   6.0.2
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 $out = '';
@@ -16,10 +16,11 @@ if( $check_update->is_update_available() ) {
 	        '</p>';
 }
 	
-	if ( function_exists( 'wp_remote_get' ) ) {
-	$response = wp_remote_get( 'https://xstore.8theme.com/change-log.php?type=panel' );
+if ( function_exists( 'wp_remote_get' ) ) {
+	$response = wp_remote_get( 'https://8theme.com/import/update-history/xstore/' );
 	$response = wp_remote_retrieve_body( $response );
 	$response = str_replace( 'class="arrow"', '', $response );
+	$response = str_replace( 'style="text-align: center"', 'style="display: none"', $response );
 	$response = str_replace( '<h2>', '<h4>', $response );
 	$response = str_replace( '</h2>', '</h4>', $response );
 	$response = str_replace( '[vc_column_text]', '', $response);

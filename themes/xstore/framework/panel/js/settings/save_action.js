@@ -5,7 +5,7 @@
  * @since      1.0.0
  * @author     stas
  * @link       http://xstore.8theme.com
- * @license    Themeforest Split Licence
+ * @license    Themeforest Split Licence.
  */
 
 jQuery(document).ready(function ($) {
@@ -53,10 +53,16 @@ jQuery(document).ready(function ($) {
             all_settings = [],
             tabs_names = [];
 
+        var settings_name = $(this).attr('data-settings-name');
+        var localTabOnly = $(this).attr('data-save-tab');
+
         xstore_branding_global_functions.openPopup();
 
         $(this).parent().parent().find('.et-tabs-content').each(function () {
             var tab = $(this).attr('data-tab-content');
+            if ( !!localTabOnly ) {
+                if ( tab !== localTabOnly ) return;
+            }
             if (tab === 'import') return;
             tabs.push(tab);
             $(this).find('.xstore-panel-sortable, .xstore-panel-repeater').each(function (){
@@ -76,11 +82,11 @@ jQuery(document).ready(function ($) {
             all_settings.push(form_serialize);
         });
 
-        ajaxSave( tabs, all_settings);
+        ajaxSave( tabs, all_settings, settings_name);
 
     } );
 
-    var ajaxSave = function ( tabs, all_settings ) {
+    var ajaxSave = function ( tabs, all_settings, name ) {
         $.ajax({
             method: "POST",
             url: XStorePanelSettingsConfig.ajaxurl,
@@ -89,12 +95,13 @@ jQuery(document).ready(function ($) {
                 action: 'xstore_panel_settings_save',
                 settings: all_settings[xstore_branding_global['i']],
                 type: tabs[xstore_branding_global['i']],
+                settings_name: name
             },
             success: function (response) {
                 tabs.slice(xstore_branding_global['i'], tabs.length);
                 all_settings.slice(xstore_branding_global['i'], all_settings.length);
                 if ( xstore_branding_global['i'] < tabs.length ) {
-                    ajaxSave( tabs, all_settings);
+                    ajaxSave( tabs, all_settings, name);
                     xstore_branding_global['i']++;
                 }
                 else {

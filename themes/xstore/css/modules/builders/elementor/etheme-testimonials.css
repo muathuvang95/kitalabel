@@ -59,6 +59,10 @@
     -ms-flex-wrap: wrap;
         flex-wrap: wrap;
   }
+  .etheme-testimonials .testimonial .content-wrapper > img {
+    margin-left: auto;
+    margin-right: auto;
+  }
   .etheme-testimonials .testimonial .inner-content:first-child:not(:only-child),
   .etheme-testimonials .testimonial .inner-content:last-child:not(:only-child) {
     margin: 15px 0 0;

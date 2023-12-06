@@ -91,6 +91,9 @@ body #dokan-seller-listing-wrap.grid-view .store-footer {
 #dokan-store-listing-filter-wrap .right .item.sort-by label {
   margin-right: 5px;
 }
+#dokan-seller-listing-wrap .seller-listing-content .dokan-seller-wrap .dokan-single-seller .store-wrapper .store-data {
+  margin-top: 20px;
+}
 .dokan-product-list-inline-edit-form label {
   text-align: start;
 }
@@ -163,6 +166,10 @@ a.dokan-btn-success:hover {
 }
 .seller-rating {
   margin-right: 10px;
+}
+.text + .seller-rating {
+  margin-left: 10px;
+  margin-right: 0;
 }
 dt.variation-Vendor:after {
   content: ':';
@@ -244,6 +251,7 @@ table#dokan_shipping_rates th.checkbox {
 }
 @media (min-width: 1200px) {
   .dokan-single-store .profile-frame .profile-info-box.profile-layout-layout2 .profile-info-summery-wrapper .profile-info-summery .profile-info {
+    position: absolute;
     width: 100%;
   }
 }
@@ -286,4 +294,53 @@ table#dokan_shipping_rates th.checkbox {
   body #dokan-store-listing-filter-wrap .right .item #stores_orderby {
     padding: 0 2.9em 0 1em;
   }
+}
+.dokan-store-support-btn-product {
+  margin: 15px 0 0 0 !important;
+  -ms-flex-preferred-size: 170px;
+      flex-basis: 170px;
+}
+@media only screen and (max-width: 430px) {
+  .dokan-dashboard .dokan-product-listing .dokan-product-listing-area .dokan-product-date-filter {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    margin-bottom: -5px;
+    -webkit-box-pack: stretch;
+        -ms-flex-pack: stretch;
+            justify-content: stretch;
+  }
+  .dokan-dashboard .dokan-product-listing .dokan-product-listing-area .dokan-product-date-filter .dokan-form-group {
+    margin-bottom: 5px;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+  }
+  .fc .fc-toolbar {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+  }
+  .dokan-withdraw-content .dokan-withdraw-area .dokan-panel-body .dokan-panel-inner-container .dokan-w5 {
+    position: static;
+    -webkit-transform: none;
+            transform: none;
+  }
+}
+@media only screen and (max-width: 992px) {
+  .fc .fc-toolbar.fc-header-toolbar {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+  }
+  .fc-toolbar-chunk {
+    -ms-flex-preferred-size: 100%;
+        flex-basis: 100%;
+    margin: 5px 0;
+  }
+}
+#dokan-delivery-time-box .delivery-time-body select {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+#dokan-delivery-time-box .dokan-store-location-selector .selector-wrapper {
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
 }

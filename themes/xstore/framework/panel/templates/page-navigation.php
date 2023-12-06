@@ -11,7 +11,7 @@ $theme_active = etheme_is_activated();
 $core_active = class_exists('ETC\App\Controllers\Admin\Import');
 $amp_active = class_exists('XStore_AMP');
 
-$plugins = $theme_options = $generator = '';
+$system_requirements = $plugins = $theme_options = $generator = '';
 
 $xstore_branding_settings = get_option( 'xstore_white_label_branding_settings', array() );
 
@@ -20,6 +20,7 @@ $show_pages = array(
 	'system_requirements',
 	'demos',
 	'plugins',
+    'patcher',
 	'customize',
 	'generator',
 	'email_builder',
@@ -44,8 +45,9 @@ $system = new Etheme_System_Requirements();
 $system->system_test();
 $result = $system->result();
 
-$new_label = '<span style="margin-left: 5px; background: var(--et_admin_green-color, #489c33); letter-spacing: 1px; font-weight: 400; display: inline-block; text-transform: lowercase; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">'.esc_html__('new', 'xstore').'</span>';
-$hot_label = '<span style="margin-left: 5px; background: var(--et_admin_main-color, #A4004F); letter-spacing: 1px; font-weight: 400; display: inline-block; text-transform: lowercase; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">'.esc_html__('hot', 'xstore').'</span>';
+$new_label = '<span style="margin-left: 5px; background: var(--et_admin_green-color, #489c33); letter-spacing: 1px; font-weight: 400; display: inline-block; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">'.esc_html__('new', 'xstore').'</span>';
+$hot_label = '<span style="margin-left: 5px; background: var(--et_admin_main-color, #A4004F); letter-spacing: 1px; font-weight: 400; display: inline-block; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">'.esc_html__('hot', 'xstore').'</span>';
+$beta_label = '<span style="margin-left: 5px; background: var(--et_admin_orange-color, #f57f17); letter-spacing: 1px; font-weight: 400; display: inline-block; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">'.esc_html__('beta', 'xstore').'</span>';
 
 $info_label = '<span class="awaiting-mod" style="position: relative;min-width: 16px;height: 16px;margin: 2px 0 0 6px; background: #fff;"><span class="dashicons dashicons-warning" style="width: auto;height: auto;vertical-align: middle;position: absolute;left: -3px;top: -3px; color: var(--et_admin_orange-color); font-size: 22px;"></span></span>';
 
@@ -143,9 +145,19 @@ if ( in_array('plugins', $show_pages) ) {
 		( ! $theme_active ) ? '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-social">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>' : '<li><a href="%s" class="et-nav%s et-nav-general">%s</a></li>',
 		( $theme_active ) ? admin_url( 'admin.php?page=et-panel-plugins' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
 		( $_GET['page'] == 'et-panel-plugins' ) ? ' active' : '',
-		esc_html__( 'Plugins Installer', 'xstore' ) . $hot_label
+		esc_html__( 'Plugins Installer', 'xstore' )
 	);
 }
+
+// @todo uncomment to show patcher for all
+//if ( in_array('patcher', $show_pages) ) {
+//    $plugins = sprintf(
+//        ( ! $theme_active ) ? '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-social">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>' : '<li><a href="%s" class="et-nav%s et-nav-general">%s</a></li>',
+//        ( $theme_active ) ? admin_url( 'admin.php?page=et-panel-patcher' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
+//        ( $_GET['page'] == 'et-panel-patcher' ) ? ' active' : '',
+//        esc_html__( 'Patcher', 'xstore' ) . $beta_label
+//    );
+//}
 
 //if ( in_array('generator', $show_pages) ) {
 //	$generator = sprintf(
@@ -168,7 +180,7 @@ if ( in_array('welcome', $show_pages) ) {
 }
 
 if ( in_array('system_requirements', $show_pages) ) {
-	$out .= sprintf(
+	$system_requirements = sprintf(
 		'<li><a href="%s" class="et-nav%s et-nav-general">%s</a></li>',
 		admin_url( 'admin.php?page=et-panel-system-requirements' ),
 		( $_GET['page'] == 'et-panel-system-requirements' ) ? ' active' : '',
@@ -191,7 +203,7 @@ if ( ! $theme_active ) {
 	// 	( $_GET['page'] == 'et-panel-plugins' ) ? ' active' : '',
 	// 	esc_html__( 'Plugins', 'xstore' )
 	// );
-	$out .= $plugins . $theme_options . $generator;
+	$out .= $system_requirements . $plugins . $theme_options . $generator;
 } else {
 	if ( in_array('demos', $show_pages) ) {
 		$out .= sprintf(
@@ -207,7 +219,7 @@ if ( ! $theme_active ) {
 	// 	( $_GET['page'] == 'et-panel-plugins' ) ? ' active' : '',
 	// 	esc_html__( 'Plugins', 'xstore' )
 	// );
-	$out .= $plugins . $theme_options . $generator;
+	$out .= $system_requirements . $plugins . $theme_options . $generator;
 	
 	if ( class_exists('WooCommerce') ) {
 		
@@ -216,7 +228,7 @@ if ( ! $theme_active ) {
 				( ! $core_active || ! $theme_active ) ? '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-email-builder">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>' : '<li><a href="%s" class="et-nav%s et-nav-email-builder">%s</a></li>',
 				( $theme_active && $core_active ) ? admin_url( 'admin.php?page=et-panel-email-builder' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
 				( $_GET['page'] == 'et-panel-email-builder' ) ? ' active' : '',
-				esc_html__( 'Built-in Email Builder', 'xstore' ) . $hot_label
+				esc_html__( 'Built-in Email Builder', 'xstore' )
 			);
 		}
 		
@@ -225,20 +237,24 @@ if ( ! $theme_active ) {
 				( $theme_active && $core_active ) ? '<li><a href="%s" class="et-nav%s et-nav-sales-booster">%s</a></li>' : '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-sales-booster">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>',
 				( $theme_active && $core_active ) ? admin_url( 'admin.php?page=et-panel-sales-booster' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
 				( $_GET['page'] == 'et-panel-sales-booster' ) ? ' active' : '',
-				'🚀&nbsp;&nbsp;' . esc_html__( 'Sales Booster', 'xstore' ) . $new_label
+//				'🚀&nbsp;&nbsp;' . esc_html__( 'Sales Booster', 'xstore' ) . $new_label
+				 esc_html__( 'Sales Booster', 'xstore' ) . $hot_label
 			);
 		}
-		
+
 		if ( !$amp_active ) {
+			$amp_url = admin_url( 'admin.php?page=et-panel-plugins&plugin=xstore-amp' );
+			
 			$out .= sprintf(
-				'<li class="mtips"><a href="%s" class="et-nav%s et-nav-branding">⚡ %s <span style="margin-left: 5px; background: var(--et_admin_green-color, #489c33); letter-spacing: 1px; font-weight: 400; display: inline-block; text-transform: lowercase; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">new</span>'.
-				'<span class="mt-mes">' . esc_html__('Install and Activate XStore AMP plugin to use amp settings', 'xstore') . '</span></a></li>',
-				( $theme_active && $core_active ) ? admin_url( 'admin.php?page=et-panel-plugins' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
+			//'<li class="mtips"><a href="%s" class="et-nav%s et-nav-branding">⚡ %s <span style="margin-left: 5px; background: var(--et_admin_green-color, #489c33); letter-spacing: 1px; font-weight: 400; display: inline-block; text-transform: lowercase; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">new</span>'.
+				'<li class="mtips"><a href="%s" class="et-nav%s et-nav-branding"> %s <span style="margin-left: 5px; background: var(--et_admin_green-color, #489c33); letter-spacing: 1px; font-weight: 400; display: inline-block; text-transform: lowercase; border-radius: 3px; color: #fff; padding: 3px 2px 2px 3px; text-transform: uppercase; font-size: 8px; line-height: 1;">new</span>' .
+				'<span class="mt-mes">' . esc_html__( 'Install and Activate XStore AMP plugin to use amp settings', 'xstore' ) . '</span></a></li>',
+				( $theme_active && $core_active ) ? $amp_url : admin_url( 'admin.php?page=et-panel-welcome' ),
 				( $_GET['page'] == 'et-panel-xstore-amp' ) ? ' active' : '',
 				esc_html__( 'AMP XStore', 'xstore' )
 			);
 		}
-		
+
 	}
 
 	if ( $theme_active && in_array('custom_fonts', $show_pages) ) {
@@ -257,7 +273,7 @@ if ( in_array( 'maintenance_mode', $show_pages ) ) {
 		( ! $core_active || ! $theme_active ) ? '<li class="mtips inactive"><a href="%s" class="et-nav%s et-nav-general">%s</a><span class="mt-mes">' . $mtips_notify . '</span></li>' : '<li><a href="%s" class="et-nav%s et-nav-general">%s</a></li>',
 		( $theme_active && $core_active ) ? admin_url( 'admin.php?page=et-panel-maintenance-mode' ) : admin_url( 'admin.php?page=et-panel-welcome' ),
 		( $_GET['page'] == 'et-panel-maintenance-mode' ) ? ' active' : '',
-		esc_html__( 'Maintenance Mode', 'xstore' ) . $hot_label
+		esc_html__( 'Maintenance Mode', 'xstore' )
 	);
 }
 

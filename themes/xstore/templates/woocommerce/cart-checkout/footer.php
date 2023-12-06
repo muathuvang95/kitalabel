@@ -1,10 +1,14 @@
-<footer class="footer text-center">
+<?php
+    $footer_custom_content = get_theme_mod('cart_checkout_footer_content', '') != '';
+    $footer_custom_section = get_theme_mod('cart_checkout_footer_content_sections', false) && get_theme_mod('cart_checkout_footer_content_section', '0') != '0';
+?>
+<footer class="footer<?php if (!$footer_custom_section) echo ' text-center'; else echo ' footer-section-based'; ?>">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
 				<?php
-				if ( get_theme_mod('cart_checkout_footer_content', '') != '' ||
-				     (get_theme_mod('cart_checkout_footer_content_sections', false) && get_theme_mod('cart_checkout_footer_content_section', '0') != '0' )) {
+				if ( $footer_custom_content ||
+				     $footer_custom_section ) {
 					echo html_blocks_callback( array(
 						'section'         => 'cart_checkout_footer_content_section',
 						'sections'        => 'cart_checkout_footer_content_sections',

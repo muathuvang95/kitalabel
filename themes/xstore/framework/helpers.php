@@ -1,31 +1,5 @@
 <?php  if ( ! defined('ETHEME_FW')) exit('No direct script access allowed');
 
-
-/*
-* Function include template file
-* firstly look in framework/templates/
-* then theme/templates/
-* ******************************************************************* */
-
-if(!function_exists('etheme_load_template')) {
-    function etheme_load_template($name, $data = array()) {
-        $file_name = $name . '.php';
-
-        extract( $data );
-
-        $framework_file = apply_filters('etheme_file_url', ETHEME_TEMPLATES . $file_name ) ;
-        $in_theme_file = apply_filters('etheme_file_url', ETHEME_TEMPLATES_THEME . $file_name ) ;
-
-        if( file_exists( $in_theme_file ) ) {
-            include $in_theme_file;
-        } else if( file_exists( $framework_file ) ) {
-            include $framework_file;
-        } else {
-            echo 'can\'t find the file ' . $file_name;
-        }
-    }
-}
-
 /*
 * Load Shortcode file
 * ******************************************************************* */
@@ -190,38 +164,8 @@ if(!function_exists('etheme_get_revsliders')) {
 	    	
 	        return $revsliders;
 	    } else {
-		    return array('' => 'You need to install Revolution Slider plugin');
+		    return array('' => esc_html__('You need to install Revolution Slider plugin', 'xstore'));
 	    }
-	}
-}
-
-/**
- * Gets a number of posts and displays them as options
- * @param  array $query_args Optional. Overrides defaults.
- * @return array             An array of options that matches the CMB options array
- */
- 
-if(!function_exists('etheme_get_post_options')) {
-	function etheme_get_post_options($query_args ) {
-	
-	    $args = wp_parse_args( $query_args, array(
-	        'post_type' => 'post',
-	        'numberposts' => 10,
-	    ) );
-
-	    $post_options = array();
-	    $post_options[''] = "Inherit";
-	    $post_options['without'] = "Without";  
-	
-	    $posts = get_posts( $args );
-	
-	    if ( $posts ) {
-	        foreach ( $posts as $post ) {
-				$post_options[$post->ID] = $post->post_title;
-	        }
-	    }
-	
-	    return $post_options;
 	}
 }
 
@@ -247,5 +191,28 @@ if(! function_exists('etheme_strip_shortcodes')) {
 		$content = preg_replace("/\[[^\]]*\]/", '', $content);  # strip shortcodes, keep shortcode content
 
 		return $content;
+	}
+}
+
+function etheme_protocol_url($url) {
+	if ( ! is_ssl() ) {
+		return str_replace( 'https:', 'http:', $url );
+	} else {
+		return str_replace( 'http:', 'https:', $url );
+	}
+}
+
+if (! function_exists('etheme_documentation_url')){
+	function etheme_documentation_url($article = false, $echo = true) {
+		$url = 'https://xstore.helpscoutdocs.com/';
+		if ( $article ) {
+			$url .= 'article/' . $article . '/';
+		}
+
+		if ($echo){
+			echo apply_filters('etheme_documentation_url',$url );
+		} else {
+			return apply_filters('etheme_documentation_url',$url );
+		}
 	}
 }

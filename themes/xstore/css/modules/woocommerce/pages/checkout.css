@@ -158,14 +158,19 @@ table.shop_table_responsive.customer_details th {
 .order-review thead {
   display: none;
 }
-.order-review .cart_item .product-name img {
+.order-review .sales-booster-safe-checkout {
+  margin-top: var(--elements-space, 20px);
+}
+.order-review .cart_item .product-name img,
+.woocommerce-order-details tbody .product-name img {
   max-width: 80px;
   -webkit-margin-end: 10px;
           margin-inline-end: 10px;
   float: left;
 }
 @media only screen and (min-width: 768px) {
-  .order-review .cart_item .product-name-info {
+  .order-review .cart_item .product-name-info,
+  .woocommerce-order-details tbody .product-name-info {
     display: block;
     overflow: hidden;
   }

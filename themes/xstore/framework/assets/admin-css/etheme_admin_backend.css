@@ -145,6 +145,26 @@
     }
 }
 
+@keyframes et-patchInfoLeft {
+    0% {
+        right: calc(100% + 20px);
+    }
+
+    100% {
+        right: calc(100% + 10px);
+    }
+}
+
+@keyframes et-patchInfoArrowLeft {
+    0% {
+        right: calc(100% + 15px);
+    }
+
+    100% {
+        right: calc(100% + 5px);
+    }
+}
+
 /* alerts */
 .et-message, div.et-message {
     padding: 10px 15px 10px 35px;
@@ -160,6 +180,7 @@
 }
 
 .et-message.et-icon {
+    color: currentColor;
     border: none;
     padding: 0;
     font-size: inherit;
@@ -245,7 +266,7 @@
 .mtips.mtips-lg span.mt-mes {
     white-space: normal;
     height: auto;
-    width: 250px;
+    width: 300px;
     line-height: 1.4;
 }
 
@@ -276,17 +297,33 @@
     left: calc(50% - 5px);
     display: none;
     border: 5px solid transparent;
-    border-bottom-color: #fafafa;
+    border-bottom-color: var(--mtips-arrow-color, #fafafa);
+}
+
+.mtips.mtips-left span.mt-mes {
+    top: 50%;
+    left: auto;
+    right: calc(100% + 10px);
+    transform: none;
+    margin-top: -13px;
+    box-sizing: content-box;
+}
+
+.mtips.mtips-left.mtips-lg span.mt-mes {
+    margin-top: 0;
+    transform: translateY(-50%);
 }
 
 .mtips-left:after {
     left: auto;
-    right: 100%;
+    right: calc(100% + 5px);
+    top: auto;
     bottom: calc(50% - 5px);
     margin-bottom: 0;
-    margin-right: -3px;
+    margin-inline-end: -5px;
     border-top-color: transparent;
-    border-left-color: #fafafa;
+    border-inline-start-color: var(--mtips-arrow-color, #fafafa);
+    border-bottom-color: transparent;
 }
 
 .mtips.mtips-right span.mt-mes {
@@ -301,19 +338,19 @@
     top: 50%;
     left: 130%;
     margin-top: -5px;
-    margin-left: -10px;
+    margin-inline-start: -10px;
 }
 
 .mtips-right:after {
     border-color: transparent;
-    border-right-color: #fafafa;
+    border-inline-end-color: var(--mtips-arrow-color, #fafafa);
 }
 
 .mtips.mtips-top:after {
     top: auto;
     bottom: 100%;
     border-bottom-color: transparent;
-    border-top-color: #fff;
+    border-top-color: var(--mtips-arrow-color, #fafafa);
 }
 
 .mtips.mtips-top span.mt-mes {
@@ -432,7 +469,7 @@
     color: var(--et_admin_dark-color, #333);
 }
 
-.et-button-grey2, a.et-button-grey2 {
+.et-button-grey2, .et-button-grey2.no-hover:hover, a.et-button-grey2 {
     background-color: var(--et_admin_border-color, #e1e1e1);
     border: none;
     color: var(--et_admin_dark-color, #333);
@@ -574,7 +611,194 @@ a.woo-button {
     width: auto;
     height: auto;
     font-size: inherit;
+    transition: none;
     padding-top: 2px;
+}
+
+.et-button .dashicons-image-rotate {
+    transition: all .3s linear;
+    padding: 1px
+}
+.et-button:hover .dashicons-image-rotate {
+    transform: rotate(360deg)
+}
+
+/* patcher */
+.etheme-patcher-list table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.etheme-patcher-list .etheme-patcher-table-wrapper:not(:last-child) {
+    margin-bottom: 20px;
+}
+.etheme-patcher-list thead th {
+    color: var(--et_admin_dark-color, #333);
+    font-size: 1.14em;
+}
+.etheme-patcher-list thead tr,
+.etheme-patcher-list tbody tr:nth-child(2n) {
+    background: #f6f6f6;
+    border-radius: 5px;
+    --mtips-arrow-color: #fff;
+}
+.etheme-patcher-list thead th,
+.etheme-patcher-list tbody td {
+    padding: 12px 15px;
+    text-align: start;
+}
+.etheme-patcher-list thead th:last-child,
+.etheme-patcher-list tbody td:last-child {
+    text-align: end;
+}
+.etheme-patcher-list tbody a {
+    color: var(--et_admin_main-color, #A4004F);
+}
+.etheme-patcher-list .patch-test-mode sub {
+    margin-inline-end: 5px;
+    background: var(--et_admin_orange-color, #f57f17);
+    letter-spacing: 1px;
+    font-weight: 400;
+    display: inline-block;
+    border-radius: 3px;
+    color: #fff;
+    padding: 3px 2px 2px 3px;
+    text-transform: uppercase;
+    font-size: 8px;
+    line-height: 1;
+}
+.etheme-patcher-list .patch-test-mode {
+    border: 1px dashed var(--et_admin_orange-color, #f57f17);
+}
+
+.etheme-patcher-list .patch-error {
+    border: 1px dashed var(--et_admin_red-color, #c62828);
+}
+.etheme-patcher-list .patch-description-content.mtips {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    cursor: help;
+}
+.patch-more-details {
+    text-decoration: underline;
+}
+/* make mouseover correctly on patch info */
+.etheme-patcher-list .patch-description-content.mtips:hover:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 10px;
+}
+.etheme-patcher-list .patch-description-content.mtips .mt-mes {
+    cursor: default;
+    max-height: 154px;
+    overflow: auto;
+}
+.etheme-patcher-list .patch-description-content.mtips > svg {
+    margin-inline-end: 5px;
+}
+table .patch-date span {
+    display: block;
+    white-space: nowrap;
+}
+table .patch-time-info {
+    font-size: .8em;
+    margin-top: 3px;
+}
+table .patch-id {
+    white-space: nowrap;
+}
+.patch-unavailable {
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase;
+    color: var(--et_admin_dark-color, #333);
+    white-space: nowrap;
+    line-height: normal;
+    font-size: 12px;
+}
+.patch-unavailable.success {
+    color: var(--et_admin_green-color, #489C33);
+}
+.patch-unavailable.error {
+    color: var(--et_admin_red-color, #c62828);
+}
+.patch-unavailable svg {
+    margin-inline-end: 3px;
+    vertical-align: middle;
+}
+.patch-action .mtips {
+    cursor: not-allowed;
+}
+.patch-action .mtips-left:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: 10px;
+}
+.patch-action .mtips span.mt-mes {
+    /*height: auto;*/
+    /*white-space: normal;*/
+    /*max-width: 330px;*/
+    /*width: 200px;*/
+    /*text-align: left;*/
+    cursor: default;
+    line-height: normal;
+    text-transform: none;
+}
+
+.patch-action .mtips-left span.mt-mes {
+    animation: et-patchInfoLeft .3s linear, et-fadeIn .2s linear;
+}
+.patch-action .mtips-left:after {
+    animation: et-patchInfoArrowLeft .3s linear, et-fadeIn .2s linear;
+}
+
+.et-button.apply-patch {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+.et-button.apply-patch .dashicons {
+    font-size: 1.5em;
+    padding: 0;
+    vertical-align: middle;
+    margin-inline-end: 3px;
+}
+
+.et-button.apply-patch .arrow-icon {
+    max-width: unset;
+    transform: rotate(90deg);
+    margin-inline-start: 5px;
+}
+
+.etheme-patcher-table-wrapper.loading:before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: calc(50% - 8px);
+    left: calc(50% - 8px);
+    display: block;
+    border-radius: 50%;
+    animation: rotate .3s linear infinite;
+    border: 1px solid var(--et_admin_grey-color, #888);
+    border-left-color: var(--et_admin_border-color);
+}
+.etheme-patcher-table-wrapper.loading:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,.15);
+    z-index: 9999;
+    animation: et-fadeIn .3s linear;
 }
 
 #toplevel_page_et-panel-welcome a[href*=price-section-anchor]{
@@ -605,8 +829,11 @@ a.woo-button {
 }
 
 /* submenu items */
-#toplevel_page_et-panel-welcome a[href*=et-panel-plugins]:after,
-    /*#toplevel_page_et-panel-welcome a[href*=et-panel-generator]:after,*/
+#toplevel_page_et-panel-welcome a[href*=et-panel-sales-booster]:after,
+#toplevel_page_et-panel-welcome a[href*=xstore-wishlist]:after,
+#toplevel_page_et-panel-welcome a[href*=xstore-compare]:after,
+#toplevel_page_et-panel-welcome a[href*=et-panel-patcher]:after,
+#toplevel_page_et-panel-welcome a[href*=et-panel-rollback]:after,
 #toplevel_page_et-panel-welcome a[href*=et-panel-demos]:after,
 #toplevel_page_et-panel-welcome a[href*=viwec_template]:after,
 #toplevel_page_et-panel-welcome a[href*=et-panel-xstore-amp]:after,
@@ -626,15 +853,20 @@ a.woo-button {
 }
 
 #toplevel_page_et-panel-welcome a[href*=et-panel-demos]:after,
+#toplevel_page_et-panel-welcome a[href*=et-panel-sales-booster]:after,
 #toplevel_page_et-panel-welcome a[href*=viwec_template]:after,
-#toplevel_page_et-panel-welcome a[href*=et-panel-plugins]:after,
 #toplevel_page_et-panel-welcome .et-tbm-label.et-tbm-label-hot:after
 {
     content: 'hot';
     background: var(--et_admin_main-color, #A4004F);
 }
 
-#toplevel_page_et-panel-welcome a[href*=et-panel-sales-booster]:not(.ab-item),
+#toplevel_page_et-panel-welcome a[href*=et-panel-patcher]:after,
+#toplevel_page_et-panel-welcome a[href*=et-panel-rollback]:after {
+    content: 'beta';
+    background: var(--et_admin_orange-color, #f57f17);
+}
+
 #toplevel_page_et-panel-welcome a[href*=et-panel-social]:not(.ab-item),
 #toplevel_page_et-panel-welcome a[href*=et-panel-custom-fonts]:not(.ab-item){
     display: none;
@@ -642,6 +874,7 @@ a.woo-button {
 
 
 #toplevel_page_et-panel-welcome a[href*=custom-fonts],
+#toplevel_page_et-panel-welcome a[href*=patcher],
 #toplevel_page_et-panel-welcome a[href*=changelog] {
     display: none;
 }
@@ -795,6 +1028,7 @@ a.woo-button {
 }
 
 .et_item-popup .et_modal-header, .et_item-popup .et_modal-footer {
+    position: sticky;
     display: block;
     background: #ededed;
     padding: 20px;
@@ -802,6 +1036,12 @@ a.woo-button {
     box-sizing: border-box;
     text-align: end;
     z-index: 1;
+}
+.et_item-popup .et_modal-header {
+    top: 0;
+}
+.et_item-popup .et_modal-footer {
+    bottom: 0;
 }
 
 .et_item-popup .title-heading {
@@ -1785,6 +2025,16 @@ input:checked + .et-switch:after {
     color: var(--et_admin_green-color, #489C33);
 }
 
+/* staticblocks */
+.staticblock-copy-code {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.staticblock-copy-code .button {
+    margin-inline-end: 10px;
+}
+
 /* woocommerce */
 .et-wc-section-wrapper {
     padding: 5px 20px;
@@ -1799,8 +2049,44 @@ input:checked + .et-switch:after {
     content: "\f312";
 }
 
+#woocommerce-product-data ul.wc-tabs li.et_estimated_delivery_options a::before {
+    content: "\f503";
+}
+
+#woocommerce-product-data ul.wc-tabs li.et_quantity_options a::before {
+    content: "\f184";
+}
+#woocommerce-product-data ul.wc-tabs li.et_quantity_discounts_options a::before {
+    content: "\f18e";
+}
+.woocommerce_options_panel .et-repeater thead {
+    font-size: 1.2em;
+    color: var(--et_admin_dark-color, #333);
+}
+.woocommerce_options_panel .et-repeater table {
+    border-collapse: collapse;
+    border: 1px solid var(--et_admin_border-color, #e1e1e1);
+}
+
+.woocommerce_options_panel .et-repeater td {
+    padding: 7px;
+    border: 1px solid var(--et_admin_border-color, #e1e1e1);
+    text-align: center;
+}
+
+.woocommerce_options_panel .et-repeater td input {
+    border-color: var(--et_admin_border-color, #e1e1e1);
+    border-radius: 0;
+    width: 100%;
+}
+
+.woocommerce_options_panel .et-repeater .empty-row {
+    display: none;
+}
+
 @media only screen and (max-width: 1440px) {
-    #woocommerce-product-data ul.wc-tabs li[class*=et_] .et-brand-label {
+    #woocommerce-product-data ul.wc-tabs li[class*=et_] .et-brand-label,
+    #woocommerce-product-data ul.wc-tabs li[class*=xstore_] .et-brand-label{
         display: none !important;
     }
 }

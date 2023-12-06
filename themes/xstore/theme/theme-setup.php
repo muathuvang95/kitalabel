@@ -56,3 +56,25 @@ add_action('wp', function() {
         }
     }
 }, 100);
+
+add_action('init', function () {
+	// **********************************************************************//
+	// ! add sizes for LQIP
+	// **********************************************************************//
+	$cropping = get_option( 'woocommerce_thumbnail_cropping', '1:1' );
+	
+	if ( 'uncropped' === $cropping ) {
+		add_image_size( 'etheme-woocommerce-nimi', 10, 10 );
+	} elseif ( 'custom' === $cropping ) {
+		$width          = max( 1, get_option( 'woocommerce_thumbnail_cropping_custom_width', '4' ) );
+		$height         = max( 1, get_option( 'woocommerce_thumbnail_cropping_custom_height', '3' ) );
+		add_image_size( 'etheme-woocommerce-nimi', $width, $height );
+	} else {
+		$cropping_split = explode( ':', $cropping );
+		$width          = max( 1, current( $cropping_split ) );
+		$height         = max( 1, end( $cropping_split ) );
+		add_image_size( 'etheme-woocommerce-nimi', $width, $height );
+	}
+	
+	add_image_size( 'etheme-nimi', 10, 10 );
+});

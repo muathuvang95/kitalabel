@@ -34,11 +34,17 @@ class EthemeAdmin{
 		add_action( 'admin_head', array( $this, 'et_add_menu_page_target') );
 		add_action( 'wp_ajax_et_ajax_panel_popup', array($this, 'et_ajax_panel_popup') );
 		
+        // Enable svg support
+		add_filter( 'upload_mimes', [ $this, 'add_svg_support' ] );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'correct_svg_filetype' ), 10, 5 );
+		
 		if ( isset($_REQUEST['helper']) && $_REQUEST['helper']){
 			$this->require_class($_REQUEST['helper']);
 		}
 		
 		add_action( 'wp_ajax_et_panel_ajax', array($this, 'et_panel_ajax') );
+
+		add_action('wp_ajax_et_close_installation_video', array($this, 'et_close_installation_video'));
 		
 		$current_theme         = wp_get_theme();
 		$this->theme_name      = strtolower( preg_replace( '#[^a-zA-Z]#', '', $current_theme->get( 'Name' ) ) );
@@ -62,6 +68,46 @@ class EthemeAdmin{
 		$this->init_vars();
 	}
 	
+	public static function add_svg_support( $mimes ) {
+		$mimes['svg'] = 'image/svg+xml';
+		return $mimes;
+	}
+	
+	/**
+	 * Correct SVG file uploads to make them pass the WP check.
+	 *
+	 * WP upload validation relies on the fileinfo PHP extension, which causes inconsistencies.
+	 * E.g. json file type is application/json but is reported as text/plain.
+	 * ref: https://core.trac.wordpress.org/ticket/45633
+	 *
+	 * @access public
+	 * @since 4.3.4
+	 * @param array       $data                      Values for the extension, mime type, and corrected filename.
+	 * @param string      $file                      Full path to the file.
+	 * @param string      $filename                  The name of the file (may differ from $file due to
+	 *                                               $file being in a tmp directory).
+	 * @param string[]    $mimes                     Array of mime types keyed by their file extension regex.
+	 * @param string|bool $real_mime                 The actual mime type or false if the type cannot be determined.
+	 *
+	 * @return array
+	 */
+	public function correct_svg_filetype( $data, $file, $filename, $mimes, $real_mime = false ) {
+		
+		// If both ext and type are.
+		if ( ! empty( $data['ext'] ) && ! empty( $data['type'] ) ) {
+			return $data;
+		}
+		
+		$wp_file_type = wp_check_filetype( $filename, $mimes );
+		
+		if ( 'svg' === $wp_file_type['ext'] ) {
+			$data['ext']  = 'svg';
+			$data['type'] = 'image/svg+xml';
+		}
+		
+		return $data;
+	}
+	
 	public function init_vars() {
 		$this->settingJsConfig = array(
 			'ajaxurl'          => admin_url( 'admin-ajax.php' ),
@@ -71,6 +117,7 @@ class EthemeAdmin{
 			'ajaxError'        => __( 'Ajax error', 'xstore' ),
 			'audioPlaceholder' => ETHEME_BASE_URI.'framework/panel/images/audio.png',
 		);
+		return $this->settingJsConfig;
 	}
 	
 	public static function get_instance() {
@@ -83,19 +130,50 @@ class EthemeAdmin{
 	/**
 	 * enqueue scripts for current panel page
 	 *
-	 * @version  1.0.1
+	 * @version  1.0.2
 	 * @since  7.0.0
 	 */
 	public function add_page_admin_script(){
 		if ( isset($this->page['script']) && ! empty($this->page['script']) ){
 			wp_enqueue_script('etheme_panel_global',ETHEME_BASE_URI.'framework/panel/js/global.min.js', array('jquery','etheme_admin_js'), false,true);
 			wp_enqueue_script('etheme_panel_'.$this->page['script'],ETHEME_BASE_URI.'framework/panel/js/'.$this->page['script'].'.js', array('jquery','etheme_admin_js'), false,true);
+            if ( $this->page['script'] == 'patcher.min' ) {
+                wp_localize_script( 'etheme_panel_'.$this->page['script'], 'XStorePanelPatcherConfig', array(
+                    'ajaxurl'          => admin_url( 'admin-ajax.php' ),
+                    'success' => esc_html__('Successfully applied', 'xstore'),
+                    'applied_btn' => '<span class="patch-unavailable success">'.
+                        '<svg width="1em" height="1em" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4.5 0C2.01911 0 0 2.01911 0 4.5C0 6.98089 2.01911 9 4.5 9C6.98089 9 9 6.98089 9 4.5C9 2.01911 6.98089 0 4.5 0ZM4.5 8.2666C2.41751 8.2666 0.7334 6.5825 0.7334 4.5C0.7334 2.41751 2.41751 0.7334 4.5 0.7334C6.5825 0.7334 8.2666 2.41751 8.2666 4.5C8.2666 6.5825 6.5825 8.2666 4.5 8.2666ZM6.80885 2.85211C6.70926 2.84306 6.6006 2.87928 6.52817 2.95171L3.85714 5.54125L2.47183 4.11972C2.3994 4.04728 2.2998 4.01107 2.19115 4.01107C2.0825 4.01107 1.9829 4.05634 1.92857 4.14688C1.86519 4.22837 1.82897 4.33702 1.83803 4.43662C1.84708 4.51811 1.8833 4.5996 1.94668 4.64487L3.58551 6.33803C3.65795 6.41046 3.74849 6.44668 3.84809 6.44668C3.93863 6.44668 4.02918 6.41046 4.10161 6.33803L7.02616 3.48592C7.09859 3.41348 7.13481 3.31388 7.13481 3.20523C7.13481 3.11469 7.09859 3.02414 7.03521 2.96982C6.98089 2.89738 6.8994 2.86117 6.80885 2.85211Z" fill="currentColor"/>
+                                    </svg>' . esc_html__('Applied', 'xstore').'</span>',
+                    'error_btn' => '<span class="patch-unavailable error">'.
+                        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 9 9">
+                            <path d="M4.5 0.009c-2.475 0-4.491 2.016-4.491 4.491s2.016 4.491 4.491 4.491 4.491-2.016 4.491-4.491-2.016-4.491-4.491-4.491zM4.5 8.271c-2.079 0-3.771-1.692-3.771-3.771s1.692-3.771 3.771-3.771 3.771 1.692 3.771 3.771-1.692 3.771-3.771 3.771zM4.59 3.492h-0.18c-0.18 0-0.315 0.099-0.315 0.234v3.294c0 0.126 0.135 0.234 0.315 0.234h0.18c0.18 0 0.315-0.099 0.315-0.234v-3.294c0-0.135-0.135-0.234-0.315-0.234zM4.59 1.737h-0.18c-0.171 0-0.315 0.144-0.315 0.315v0.54c0 0.171 0.144 0.315 0.315 0.315h0.18c0.171 0 0.315-0.144 0.315-0.315v-0.54c0-0.171-0.144-0.315-0.315-0.315z" fill="currentColor"></path>
+                        </svg>' . esc_html__('Error', 'xstore').'</span>',
+                    'apply_all' => esc_html__('Before proceeding, please confirm that you wish to apply all patches.', 'xstore'),
+                    'backup_info' => esc_html__('We recommend that you make backups of your website before making any changes.', 'xstore'),
+                    'question' => esc_html__('Before proceeding, please confirm that you wish to apply this patch.', 'xstore'),
+                    'test_mode' => isset($_GET['xstore-patches-test-mode']),
+                    'file_will_modify' => esc_html__('Please, note that the following file will be modified: {{file}}', 'xstore'),
+                    'files_will_modify' => esc_html__('Please, note that the following files will be modified: {{files}}', 'xstore')
+                ) );
+            }
 		}
+
+		if (
+			isset($this->page['template'])
+			&& ! empty($this->page['template'])
+            && etheme_is_activated()
+            && get_option('et_documentation_beacon', false) !== 'off'
+        ){
+			wp_enqueue_script('etheme_panel_documentation',ETHEME_BASE_URI.'framework/panel/js/documentation.min.js', array('jquery','etheme_admin_js'), false,true);
+		}
+
+		wp_enqueue_script( 'jquery_lazyload', ETHEME_BASE_URI . '/js/libs/jquery.lazyload.js', array('jquery') );
 	}
 	
 	public function add_page_admin_settings_scripts() {
 		
-		wp_enqueue_script( 'xstore_panel_settings_admin_js', ETHEME_BASE_URI.'framework/panel/js/settings/save_action.js', array('wp-color-picker') );
+		wp_enqueue_script( 'xstore_panel_settings_admin_js', ETHEME_BASE_URI.'framework/panel/js/settings/save_action.min.js', array('wp-color-picker') );
 		
 		wp_localize_script( 'xstore_panel_settings_admin_js', 'XStorePanelSettingsConfig', $this->settingJsConfig );
 	}
@@ -147,6 +225,10 @@ class EthemeAdmin{
 				$this->page['template'] = 'demos';
 				$this->page['script'] = 'demos.min';
 				break;
+            case 'et-panel-patcher':
+                $this->page['template'] = 'patcher';
+                $this->page['script'] = 'patcher.min';
+                break;
 			case 'et-panel-custom-fonts':
 				$this->page['template'] = 'custom-fonts';
 				break;
@@ -232,6 +314,16 @@ class EthemeAdmin{
 					$class = new Email_builder();
 					$class->et_email_builder_switch_default();
 					break;
+				case 'et_documentation_beacon':
+					$this->require_class('youtube');
+					$class = new YouTube();
+					$class->et_documentation_beacon();
+					break;
+				case 'et_email_builder_switch_dev_mode_default':
+					$this->require_class('email_builder');
+					$class = new Email_builder();
+					$class->et_email_builder_switch_dev_mode_default();
+					break;
 				case 'et_maintenance_mode_switch_default':
 					$this->require_class('maintenance_mode');
 					$class = new Maintenance_mode();
@@ -267,6 +359,36 @@ class EthemeAdmin{
                     $class = new Sales_Booster();
                     $class->et_sales_booster_fake_live_viewing_switch_default();
                     break;
+				case 'et_sales_booster_fake_product_sales_switch_default':
+					$this->require_class('sales_booster');
+					$class = new Sales_Booster();
+					$class->et_sales_booster_fake_product_sales_switch_default();
+					break;
+                case 'et_sales_booster_quantity_discounts_switch_default':
+                    $this->require_class('sales_booster');
+                    $class = new Sales_Booster();
+                    $class->et_sales_booster_quantity_discounts_switch_default();
+                    break;
+                case 'et_sales_booster_safe_checkout_switch_default':
+                    $this->require_class('sales_booster');
+                    $class = new Sales_Booster();
+                    $class->et_sales_booster_safe_checkout_switch_default();
+                    break;
+				case 'et_sales_booster_floating_menu_switch_default':
+					$this->require_class('sales_booster');
+					$class = new Sales_Booster();
+					$class->et_sales_booster_floating_menu_switch_default();
+					break;
+				case 'et_sales_booster_estimated_delivery_switch_default':
+					$this->require_class('sales_booster');
+					$class = new Sales_Booster();
+					$class->et_sales_booster_estimated_delivery_switch_default();
+					break;
+				case 'et_sales_booster_customer_reviews_images_switch_default':
+					$this->require_class('sales_booster');
+					$class = new Sales_Booster();
+					$class->et_sales_booster_customer_reviews_images_switch_default();
+					break;
 				default:
 					break;
 			}
@@ -297,6 +419,7 @@ class EthemeAdmin{
 			'system_requirements',
 			'demos',
 			'plugins',
+            'patcher',
 			'customize',
 			'email_builder',
 			'sales_booster',
@@ -384,26 +507,6 @@ class EthemeAdmin{
 			);
 		}
 		
-		if ( in_array('system_requirements', $show_pages) ) {
-			
-			
-			$server_label = esc_html__( 'Server Requirements', 'xstore' );
-			
-			if (!$result && $is_activated){
-				$server_label = esc_html__( 'Server Reqs.', 'xstore' );
-				$server_label .= ' ' . $info;
-			}
-			
-			add_submenu_page(
-				'et-panel-welcome',
-				$server_label,
-				$server_label,
-				'manage_options',
-				'et-panel-system-requirements',
-				array( $this, 'etheme_panel_page' )
-			);
-		}
-		
 		if ( $is_activated ) {
 			
 			if ( in_array('demos', $show_pages) ) {
@@ -416,6 +519,26 @@ class EthemeAdmin{
 					array( $this, 'etheme_panel_page' )
 				);
 			}
+
+            if ( in_array('system_requirements', $show_pages) ) {
+
+
+                $server_label = esc_html__( 'Server Requirements', 'xstore' );
+
+                if (!$result && $is_activated){
+                    $server_label = esc_html__( 'Server Reqs.', 'xstore' );
+                    $server_label .= ' ' . $info;
+                }
+
+                add_submenu_page(
+                    'et-panel-welcome',
+                    $server_label,
+                    $server_label,
+                    'manage_options',
+                    'et-panel-system-requirements',
+                    array( $this, 'etheme_panel_page' )
+                );
+            }
 			
 			if ( in_array('plugins', $show_pages) ) {
 				add_submenu_page(
@@ -427,8 +550,40 @@ class EthemeAdmin{
 					array( $this, 'etheme_panel_page' )
 				);
 			}
+
+            if ( in_array('patcher', $show_pages) ) {
+                add_submenu_page(
+                    'et-panel-welcome',
+                    esc_html__( 'Patcher', 'xstore' ),
+                    esc_html__( 'Patcher', 'xstore' ),
+                    'manage_options',
+                    'et-panel-patcher',
+                    array( $this, 'etheme_panel_page' )
+                );
+            }
 			
 		}
+		else {
+            if ( in_array('system_requirements', $show_pages) ) {
+
+
+                $server_label = esc_html__( 'Server Requirements', 'xstore' );
+
+                if (!$result && $is_activated){
+                    $server_label = esc_html__( 'Server Reqs.', 'xstore' );
+                    $server_label .= ' ' . $info;
+                }
+
+                add_submenu_page(
+                    'et-panel-welcome',
+                    $server_label,
+                    $server_label,
+                    'manage_options',
+                    'et-panel-system-requirements',
+                    array( $this, 'etheme_panel_page' )
+                );
+            }
+        }
 
 //        if ( ! etheme_is_activated() && ! class_exists( 'Kirki' ) ) {
 		// add_submenu_page(
@@ -515,6 +670,24 @@ class EthemeAdmin{
                         array( $this, 'etheme_panel_page' )
                     );
                 }
+
+                add_submenu_page(
+                    'et-panel-welcome',
+                    esc_html__( 'Built-in Wishlist', 'xstore' ),
+                    esc_html__( 'Built-in Wishlist', 'xstore' ),
+                    'manage_options',
+                    admin_url( '/customize.php?autofocus[section]=xstore-wishlist' ),
+                    ''
+                );
+
+                add_submenu_page(
+                    'et-panel-welcome',
+                    esc_html__( 'Built-in Compare', 'xstore' ),
+                    esc_html__( 'Built-in Compare', 'xstore' ),
+                    'manage_options',
+                    admin_url( '/customize.php?autofocus[section]=xstore-compare' ),
+                    ''
+                );
 
                 if ( $is_et_core && in_array( 'sales_booster', $show_pages ) ) {
                     add_submenu_page(
@@ -635,24 +808,24 @@ class EthemeAdmin{
 				'https://wpml.org/?aid=46060&affiliate_key=YI8njhBqLYnp&dr',
 				''
 			);
-			add_submenu_page(
-				'et-panel-welcome',
-				esc_html__( 'Hosting Service', 'xstore' ),
-				esc_html__( 'Hosting Service', 'xstore' ),
-				'manage_options',
-				'https://www.siteground.com/index.htm?afcode=37f764ca72ceea208481db0311041c62',
-				''
-			);
-            if (!$is_subscription){
-                add_submenu_page(
-                    'et-panel-welcome',
-                    esc_html__( 'Go Unlimited', 'xstore' ),
-                    esc_html__( 'Go Unlimited', 'xstore' ),
-                    'manage_options',
-                    'https://www.8theme.com/#price-section-anchor',
-                    ''
-                );
-            }
+//			add_submenu_page(
+//				'et-panel-welcome',
+//				esc_html__( 'Hosting Service', 'xstore' ),
+//				esc_html__( 'Hosting Service', 'xstore' ),
+//				'manage_options',
+//				'https://www.siteground.com/index.htm?afcode=37f764ca72ceea208481db0311041c62',
+//				''
+//			);
+//            if (!$is_subscription){
+//                add_submenu_page(
+//                    'et-panel-welcome',
+//                    esc_html__( 'Go Unlimited', 'xstore' ),
+//                    esc_html__( 'Go Unlimited', 'xstore' ),
+//                    'manage_options',
+//                    'https://www.8theme.com/#price-section-anchor',
+//                    ''
+//                );
+//            }
 
 
 //	        add_submenu_page(
@@ -775,7 +948,12 @@ class EthemeAdmin{
 		wp_localize_script( 'xstore_panel_settings_'.$script, 'XStorePanelSettings'.ucfirst($script).'Config', $this->settingJsConfig );
 	}
 	
-	public function xstore_panel_settings_repeater_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $default = '', $template = array() ) {
+	// don't name setting with key of elements it will break saving for this field
+	public function xstore_panel_settings_repeater_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $default = '', $template = array(), $active_callbacks = array(), $custom_item_title = false ) {
+
+        wp_enqueue_script( 'jquery-ui-sortable');
+        wp_enqueue_script("jquery-ui-draggable");
+
 		$this->enqueue_settings_scripts( 'sortable' );
 		$this->enqueue_settings_scripts( 'repeater' );
 		
@@ -817,10 +995,39 @@ class EthemeAdmin{
 //		}
 		if ( count($sorted_list_parsed))
 			$sorted_list_parsed = array_merge($sorted_list_parsed, $default);
-		
+
+        $class = '';
+        $to_hide = false;
+        $attr = array();
+        if ( count($active_callbacks) ) {
+
+            $this->enqueue_settings_scripts('callbacks');
+
+            $attr['data-callbacks'] = array();
+            foreach ( $active_callbacks as $key) {
+                if ( isset($settings[ $key['section'] ]) ) {
+                    if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+                    }
+                    else {
+                        $to_hide = true;
+                    }
+                }
+                elseif ( $key['value'] != $key['default'] ) {
+                    $to_hide = true;
+                }
+                $attr['data-callbacks'][] = $key['name'].':'.$key['value'];
+            }
+            $attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
+            unset($attr['data-callbacks']);
+        }
+
+        if ( $to_hide ) {
+            $class .= ' hidden';
+        }
+
 		ob_start();
 		?>
-		<div class="xstore-panel-option xstore-panel-repeater">
+		<div class="xstore-panel-option xstore-panel-repeater<?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
 			<div class="xstore-panel-option-title">
 				
 				<h4><?php echo esc_html( $setting_title ); ?>:</h4>
@@ -839,7 +1046,7 @@ class EthemeAdmin{
                             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" class="down-arrow" fill="currentColor" width=".85em" height=".85em" viewBox="0 0 24 24">
                                 <path d="M23.784 6.072c-0.264-0.264-0.672-0.264-0.984 0l-10.8 10.416-10.8-10.416c-0.264-0.264-0.672-0.264-0.984 0-0.144 0.12-0.216 0.312-0.216 0.48 0 0.192 0.072 0.36 0.192 0.504l11.28 10.896c0.096 0.096 0.24 0.192 0.48 0.192 0.144 0 0.288-0.048 0.432-0.144l0.024-0.024 11.304-10.92c0.144-0.12 0.24-0.312 0.24-0.504 0.024-0.168-0.048-0.36-0.168-0.48z"></path>
                             </svg>
-							<?php echo esc_html__('Item', 'xstore') . ' ' . $i; ?>
+							<?php if ( $custom_item_title ) echo esc_html($custom_item_title) . ' ' . $i; else echo esc_html__('Item', 'xstore') . ' ' . $i; ?>
 						</h4>
 						<div class="settings">
 							<div class="settings-inner">
@@ -863,7 +1070,7 @@ class EthemeAdmin{
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" class="down-arrow" fill="currentColor" width=".85em" height=".85em" viewBox="0 0 24 24">
                             <path d="M23.784 6.072c-0.264-0.264-0.672-0.264-0.984 0l-10.8 10.416-10.8-10.416c-0.264-0.264-0.672-0.264-0.984 0-0.144 0.12-0.216 0.312-0.216 0.48 0 0.192 0.072 0.36 0.192 0.504l11.28 10.896c0.096 0.096 0.24 0.192 0.48 0.192 0.144 0 0.288-0.048 0.432-0.144l0.024-0.024 11.304-10.92c0.144-0.12 0.24-0.312 0.24-0.504 0.024-0.168-0.048-0.36-0.168-0.48z"></path>
                         </svg>
-						<?php echo esc_html__('Item', 'xstore') . ' {{item_number}}'; ?>
+                        <?php if ( $custom_item_title ) echo esc_html($custom_item_title) . ' {{item_number}}' ; else echo esc_html__('Item', 'xstore') . ' {{item_number}}'; ?>
 					</h4>
 					<div class="settings">
 						<div class="settings-inner">
@@ -1125,8 +1332,8 @@ class EthemeAdmin{
 	 * @since 1.0.0
 	 *
 	 */
-	public function xstore_panel_settings_switcher_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $default = false ) {
-		
+	public function xstore_panel_settings_switcher_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $default = false, $active_callbacks = array() ) {
+	 
 		$this->enqueue_settings_scripts('switch');
 		
 		$settings = $this->xstore_panel_section_settings;
@@ -1145,10 +1352,39 @@ class EthemeAdmin{
 		else {
 			$value = $default;
 		}
+
+        $class = '';
+        $to_hide = false;
+        $attr = array();
+        if ( count($active_callbacks) ) {
+
+            $this->enqueue_settings_scripts('callbacks');
+
+            $attr['data-callbacks'] = array();
+            foreach ( $active_callbacks as $key) {
+                if ( isset($settings[ $key['section'] ]) ) {
+                    if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+                    }
+                    else {
+                        $to_hide = true;
+                    }
+                }
+                elseif ( $key['value'] != $key['default'] ) {
+                    $to_hide = true;
+                }
+                $attr['data-callbacks'][] = $key['name'].':'.$key['value'];
+            }
+            $attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
+            unset($attr['data-callbacks']);
+        }
+
+        if ( $to_hide ) {
+            $class .= ' hidden';
+        }
 		
 		ob_start(); ?>
 		
-		<div class="xstore-panel-option xstore-panel-option-switcher">
+		<div class="xstore-panel-option xstore-panel-option-switcher<?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
 			<div class="xstore-panel-option-input">
 				<h4>
 					<label for="<?php echo esc_attr($setting); ?>">
@@ -1163,9 +1399,9 @@ class EthemeAdmin{
 				</h4>
 			</div>
 			<div class="xstore-panel-option-title">
-				<?php if ( $setting_descr ) : ?>
-					<p class="description"><?php echo esc_attr($setting_descr); ?></p>
-				<?php endif; ?>
+				<?php if ( $setting_descr ) :
+					echo '<p class="description">'. $setting_descr . '</p>';
+				endif; ?>
 			</div>
 		</div>
 		
@@ -1182,16 +1418,45 @@ class EthemeAdmin{
 			$selected_value = $default;
 		}
 		
+		$class = '';
+		$to_hide = false;
+		$attr = array();
+		if ( count($active_callbacks) ) {
+			
+			$this->enqueue_settings_scripts('callbacks');
+			
+			$attr['data-callbacks'] = array();
+			foreach ( $active_callbacks as $key) {
+				if ( isset($settings[ $key['section'] ]) ) {
+					if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+					}
+					else {
+						$to_hide = true;
+					}
+				}
+                elseif ( $key['value'] != $key['default'] ) {
+					$to_hide = true;
+				}
+				$attr['data-callbacks'][] = $key['name'].':'.$key['value'];
+			}
+			$attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
+			unset($attr['data-callbacks']);
+		}
+		
+		if ( $to_hide ) {
+			$class .= ' hidden';
+		}
+		
 		ob_start(); ?>
 		
-		<div class="xstore-panel-option xstore-panel-option-select">
+		<div class="xstore-panel-option xstore-panel-option-select<?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
 			<div class="xstore-panel-option-title">
 				
 				<h4><?php echo esc_html( $setting_title ); ?>:</h4>
 				
-				<?php if ( $setting_descr ) : ?>
-					<p class="description"><?php echo esc_html( $setting_descr ); ?></p>
-				<?php endif; ?>
+				<?php if ( $setting_descr ) :
+                    echo '<p class="description">' . $setting_descr . '</p>';
+				endif; ?>
 			
 			</div>
 			<div class="xstore-panel-option-select">
@@ -1249,7 +1514,7 @@ class EthemeAdmin{
 		<?php echo ob_get_clean();
 	}
 	
-	public function xstore_panel_settings_slider_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $min = 0, $max = 50, $default = 12, $step = 1, $postfix = '' ) {
+	public function xstore_panel_settings_slider_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $min = 0, $max = 50, $default = 12, $step = 1, $postfix = '', $active_callbacks = array() ) {
 		
 		$this->enqueue_settings_scripts('slider');
 		
@@ -1261,9 +1526,38 @@ class EthemeAdmin{
 			$value = $default;
 		}
 		
+		$class = '';
+		$to_hide = false;
+		$attr = array();
+		if ( count($active_callbacks) ) {
+			
+			$this->enqueue_settings_scripts('callbacks');
+			
+			$attr['data-callbacks'] = array();
+			foreach ( $active_callbacks as $key) {
+				if ( isset($settings[ $key['section'] ]) ) {
+					if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+					}
+					else {
+						$to_hide = true;
+					}
+				}
+                elseif ( $key['value'] != $key['default'] ) {
+					$to_hide = true;
+				}
+				$attr['data-callbacks'][] = $key['name'].':'.$key['value'];
+			}
+			$attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
+			unset($attr['data-callbacks']);
+		}
+		
+		if ( $to_hide ) {
+			$class .= ' hidden';
+		}
+		
 		ob_start(); ?>
 		
-		<div class="xstore-panel-option xstore-panel-option-slider">
+		<div class="xstore-panel-option xstore-panel-option-slider<?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
 			<div class="xstore-panel-option-title">
 				
 				<h4><?php echo esc_html( $setting_title ); ?>:</h4>
@@ -1300,56 +1594,117 @@ class EthemeAdmin{
 	 * @since 1.0.0
 	 *
 	 */
-public function xstore_panel_settings_tab_field_start($title, $active_callbacks = array()) {
+    public function xstore_panel_settings_tab_field_start($title, $active_callbacks = array()) {
+
+        $this->enqueue_settings_scripts('tab');
+
+        $class = '';
+        $to_hide = false;
+        $attr = array();
+        if ( count($active_callbacks) ) {
+
+            $this->enqueue_settings_scripts('callbacks');
+
+            $attr['data-callbacks'] = array();
+            foreach ( $active_callbacks as $key) {
+                if ( isset($settings[ $key['section'] ]) ) {
+                    if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+                    }
+                    else {
+                        $to_hide = true;
+                    }
+                }
+                elseif ( $key['value'] != $key['default'] ) {
+                    $to_hide = true;
+                }
+                $attr['data-callbacks'][] = $key['name'].':'.$key['value'];
+            }
+            $attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
+            unset($attr['data-callbacks']);
+        }
+
+        if ( $to_hide ) {
+            $class .= ' hidden';
+        }
+
+        ?>
+        <div class="xstore-panel-option xstore-panel-option-tab <?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
+            <?php echo '<h4 class="tab-title">' . $title; ?>
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" class="down-arrow" fill="currentColor" width=".85em" height=".85em" viewBox="0 0 24 24">
+                <path d="M23.784 6.072c-0.264-0.264-0.672-0.264-0.984 0l-10.8 10.416-10.8-10.416c-0.264-0.264-0.672-0.264-0.984 0-0.144 0.12-0.216 0.312-0.216 0.48 0 0.192 0.072 0.36 0.192 0.504l11.28 10.896c0.096 0.096 0.24 0.192 0.48 0.192 0.144 0 0.288-0.048 0.432-0.144l0.024-0.024 11.304-10.92c0.144-0.12 0.24-0.312 0.24-0.504 0.024-0.168-0.048-0.36-0.168-0.48z"></path>
+            </svg>
+            <?php echo '</h4>'; ?>
+            <div class="tab-content">
+            <?php
+            }
+
+    public function xstore_panel_settings_tab_field_end() {
+                ?>
+            </div>
+        </div>
+        <?php
+    }
 	
-	$this->enqueue_settings_scripts('tab');
-	
-	$class = '';
-	$to_hide = false;
-	$attr = array();
-	if ( count($active_callbacks) ) {
+	public function xstore_panel_settings_input_number_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $min = 0, $max = 100, $default = '', $step = 1, $active_callbacks = array() ) {
+
+		$settings = $this->xstore_panel_section_settings;
 		
-		$this->enqueue_settings_scripts('callbacks');
+		if ( isset( $settings[ $section ][ $setting ] ) ) {
+			$value = $settings[ $section ][ $setting ];
+		} else {
+			$value = $default;
+		}
 		
-		$attr['data-callbacks'] = array();
-		foreach ( $active_callbacks as $key) {
-			if ( isset($settings[ $key['section'] ]) ) {
-				if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+		$class = '';
+		$to_hide = false;
+		$attr = array();
+		if ( count($active_callbacks) ) {
+			
+			$this->enqueue_settings_scripts('callbacks');
+			
+			$attr['data-callbacks'] = array();
+			foreach ( $active_callbacks as $key) {
+				if ( isset($settings[ $key['section'] ]) ) {
+					if ( isset( $settings[ $key['section'] ][ $key['name'] ] ) && $settings[ $key['section'] ][ $key['name'] ] == $key['value'] ) {
+					}
+					else {
+						$to_hide = true;
+					}
 				}
-				else {
+                elseif ( $key['value'] != $key['default'] ) {
 					$to_hide = true;
 				}
+				$attr['data-callbacks'][] = $key['name'].':'.$key['value'];
 			}
-			elseif ( $key['value'] != $key['default'] ) {
-				$to_hide = true;
-			}
-			$attr['data-callbacks'][] = $key['name'].':'.$key['value'];
+			$attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
+			unset($attr['data-callbacks']);
 		}
-		$attr[] = 'data-callbacks="'. implode(',', $attr['data-callbacks']) . '"';
-		unset($attr['data-callbacks']);
+		
+		if ( $to_hide ) {
+			$class .= ' hidden';
+		}
+		
+		ob_start(); ?>
+
+        <div class="xstore-panel-option xstore-panel-option-input<?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
+            <div class="xstore-panel-option-title">
+
+                <h4><?php echo esc_html( $setting_title ); ?>:</h4>
+				
+				<?php if ( $setting_descr ) : ?>
+                    <p class="description"><?php echo esc_html( $setting_descr ); ?></p>
+				<?php endif; ?>
+
+            </div>
+            <div class="xstore-panel-option-input">
+                <input type="number" id="<?php echo esc_attr($setting); ?>" name="<?php echo esc_attr($setting); ?>"
+                       min="<?php echo esc_attr($min); ?>" max="<?php echo esc_attr($max); ?>" step="<?php echo esc_attr($step); ?>"
+                       value="<?php echo esc_attr($value); ?>">
+            </div>
+        </div>
+		
+		<?php echo ob_get_clean();
 	}
-	
-	if ( $to_hide ) {
-		$class .= ' hidden';
-	}
-	
-	?>
-	<div class="xstore-panel-option xstore-panel-option-tab <?php echo esc_attr($class); ?>" <?php echo implode(' ', $attr); ?>>
-		<?php echo '<h4 class="tab-title">' . $title; ?>
-		<svg version="1.1" xmlns="http://www.w3.org/2000/svg" class="down-arrow" fill="currentColor" width=".85em" height=".85em" viewBox="0 0 24 24">
-			<path d="M23.784 6.072c-0.264-0.264-0.672-0.264-0.984 0l-10.8 10.416-10.8-10.416c-0.264-0.264-0.672-0.264-0.984 0-0.144 0.12-0.216 0.312-0.216 0.48 0 0.192 0.072 0.36 0.192 0.504l11.28 10.896c0.096 0.096 0.24 0.192 0.48 0.192 0.144 0 0.288-0.048 0.432-0.144l0.024-0.024 11.304-10.92c0.144-0.12 0.24-0.312 0.24-0.504 0.024-0.168-0.048-0.36-0.168-0.48z"></path>
-		</svg>
-		<?php echo '</h4>'; ?>
-		<div class="tab-content">
-			<?php
-			}
-			
-			public function xstore_panel_settings_tab_field_end() {
-			?>
-		</div>
-	</div>
-	<?php
-}
 	
 	public function xstore_panel_settings_input_text_field( $section = '', $setting = '', $setting_title = '', $setting_descr = '', $placeholder = '', $default = '', $active_callbacks = array() ) {
 		
@@ -1397,9 +1752,9 @@ public function xstore_panel_settings_tab_field_start($title, $active_callbacks 
 				
 				<h4><?php echo esc_html( $setting_title ); ?>:</h4>
 				
-				<?php if ( $setting_descr ) : ?>
-					<p class="description"><?php echo esc_html( $setting_descr ); ?></p>
-				<?php endif; ?>
+				<?php if ( $setting_descr ) :
+					echo '<p class="description">' . $setting_descr . '</p>';
+				endif; ?>
 			
 			</div>
 			<div class="xstore-panel-option-input">
@@ -1492,9 +1847,9 @@ public function xstore_panel_settings_tab_field_start($title, $active_callbacks 
 				
 				<h4><?php echo esc_html( $setting_title ); ?>:</h4>
 				
-				<?php if ( $setting_descr ) : ?>
-					<p class="description"><?php echo esc_html($setting_descr); ?></p>
-				<?php endif; ?>
+				<?php if ( $setting_descr ) :
+					echo '<p class="description">' . $setting_descr . '</p>';
+				endif; ?>
 			
 			</div>
 			<div class="xstore-panel-option-input">
@@ -1508,21 +1863,45 @@ public function xstore_panel_settings_tab_field_start($title, $active_callbacks 
 	}
 	
 	public function xstore_panel_settings_save() {
-		$all_settings            = $this->xstore_panel_section_settings;
+        $settings_name = isset( $_POST['settings_name'] ) ? $_POST['settings_name'] : $this->settings_name;
+		$all_settings            = (array)get_option( $settings_name, array() );
 		
 		$local_settings          = isset( $_POST['settings'] ) ? $_POST['settings'] : array();
-		$local_settings_key      = isset( $_POST['type'] ) ? $_POST['type'] : 'general';
+		if ( isset( $_POST['type'] ) ) {
+			$local_settings_key = $_POST['type'];
+		}
+		else {
+			switch ( $settings_name ) {
+				case 'xstore_sales_booster_settings':
+					$local_settings_key = 'fake_sale_popup';
+					break;
+				default:
+					$local_settings_key = 'general';
+			}
+		}
 		$updated                 = false;
 		$local_settings_parsed   = array();
 		
 		foreach ( $local_settings as $setting ) {
-			$local_settings_parsed[ $local_settings_key ][ $setting['name'] ] = $setting['value'];
+//			$local_settings_parsed[ $local_settings_key ][ $setting['name'] ] = $setting['value'];
+            // if ( $this->settings_name == 'xstore_sales_booster_settings' )
+			$local_settings_parsed[ $local_settings_key ][ $setting['name'] ] = stripslashes( $setting['value'] );
 		}
 		
 		$all_settings = array_merge( $all_settings, $local_settings_parsed );
 		
-		update_option( $this->settings_name, $all_settings );
+		update_option( $settings_name, $all_settings );
 		$updated = true;
+		
+		if ( in_array($local_settings_key, array('fake_live_viewing', 'fake_product_sales'))) {
+			$product_ids = (array)get_transient('etheme_'.$local_settings_key.'_ids', array());
+			if ( count($product_ids) ) {
+				foreach ($product_ids as $product_id) {
+					if ( $product_id )
+						delete_transient('etheme_'.$local_settings_key.'_' . $product_id);
+				}
+			}
+		}
 		
 		$this_response['response'] = array(
 			'msg'  => '<h4 style="margin-bottom: 15px;">' . ( ( $updated ) ? esc_html__( 'Settings successfully saved!', 'xstore' ) : esc_html__( 'Settings saving error!', 'xstore' ) ) . '</h4>',
@@ -1531,6 +1910,11 @@ public function xstore_panel_settings_tab_field_start($title, $active_callbacks 
 		
 		wp_send_json( $this_response );
 	}
+
+	public function et_close_installation_video(){
+		add_option('et_close_installation_video', true, '', false);
+        wp_send_json(array('result'=> 'success'));
+    }
 }
 $EtAdmin = new EthemeAdmin();
 $EtAdmin->main_construct();

@@ -88,7 +88,7 @@ if(!function_exists('etheme_add_admin_script')) {
 	    wp_enqueue_script('farbtastic');
 //	    wp_enqueue_script('et_masonry', get_template_directory_uri().'/js/jquery.masonry.min.js',array(),false,true);
      
-	    wp_enqueue_script('etheme_admin_js', ETHEME_CODE_JS.'admin-scripts-new.js', array(), false,true);
+	    wp_enqueue_script('etheme_admin_js', ETHEME_CODE_JS.'admin-scripts.min.js', array(), false,true);
 
     	wp_localize_script( 'etheme_admin_js', 'et_variation_gallery_admin', array(
 			'choose_image' => esc_html__( 'Choose Image', 'xstore' ),
@@ -112,48 +112,6 @@ if(!function_exists('etheme_add_admin_script')) {
      
     	}
 
-	}
-}
-
-add_action('wp_ajax_etheme_deactivate_theme', 'etheme_deactivate_theme');
-if( ! function_exists( 'etheme_deactivate_theme' ) ) {
-	function etheme_deactivate_theme() {
-	    $url  = 'http://8theme.com/import/xstore-demos/1/versions/';
-
-	    $domain = get_option('siteurl'); //or home
-		$domain = str_replace('http://', '', $domain);
-		$domain = str_replace('https://', '', $domain);
-		$domain = str_replace('www', '', $domain); //add the . after the www if you don't want it
-
-		$activated_data = get_option( 'etheme_activated_data' );
-		$activated_data = ( isset( $activated_data['purchase'] ) && ! empty( $activated_data['purchase'] ) ) ? $activated_data['purchase'] : '';
-
-	    $url = add_query_arg(
-			array(
-				'deactivate' => true,
-				'data' => json_encode(
-					array(
-						'theme'=> ETHEME_THEME_VERSION,
-						'plugin' => ET_CORE_VERSION,
-						'code' => $activated_data,
-						'domain' => $domain
-					)
-				),
-			),
-		$url );
-	    $data = wp_remote_get($url);
-
-        $status = 'deleted';
-        $data = array(
-            'api_key' => 0,
-            'theme' => 0,
-            'purchase' => 0,
-        );
-        update_option( 'etheme_activated_data', maybe_unserialize( $data ) );
-        update_option( 'envato_purchase_code_15780546', '' );
-
-        echo json_encode( $status );
-        die();
 	}
 }
 
@@ -214,6 +172,12 @@ if ( ! function_exists( 'et_gallery_admin_html' ) ):
 			if ( !etheme_get_option('enable_variation_gallery', 0) ) {return;}
 			$variation_id   = absint( $variation->ID );
 			$gallery_images = get_post_meta( $variation_id, 'et_variation_gallery_images', true );
+			if ( !(bool)$gallery_images) {
+			    // Compatibility with WooCommerce Additional Variation Images plugin
+			    $gallery_images = get_post_meta($variation_id, '_wc_additional_variation_images', true);
+                if ( (bool)$gallery_images )
+                    $gallery_images = array_filter( explode( ',', $gallery_images ) );
+            }
 			?>
             <div class="form-row form-row-full et-variation-gallery-wrapper">
                 <h4><?php esc_html_e( 'Variation Image Gallery', 'xstore' ) ?></h4>
@@ -246,56 +210,61 @@ if ( ! function_exists( 'et_gallery_admin_html' ) ):
 		}
 	endif;
 	
-	//-------------------------------------------------------------------------------
-	// Save Gallery
-	//-------------------------------------------------------------------------------
-	if ( ! function_exists( 'et_save_variation_gallery' ) ):
-		function et_save_variation_gallery( $variation_id, $loop ) {
-			if ( !etheme_get_option('enable_variation_gallery', 0) ) {return;}
+//-------------------------------------------------------------------------------
+// Save Gallery
+//-------------------------------------------------------------------------------
+if ( ! function_exists( 'et_save_variation_gallery' ) ):
+    function et_save_variation_gallery( $variation_id, $loop ) {
+        if ( !etheme_get_option('enable_variation_gallery', 0) ) {return;}
 
-			if ( isset( $_POST[ 'et_variation_gallery' ] ) ) {
-				if ( isset( $_POST[ 'et_variation_gallery' ][ $variation_id ] ) ) {
+        if ( isset( $_POST[ 'et_variation_gallery' ] ) ) {
+            if ( isset( $_POST[ 'et_variation_gallery' ][ $variation_id ] ) ) {
 
-					$gallery_image_ids = (array) array_map( 'absint', $_POST[ 'et_variation_gallery' ][ $variation_id ] );
-					update_post_meta( $variation_id, 'et_variation_gallery_images', $gallery_image_ids );
-				} else {
-					delete_post_meta( $variation_id, 'et_variation_gallery_images' );
-				}
-			} else {
-				delete_post_meta( $variation_id, 'et_variation_gallery_images' );
-			}
-		}
-	endif;
+                $gallery_image_ids = (array) array_map( 'absint', $_POST[ 'et_variation_gallery' ][ $variation_id ] );
+                update_post_meta( $variation_id, 'et_variation_gallery_images', $gallery_image_ids );
+            } else {
+                delete_post_meta( $variation_id, 'et_variation_gallery_images' );
+            }
+        } else {
+            delete_post_meta( $variation_id, 'et_variation_gallery_images' );
+        }
+    }
+endif;
 	
-//add_action( 'woocommerce_product_after_variable_attributes', 'et_extra_variation_options', 10, 3 );
+add_action( 'woocommerce_product_after_variable_attributes', 'et_extra_variation_options', 10, 3 );
 if ( !function_exists('et_extra_variation_options')) {
     function et_extra_variation_options($loop, $variation_data, $variation) {
         if ( !etheme_get_option('variable_products_detach', false) ) {return;}
         ?>
         <div>
             <?php
-                woocommerce_wp_text_input(
-						array(
-							'id'            => "_et_product_variation_title{$loop}",
-							'name'          => "_et_product_variation_title[{$loop}]",
-							'value'         => get_post_meta( $variation->ID, '_et_product_variation_title', true ),
-							'placeholder'   => esc_html__('Custom variation title', 'xstore'),
-							'type'          => 'text',
-						)
-					);
+                woocommerce_wp_text_input( array(
+                    'id'    => "_et_product_variation_title[$loop]",
+                    'label' => __( 'Custom variation title', 'xstore' ),
+                    'type'  => 'text',
+                    'value' => get_post_meta( $variation->ID, '_et_product_variation_title', true )
+                    )
+                );
             ?>
         </div>
         <?php
     }
 }
 
-add_action( 'woocommerce_save_product_variation', 'et_save_extra_variation_options', 10, 2 );
+add_action( 'woocommerce_save_product_variation', 'et_save_extra_variation_options', 100, 2 );
+//add_action( 'woocommerce_new_product_variation', 'et_save_extra_variation_options', 10 );
+//add_action( 'woocommerce_update_product_variation', 'et_save_extra_variation_options', 10 );
 function et_save_extra_variation_options($variation_id, $i) {
-//    $custom_title = $_POST['_et_product_variation_title'][$i];
-//    if ( ! empty( $custom_title ) ) {
-//        update_post_meta( $variation_id, '_et_product_variation_title', esc_attr( $custom_title ) );
-//    } else {
-//    	delete_post_meta( $variation_id, '_et_product_variation_title' );
+//    if ( etheme_get_option( 'variable_products_detach', false ) ) {
+
+        $custom_title = (isset($_POST['_et_product_variation_title']) && isset($_POST['_et_product_variation_title'][$i])) ? $_POST['_et_product_variation_title'][$i] : false;
+
+        //$custom_title = $_POST['_et_product_variation_title'][$i];
+        if ( ! empty( $custom_title ) ) {
+            update_post_meta( $variation_id, '_et_product_variation_title', esc_attr( $custom_title ) );
+        } else {
+            delete_post_meta( $variation_id, '_et_product_variation_title' );
+        }
 //    }
     
     // sale price time start/end
@@ -312,6 +281,13 @@ function et_save_extra_variation_options($variation_id, $i) {
     } else {
     	delete_post_meta( $variation_id, '_sale_price_time_end' );
     }
+    
+    $_et_gtin = $_POST['_et_gtin'][$i];
+    if ( ! empty( $_et_gtin ) ) {
+        update_post_meta( $variation_id, '_et_gtin', esc_attr( $_et_gtin ) );
+    } else {
+    	delete_post_meta( $variation_id, '_et_gtin' );
+    }
 }
 
 add_action( 'woocommerce_product_options_pricing', 'et_general_product_data_time_fields' );
@@ -326,8 +302,8 @@ function et_general_product_data_time_fields() {
 	                'id' => '_sale_price_time_start',
 	                'label' => esc_html('Sale price time start', 'xstore'),
 	                'placeholder' => esc_html( 'From&hellip; 12:00', 'xstore'),
-                    'desc_tip' => 'true', '
-                    description' => __( 'Only when sale price schedule is enabled', 'xstore' ),
+                    'desc_tip' => 'true',
+                    'description' => __( 'Only when sale price schedule is enabled', 'xstore' ),
                 )
             );
 	woocommerce_wp_text_input(
@@ -335,12 +311,41 @@ function et_general_product_data_time_fields() {
 	                'id' => '_sale_price_time_end',
 	                'label' => esc_html('Sale price time end', 'xstore'),
 	                'placeholder' => esc_html( 'To&hellip; 12:00', 'xstore' ),
-                    'desc_tip' => 'true', '
-                    description' => __( 'Only when sale price schedule is enabled', 'xstore' ),
+                    'desc_tip' => 'true',
+                    'description' => __( 'Only when sale price schedule is enabled', 'xstore' ),
                 )
             );
 
 }
+
+add_action('woocommerce_product_options_sku', function() {
+//    global $product_object;
+   woocommerce_wp_text_input(
+            array(
+                'id'          => '_et_gtin',
+//                'value'       => get_post_meta( $product_object->ID, '_et_gtin', true ),
+                'placeholder'   => esc_html__('GTIN code', 'xstore'),
+                'label'         => '<abbr title="' . esc_attr__( 'Global Trade Item Number', 'xstore' ) . '">' . esc_html__( 'GTIN', 'xstore' ) . '</abbr>',
+                'desc_tip'      => true,
+                'description'   => __( 'Such identifiers are used to look up product information in a database (often by entering the number through a barcode scanner pointed at an actual product) which may belong to a retailer, manufacturer, collector, researcher, or other entity.', 'xstore' ),
+            )
+        );
+});
+add_action('woocommerce_variation_options', function($loop, $variation_data, $variation) {
+    woocommerce_wp_text_input(
+        array(
+            'id'            => "_et_gtin{$loop}",
+            'name'          => "_et_gtin[{$loop}]",
+            'value'         => get_post_meta( $variation->ID, '_et_gtin', true ),
+            'placeholder'   => esc_html__('GTIN code', 'xstore'),
+            'label'         => '<abbr title="' . esc_attr__( 'Global Trade Item Number', 'xstore' ) . '">' . esc_html__( 'GTIN', 'xstore' ) . '</abbr>',
+            'desc_tip'      => true,
+            'description'   => __( 'Such identifiers are used to look up product information in a database (often by entering the number through a barcode scanner pointed at an actual product) which may belong to a retailer, manufacturer, collector, researcher, or other entity.', 'xstore' ),
+            'wrapper_class' => 'form-row',
+        )
+    );
+}, 10, 3);
+
 // -----------------------------------------
 // 1. Add custom field input @ Product Data > Variations > Single Variation
   
@@ -378,19 +383,6 @@ function et_add_custom_field_to_variations( $loop, $variation_data, $variation )
 	</div>
 
 <?php }
-  
-// -----------------------------------------
-// 3. Store custom field value into variation data
-  
-add_filter( 'woocommerce_available_variation', 'et_add_custom_field_variation_data' );
- 
-function et_add_custom_field_variation_data( $variations ) {
-    $time_start = get_post_meta( $variations[ 'variation_id' ], '_sale_price_time_start', true );
-    $time_end = get_post_meta( $variations[ 'variation_id' ], '_sale_price_time_end', true );
-    $variations['_sale_price_time_start'] = '<p class="form-row form-row-first">'.esc_html__('Sale price time start:', 'xstore') . '<span>' . ($time_start == 'Array' ? '' : $time_start) . '</span></p>';
-    $variations['_sale_price_time_end'] = '<p class="form-row form-row-last">'.esc_html__('Sale price time end:', 'xstore') . '<span>' . ($time_end == 'Array' ? '' : $time_end) . '</span></p>';
-    return $variations;
-}
 
 // Hook to save the data value from the custom fields 
 add_action( 'woocommerce_process_product_meta', 'et_save_general_product_data_time_fields' );
@@ -398,7 +390,11 @@ function et_save_general_product_data_time_fields( $post_id ) {
 	$_sale_price_time_start = $_POST['_sale_price_time_start']; 
 	update_post_meta( $post_id, '_sale_price_time_start', esc_attr( $_sale_price_time_start ) ); 
 	$_sale_price_time_end = $_POST['_sale_price_time_end']; 
-	update_post_meta( $post_id, '_sale_price_time_end', esc_attr( $_sale_price_time_end ) ); 
+	update_post_meta( $post_id, '_sale_price_time_end', esc_attr( $_sale_price_time_end ) );
+	
+	$_et_gtin = $_POST['_et_gtin'];
+	if ( !is_array($_et_gtin) )
+	    update_post_meta( $post_id, '_et_gtin', esc_attr( $_et_gtin ) );
 }
 
 // Add Bought Together
@@ -432,7 +428,7 @@ function et_add_product_bought_together_panel_tab() {
         <?php
     }
 
-    function et_add_product_bought_together_panel_data() {
+function et_add_product_bought_together_panel_data() {
         global $post;
         $exclude_types = wc_get_product_types();
         unset($exclude_types['simple']);
@@ -464,10 +460,10 @@ function et_add_product_bought_together_panel_tab() {
         <?php
     }
 
-   function et_save_product_bought_together_panel_data( $post_id ) {
-        $et_bought_together = isset( $_POST['et_bought_together_ids'] ) ? array_map( 'intval', (array) $_POST['et_bought_together_ids'] ) : array();
-        update_post_meta( $post_id, '_et_bought_together_ids', $et_bought_together );
-    }
+function et_save_product_bought_together_panel_data( $post_id ) {
+    $et_bought_together = isset( $_POST['et_bought_together_ids'] ) ? array_map( 'intval', (array) $_POST['et_bought_together_ids'] ) : array();
+    update_post_meta( $post_id, '_et_bought_together_ids', $et_bought_together );
+}
 
 // WooCommerce settings
 add_filter('woocommerce_account_settings', function($settings) {
@@ -510,6 +506,7 @@ add_filter('woocommerce_account_settings', function($settings) {
                 'type'     => 'textarea',
                 'css'      => 'min-width:300px;',
                 'desc_tip'     => __( 'You can add simple html or staticblock shortcode', 'xstore' ),
+                'autoload'      => false
               );
               
               $updated_settings[] = array(
@@ -594,3 +591,24 @@ add_action( 'admin_enqueue_scripts', function ($hook){
 add_action('vc_backend_editor_enqueue_js_css', function () {
     wp_enqueue_script('etheme_admin_vc_js', ETHEME_CODE_JS.'admin-vc.js', array('vc-backend-actions-js'), false,true);
 });
+
+// remove fake sales transients for products in order on it's status change action
+if ( get_option('xstore_sales_booster_settings_fake_product_sales', false) ) {
+    add_action( 'woocommerce_order_status_changed', function ($order_id) {
+        
+         $orders = get_posts( array(
+                    'numberposts' => -1,
+                    'post_type'   => array( 'shop_order' ),
+                    'post_status' => array_keys(wc_get_order_statuses()),
+                    'post__in' => array($order_id)
+                ));
+         
+                foreach ( $orders as $order_id ) {
+                    $order = wc_get_order( $order_id );
+                    foreach ( $order->get_items() as $item_id => $item_values ) {
+                        delete_transient( 'etheme_fake_product_sales_' . $item_values->get_product_id() );
+                    }
+                }
+            
+     }, 30, 1 );
+}
