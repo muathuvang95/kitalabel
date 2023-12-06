@@ -1090,9 +1090,6 @@ function nb_ajax_qty_cart() {
                 if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
                     $material_name = $val['value_name'];
                 }
-                if( !isset($_origin_field['nbd_type']) ) {
-                    $finishing_name = $val['value_name'];
-                }
             }
             if( isset($_area_name) && isset($size_name) && isset($material_name)  && isset($item_combination['options']) ) {
                 $side = $item_combination['options'][$_area_name][$size_name][$material_name];
@@ -1193,9 +1190,6 @@ function nb_custom_update_cart() {
                     }
                     if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
                         $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                    }
-                    if( !isset($_origin_field['nbd_type']) ) {
-                        $finishing_name = $_origin_field['general']['attributes']['options'][$val]['name'];
                     }
                 }
                 if( isset($_area_name) && isset($size_name) && isset($material_name) && isset($item_combination['options']) ) {

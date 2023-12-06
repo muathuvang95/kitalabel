@@ -167,6 +167,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                         $has_file = false;
                     }
                 }
+            } else {
+                $has_file = false;
             }
             $result = array(
                 'created' => $has_file ? true : false,
