@@ -1557,6 +1557,20 @@ body.woocommerce-checkout table.order_details td.product-total {
 	background: #ECECEC;
     padding: 20px;
 }
+div.button.trash-icon-upload-design {
+	background: #f00;
+    color: #fff;
+    padding: 0.75rem;
+    cursor: pointer;
+}
+div.button.edit-upload-design {
+	padding: 0.75rem;
+	line-height: 1.2;
+	color:#fff;
+    background-color: #333;
+    border-color: #333;
+    cursor: pointer;
+}
 
 @media only screen and (max-width: 768px) {
 	.page-template-default .nbd-sidebar-con-inner ul {

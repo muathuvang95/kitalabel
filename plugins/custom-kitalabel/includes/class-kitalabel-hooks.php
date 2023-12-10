@@ -141,7 +141,9 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
         public function kitalabel_ajax() {
             $ajax_events = array(
                 'kitalbel_convert_pdf_item' => true,
-                'kitalabel_download_all' => true
+                'kitalabel_download_all' => true,
+                'kitalabel_edit_upload_design_cart' => true,
+                'kitalabel_delete_upload_design_cart' => true,
             );
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -308,6 +310,106 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
             <?php
+        }
+
+        public function  kitalabel_edit_upload_design_cart() {
+
+        }
+
+        public function  kitalabel_delete_upload_design_cart() {
+            $params = array();
+            $results = array(
+                'flag'  => 1
+            );
+
+            $min_qty    = isset($_POST['min_qty']) ? (int) $_POST['min_qty'] : 0;
+            $item_key   = isset($_POST['item_key']) ? $_POST['item_key'] : '';
+            $qty_side   = $params['qty_side'][$item_key];
+            if( $item_key ) {
+                $cart_items = WC()->cart->get_cart();
+                if( isset( $cart_items[$item_key] )) {
+                    $cart_item = $cart_items[$item_key];
+                    $nbd_field = $cart_item['nbo_meta']['field'] ;
+                    $nbd_fields = $cart_item['nbo_meta']['option_price']['fields'] ;
+                    if( isset( $cart_item['nbo_meta'] ) ) {
+                        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
+                        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+                            $item_combination = $fields['combination'];
+                            $upload_fields = false;
+                        }
+                    }
+                    if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                        foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
+                            if(isset($field['is_custom_upload'])) {
+                                $upload_fields = true;
+                                $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
+                                $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
+                                $nbd_field[$key]['qtys'] = $qty_side;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
+            if( isset($item_combination) && isset($nbd_fields) ) {
+                foreach($nbd_fields as $key => $val) {
+                    $_origin_field   = $fe_options->get_field_by_id( $fields, $key );
+                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
+                        $area_name = $val['value_name'];
+                        $_area_name = $val['value_name'];
+                        if( $area_name == 'Square' || $area_name == 'Circle' ) {
+                            $_area_name = 'Square + Circle';
+                        }
+                        if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
+                            $_area_name = 'Rectangle + Oval';
+                        }
+                    }
+                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
+                        $size_name = $val['value_name'];
+                    }
+                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
+                        $material_name = $val['value_name'];
+                    }
+                }
+                if( isset($_area_name) && isset($size_name) && isset($material_name)  && isset($item_combination['options']) ) {
+                    $side = $item_combination['options'][$_area_name][$size_name][$material_name];
+                    if(!isset($side) && isset($item_combination['options']['default'])) {
+                        $side = $item_combination['options']['default'];
+                    }
+                }
+            }
+            $sum_qty    = 0;
+            foreach( $qty_side as $key => $qty ) {
+                $sum_qty += (int) $qty;
+            }
+            if( $upload_fields ) {
+                if(isset($cart_item) && isset($nbd_field) ) {
+                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                    WC()->cart->cart_contents[ $item_key ]['nbo_meta']['field'] = $nbd_field;
+                    WC()->cart->set_quantity( $item_key, $sum_qty );
+                    WC()->cart->set_session();
+                }
+            } else if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
+                WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                // set option qty side
+                $option_fields = unserialize( base64_decode( WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields']) );
+                $qty_breaks = $option_fields['combination']['qty_breaks'];
+                if( $option_fields['combination']['enabled'] == 'on' ) {
+                    $option_fields['combination']['side'] = $qty_side;
+                    $options['fields'] = serialize($option_fields);
+                    $options['fields'] = base64_encode( $options['fields'] );
+                    WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields'] = $options['fields'];
+                    WC()->cart->set_session();
+                }
+                
+            } else {
+                $results['flag'] = 0;
+            }
+            
+            wp_send_json_success($results);
+         
+            die();
         }
 
     }

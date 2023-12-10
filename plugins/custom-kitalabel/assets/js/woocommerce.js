@@ -138,7 +138,7 @@ jQuery( function( $ ) {
               dataType : "json", 
               url : nb_custom.url,
               data : {
-                action: "nb_ajax_qty_cart",
+                action: "kitalabel_delete_upload_design_cart",
                 min_qty : min_qty,
                 item_key : item_key,
                 data:     $form.serialize(),
@@ -167,6 +167,43 @@ jQuery( function( $ ) {
           alert(" Can't set quantity for each the side less than the min quantity: " + min_qty);
         }
           
+      });
+
+      $('.trash-icon-upload-design').on('click', function(e) {
+        e.preventDefault();
+        var input_el = $(this).parent().parent().find('input.nb-custom-qty-side');
+        var item_key = input_el.data('item-key');
+        var design_index = $(this).data('design-index');
+        block($form);
+        $.ajax({
+            type : "post", 
+            dataType : "json", 
+            url : nb_custom.url,
+            data : {
+              action: "nb_ajax_qty_cart",
+              design_index : design_index,
+              item_key : item_key,
+            },
+            context: this,
+            success: function(response) {
+              if(response.success) {
+                if(response.data.flag) {
+                  unblock($form);
+                  if (callback && typeof callback == "function") {
+                    $(sefl).parent().find('input').trigger("change");
+                    callback();
+                  }
+                } else {
+                  alert(" Can't set quantity for each the side less than the min quantity: " + min_qty);
+                  unblock($form);
+                }
+              }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+              console.log( 'The following error occured: ' + textStatus, errorThrown );
+            }
+        })
+
       })
 
       $(document).off('click', '.nb-plus, .nb-minus').on('click', '.nb-plus, .nb-minus', function (event) {
