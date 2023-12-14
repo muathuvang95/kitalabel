@@ -770,11 +770,14 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                     $delete_design = '';
                     
                     if(isset($cart_item['nbo_meta']['order_again']) && $cart_item['nbo_meta']['order_again']) {
-                        $edit_design = '<div class="button edit-upload-design" href="#">' . esc_html__('Edit design', 'web-to-print-online-designer') . '</div>';
+                        $edit_design = '<div class="button edit-upload-design" href="#">' . esc_html__('Edit design', 'web-to-print-online-designer') . '</div><input data-design-index="'.$key.'" type="file" class="kita-upload-file" style="display:none" />';
                         $delete_design = '<div class="button trash-icon-upload-design" data-design-index="'.$key.'" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg></div';
                     }
 
                     $html  .= '<tr class="nb-cart_item_design"><td class="nb-col-hiden"></td><td class="nb-has-border-bottom nb-name"><div class="nb-upload-design"><a class="nbd_cart_item_upload_preview" href="' . $file_url . '">'.$file_name.'</a></div></td><td class="nb-has-border-bottom nb-name">'.$variant_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden">'.$edit_design.'</td><td class="nb-col-modile-hiden">'.$delete_design.'</td></tr>';                     
+                }
+                if($edit_design) {
+                    $html .= '<tr class="nb-cart_item_design tambah-variant-options"><td></td><td><input type="file" name="variant-file" /></td><td colspan="2"><input placeholder="Variant name" type="text" name="variant-name"/><td><input min="1" value="1" type="number" name="variant-qty" /></td><td colspan="2"><div class="button add-upload-design" data-item-key="'.$cart_item_key.'">Add design</div><td></td></tr><tr class="nb-cart_item_design tambah-variant-button"><td colspan="7"><div class="button show-add-upload-design">Tambah Variant</div></td></tr>';
                 }
             }
         }

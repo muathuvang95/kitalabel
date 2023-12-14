@@ -1571,6 +1571,22 @@ div.button.edit-upload-design {
     border-color: #333;
     cursor: pointer;
 }
+.tambah-variant-button .button {
+	width: 100%;
+    color: #fff;
+    background-color: #333;
+    border-color: #333;
+    cursor: pointer;
+}
+.tambah-variant-options {
+	display: none;
+}
+.tambah-variant-options .add-upload-design {
+    cursor: pointer;
+}
+.tambah-variant-options input[name="variant-qty"] {
+	width: 100px;
+}
 
 @media only screen and (max-width: 768px) {
 	.page-template-default .nbd-sidebar-con-inner ul {
