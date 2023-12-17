@@ -44,6 +44,12 @@ jQuery( function( $ ) {
       var unblock = function( $node ) {
           $node.removeClass( 'processing' ).unblock();
       };
+
+      var kita_refresh_fragments = function () {
+          jQuery( "body.woocommerce-cart [name='update_cart']" ).removeAttr( 'disabled' );
+          jQuery( "body.woocommerce-cart [name='update_cart']" ).trigger( 'click' );
+      }
+
       $('.nb-wrap-comment .nb-note textarea.textarea-note').change( function() {
           var item_key = $(this).data('key');
           var content = $(this).val();
@@ -138,7 +144,7 @@ jQuery( function( $ ) {
               dataType : "json", 
               url : nb_custom.url,
               data : {
-                action: "nb_ajax_qty_cart",
+                action: "kitalabel_ajax_qty_cart",
                 min_qty : min_qty,
                 item_key : item_key,
                 data:     $form.serialize(),
@@ -148,10 +154,8 @@ jQuery( function( $ ) {
                 if(response.success) {
                   if(response.data.flag) {
                     unblock($form);
-                    if (callback && typeof callback == "function") {
-                      $(sefl).parent().find('input').trigger("change");
-                      callback();
-                    }
+                    kita_refresh_fragments();
+                    $(sefl).parent().find('input').trigger("change");
                   } else {
                     alert(" Can't set quantity for each the side less than the min quantity: " + min_qty);
                     unblock($form);
@@ -167,6 +171,177 @@ jQuery( function( $ ) {
           alert(" Can't set quantity for each the side less than the min quantity: " + min_qty);
         }
           
+      });
+
+      $('.trash-icon-upload-design').on('click', function(e) {
+        e.preventDefault();
+        var input_el = $(this).parent().parent().find('input.nb-custom-qty-side');
+        var item_key = input_el.data('item-key');
+        var min_qty = input_el.data('min-qty');
+        var design_index = $(this).data('design-index');
+        var $a = $( e.currentTarget );
+        var $form = $a.parents( 'form' );
+
+        // check total quantity
+        var qty_sum = 0;
+        jQuery('input[data-item-key='+item_key+']').each(function(key , val) {
+            if(design_index != key) {
+                var qty_side = jQuery(val).val();
+                qty_sum += parseInt(qty_side);
+            }
+        })
+
+        if(qty_sum < min_qty) {
+            return alert("You cannot delete this side, change the total number of remaining sides to be greater than: " + min_qty + " to continue." );
+        }
+
+        block($form);
+
+        $.ajax({
+            type : "post", 
+            dataType : "json", 
+            url : nb_custom.url,
+            data : {
+              action: "kitalabel_delete_upload_design_cart",
+              design_index : design_index,
+              item_key : item_key,
+            },
+            context: this,
+            success: function(response) {
+              if(response.success) {
+                if(response.data.flag) {
+                  unblock($form);
+                  kita_refresh_fragments();
+                } else {
+                  alert("You cannot delete this side, change the total number of remaining sides to be greater than: " + min_qty + " to continue." );
+                  unblock($form);
+                }
+              }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+              console.log( 'The following error occured: ' + textStatus, errorThrown );
+            }
+        })
+
+      })
+
+      $('.edit-upload-design').on('click', function(e) {
+        e.preventDefault();
+        $(this).parent().find('input[type="file"]').click();
+      });
+
+      $('.nb-cart_item_design input[type="file"].kita-upload-file').on('change', function(e) {
+        e.preventDefault();
+        var files = this.files;
+        var input_el = $(this).parent().parent().find('input.nb-custom-qty-side');
+        var item_key = input_el.data('item-key');
+        var design_index = $(this).data('design-index');
+        var $a = $( e.currentTarget );
+        var $form = $a.parents( 'form' );
+
+
+        block($form);
+
+        var formData = new FormData();
+        formData.append("action", "kitalabel_edit_upload_design_cart");
+        formData.append("design_index", design_index);
+        formData.append("item_key", item_key);
+        formData.append("file", files[0]);
+
+        $.ajax({
+            type : "post", 
+            processData: false,
+            contentType: false,
+            url : nb_custom.url,
+            data : formData,
+            context: this,
+            success: function(response) {
+              if(response.success) {
+                if(response.data.flag) {
+                  unblock($form);
+                  kita_refresh_fragments();
+                } else {
+                  alert("Something went wrong!" );
+                  unblock($form);
+                }
+              }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+              console.log( 'The following error occured: ' + textStatus, errorThrown );
+            }
+        })
+
+      })
+
+      $('.button.show-add-upload-design').on('click', function(e) {
+        e.preventDefault();
+        $('.tambah-variant-options').show();
+      });
+
+      $('.button.cancel-add-upload-design').on('click', function(e) {
+        e.preventDefault();
+        $('.tambah-variant-options').hide();
+      });
+
+
+
+      $('.tambah-variant-options .add-upload-design').on('click', function(e) {
+        e.preventDefault();
+
+        var parent_el = $(this).parent().parent();
+        var files = parent_el.find('input[name="variant-file"]').prop('files');
+        var name = parent_el.find('input[name="variant-name"]').val();
+        var qty = parent_el.find('input[name="variant-qty"]').val();
+        var item_key = $(this).data('item-key');
+
+        if(!files.length) {
+          return alert("Invalid file!" );
+        }
+
+        if(!name) {
+          return alert("Invalid name!" );
+        }
+
+        if(!qty) {
+          return alert("Invalid quantity!" );
+        }
+
+        var $a = $( e.currentTarget );
+        var $form = $a.parents( 'form' );
+
+
+        block($form);
+
+        var formData = new FormData();
+        formData.append("action", "kitalabel_add_upload_design_cart");
+        formData.append("qty", qty);
+        formData.append("item_key", item_key);
+        formData.append("name", name);
+        formData.append("file", files[0]);
+
+        $.ajax({
+            type : "post", 
+            processData: false,
+            contentType: false,
+            url : nb_custom.url,
+            data : formData,
+            context: this,
+            success: function(response) {
+              if(response.success) {
+                if(response.data.flag) {
+                  unblock($form);
+                  kita_refresh_fragments();
+                } else {
+                  alert("Something went wrong!" );
+                  unblock($form);
+                }
+              }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+              console.log( 'The following error occured: ' + textStatus, errorThrown );
+            }
+        })
+
       })
 
       $(document).off('click', '.nb-plus, .nb-minus').on('click', '.nb-plus, .nb-minus', function (event) {

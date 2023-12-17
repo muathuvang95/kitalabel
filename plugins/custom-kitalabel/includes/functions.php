@@ -766,8 +766,19 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                        $quantity = $qty; 
                     }
 
+                    $edit_design = '';
+                    $delete_design = '';
                     
-                    $html  .= '<tr class="nb-cart_item_design"><td class="nb-col-hiden"></td><td class="nb-has-border-bottom nb-name"><div class="nb-upload-design"><a class="nbd_cart_item_upload_preview" href="' . $file_url . '">'.$file_name.'</a></div></td><td class="nb-has-border-bottom nb-name">'.$variant_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden"></td></tr>';                     
+                    if(isset($cart_item['nbo_meta']['order_again']) && $cart_item['nbo_meta']['order_again']) {
+                        $edit_design = '<div class="button edit-upload-design" href="#">' . esc_html__('Edit design', 'web-to-print-online-designer') . '</div><input data-design-index="'.$key.'" type="file" class="kita-upload-file" style="display:none" />';
+                        $delete_design = '<div class="button trash-icon-upload-design" data-design-index="'.$key.'" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg></div';
+                    }
+
+                    $html  .= '<tr class="nb-cart_item_design"><td class="nb-col-hiden"></td><td class="nb-has-border-bottom nb-name"><div class="nb-upload-design"><a class="nbd_cart_item_upload_preview" href="' . $file_url . '">'.$file_name.'</a></div></td><td class="nb-has-border-bottom nb-name">'.$variant_name.'</td><td class="nb-has-border-bottom nb-col-modile-hiden"></td><td class="nb-has-border-bottom nb-qty">'.$quantity.'</td><td class="nb-col-modile-hiden">'.$edit_design.'</td><td class="nb-col-modile-hiden">'.$delete_design.'</td></tr>';                     
+                }
+                if($edit_design) {
+                    $cancel = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path></svg>';
+                    $html .= '<tr class="nb-cart_item_design tambah-variant-options"><td></td><td><input type="file" name="variant-file" /></td><td colspan="2"><input placeholder="Variant name" type="text" name="variant-name"/><td><input min="1" value="1" type="number" name="variant-qty" /></td><td colspan="1"><div class="button add-upload-design" data-item-key="'.$cart_item_key.'">Add design</div><td><div class="button cancel-add-upload-design">'.$cancel.'</div></td></tr><tr class="nb-cart_item_design tambah-variant-button"><td colspan="7"><div class="button show-add-upload-design">Tambah Variant</div></td></tr>';
                 }
             }
         }
@@ -1030,107 +1041,6 @@ function nb_custom_wcpdf_after_item_meta( $type, $item, $order ){
     }
 }
 
-// Update cart when change number side
-add_action('wp_ajax_nb_ajax_qty_cart', 'nb_ajax_qty_cart');
-add_action('wp_ajax_nopriv_nb_ajax_qty_cart', 'nb_ajax_qty_cart');
-function nb_ajax_qty_cart() {
-    $params = array();
-    $results = array(
-        'flag'  => 1
-    );
-    if( isset($_POST['data']) ) {
-        $upload_fields = false;
-        parse_str($_POST['data'], $params);
-        $min_qty    = isset($_POST['min_qty']) ? (int) $_POST['min_qty'] : 0;
-        $item_key   = isset($_POST['item_key']) ? $_POST['item_key'] : '';
-        $qty_side   = $params['qty_side'][$item_key];
-        if( $item_key ) {
-            $cart_items = WC()->cart->get_cart();
-            if( isset( $cart_items[$item_key] )) {
-                $cart_item = $cart_items[$item_key];
-                $nbd_field = $cart_item['nbo_meta']['field'] ;
-                $nbd_fields = $cart_item['nbo_meta']['option_price']['fields'] ;
-                if( isset( $cart_item['nbo_meta'] ) ) {
-                    $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-                    if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-                        $item_combination = $fields['combination'];
-                        $upload_fields = false;
-                    }
-                }
-                if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
-                    foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
-                        if(isset($field['is_custom_upload'])) {
-                            $upload_fields = true;
-                            $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
-                            $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
-                            $nbd_field[$key]['qtys'] = $qty_side;
-                        }
-                    }
-                }
-            }
-        }
-
-        $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
-        if( isset($item_combination) && isset($nbd_fields) ) {
-            foreach($nbd_fields as $key => $val) {
-                $_origin_field   = $fe_options->get_field_by_id( $fields, $key );
-                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
-                    $area_name = $val['value_name'];
-                    $_area_name = $val['value_name'];
-                    if( $area_name == 'Square' || $area_name == 'Circle' ) {
-                        $_area_name = 'Square + Circle';
-                    }
-                    if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
-                        $_area_name = 'Rectangle + Oval';
-                    }
-                }
-                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
-                    $size_name = $val['value_name'];
-                }
-                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
-                    $material_name = $val['value_name'];
-                }
-            }
-            if( isset($_area_name) && isset($size_name) && isset($material_name)  && isset($item_combination['options']) ) {
-                $side = $item_combination['options'][$_area_name][$size_name][$material_name];
-                if(!isset($side) && isset($item_combination['options']['default'])) {
-                    $side = $item_combination['options']['default'];
-                }
-            }
-        }
-        $sum_qty    = 0;
-        foreach( $qty_side as $key => $qty ) {
-            $sum_qty += (int) $qty;
-        }
-        if( $upload_fields ) {
-            if(isset($cart_item) && isset($nbd_field) ) {
-                WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                WC()->cart->cart_contents[ $item_key ]['nbo_meta']['field'] = $nbd_field;
-                WC()->cart->set_quantity( $item_key, $sum_qty );
-                WC()->cart->set_session();
-            }
-        } else if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
-            WC()->cart->set_quantity( $item_key, $sum_qty, true );
-            // set option qty side
-            $option_fields = unserialize( base64_decode( WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields']) );
-            $qty_breaks = $option_fields['combination']['qty_breaks'];
-            if( $option_fields['combination']['enabled'] == 'on' ) {
-                $option_fields['combination']['side'] = $qty_side;
-                $options['fields'] = serialize($option_fields);
-                $options['fields'] = base64_encode( $options['fields'] );
-                WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields'] = $options['fields'];
-                WC()->cart->set_session();
-            }
-            
-        } else {
-            $results['flag'] = 0;
-        }
-    }
-    
-    wp_send_json_success($results);
- 
-    die();
-}
 function nb_sort_quantity_breaks($a, $b) {
     if ($a['qty'] == $b['qty']) {
         return 0;

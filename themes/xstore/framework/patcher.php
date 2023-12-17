@@ -49,7 +49,7 @@ class Etheme_Patcher
         echo wp_json_encode(
             array(
                 'success' => true,
-            ),
+            )
         );
         exit;
     }
@@ -510,7 +510,7 @@ class Etheme_Patcher
                     'success' => false,
                     'errors_text' => __('This patch does not exist or was removed. Please try again later.', 'xstore'),
                     'errors' => $errors
-                ),
+                )
             );
             exit;
         }
@@ -559,7 +559,7 @@ class Etheme_Patcher
                     'server_errors_text' => __('There seems to be an issue with the server request. Please ensure that your theme has a valid purchase code.', 'xstore'),
                     'system_requirements_link' => add_query_arg(array('page' => 'et-panel-system-requirements'), admin_url('admin.php')),
                     'errors' => $errors
-                ),
+                )
             );
             exit;
         }

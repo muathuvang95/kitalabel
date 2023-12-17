@@ -77,9 +77,9 @@ function nb_custom_render_cart( $title = null, $cart_item = null, $cart_item_key
                 if($cart_item['variation_id'] > 0){
                     $link_edit_design .= '&variation_id=' . $cart_item['variation_id'];
                 }
-                if(!$is_order_again) {
+                // if(!$is_order_again) {
                     $buton = '<a class="button nbd-edit-design" href="'.$link_edit_design.'">'. esc_html__('Edit design', 'web-to-print-online-designer') .'</a>';
-                }
+                // }
             }
             
         }
