@@ -906,16 +906,34 @@ if(!class_exists('NBD_Request_Quote')) {
                     //Add NBO data
                     if ( isset( $values['nbo_meta'] ) ) {
                         foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
-                            $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price']) : wc_price($field['price']);
+                            $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price']) : '';
                             if( isset($field['is_upload']) ){
-                                if (strpos($field['val'], 'http') !== false) {
-                                    $file_url = $field['val'];
-                                }else{
-                                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val'] );
+                                if(isset($field['val']['files'])) {
+                                    $value_name_upload = '';
+                                    foreach($field['val']['files'] as $k => $file) {
+                                        
+                                        if (strpos($file, 'http') !== false) {
+                                            $file_url = $file;
+                                        }else{
+                                            $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
+                                        }
+                                        $file_name = basename($file_url);
+                                        $value_name_upload .= '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                    }
+                                    $field['value_name'] = $value_name_upload;
+                                } else {
+                                    if (strpos($field['val'], 'http') !== false) {
+                                        $file_url = $field['val'];
+                                    }else{
+                                        $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val'] );
+                                    }
+                                    $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                                 }
-                                $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                             }
                             wc_add_order_item_meta($order_item_id, $field['name'], $field['value_name']. '&nbsp;&nbsp;' .$price);
+                        }
+                        if( floatval( $values['nbo_meta']['option_price']['discount_price'] ) > 0 ){
+                            wc_add_order_item_meta($order_item_id, __('Quantity Discount', 'web-to-print-online-designer'), '-' . wc_price($values['nbo_meta']['option_price']['discount_price']));
                         }
                         wc_add_order_item_meta($order_item_id, __('Quantity Discount', 'web-to-print-online-designer'), '-' . wc_price($values['nbo_meta']['option_price']['discount_price']));
                         wc_add_order_item_meta($order_item_id, "_nbo_option_price", $values['nbo_meta']['option_price']);

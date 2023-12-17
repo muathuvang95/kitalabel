@@ -554,7 +554,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 $hide_option_price = nbdesigner_get_option('nbdesigner_hide_option_price_in_order', 'no');
                 foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
                     if( !isset( $field['published'] ) || $field['published'] == 'y' ){
-                        $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price'], array( 'decimals' => $decimals )) : wc_price($field['price'], array( 'decimals' => $decimals ));
+                        $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price'], array( 'decimals' => $decimals )) : '';
                         if( isset($field['is_upload']) ){
                             // kita upload file
                             if(is_array($field['val'])) {
@@ -1283,7 +1283,8 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 //     $_fields[$key]['variant_qty'][$k]    = isset($val['qtys'][$k]) ? $val['qtys'][$k] : 1;
                                 //     $_fields[$key]['is_upload']     = 1;
                                 // } 
-                            }   
+                            }
+                            $_fields[$key]['is_upload']     = 1;
                         } else {
                             $file_name = explode('/', $val);
                             $_fields[$key]['value_name']    = $file_name[ count($file_name) - 1 ];

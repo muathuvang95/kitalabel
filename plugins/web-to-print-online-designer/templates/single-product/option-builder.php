@@ -2657,6 +2657,7 @@ if( $cart_item_key != ''){ ?>
         $scope.custom_quantity = false;
         $scope.current_group_panel = 0;
         $scope.total_cart_item_price_num = 0;
+        $scope.map_variant_list = [];
         $scope.check_valid = function( calculate_pm, pro ){
             $timeout(function(){
                 $scope.$emit( "nbo_options_changed", $scope.nbd_fields );
@@ -2705,6 +2706,14 @@ if( $cart_item_key != ''){ ?>
                                 field.value_name = field.value;
                             }else if( angular.isDefined(field.value.name) ){
                                 field.value_name = field.value.name;
+                            }
+                        }
+
+                        if( angular.isDefined( origin_field.nbd_type ) && origin_field.nbd_type == 'page1' ){
+                            var numer_of_page = parseInt(field?.value);
+                            $scope.map_variant_list = [];
+                            for( i = 0; i < numer_of_page; i++ ){
+                                $scope.map_variant_list.push(i);
                             }
                         }
                     }else{

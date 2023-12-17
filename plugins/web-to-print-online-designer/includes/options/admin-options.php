@@ -924,7 +924,8 @@ CREATE TABLE {$wpdb->prefix}nbdesigner_options (
             if (is_null($value)){$value = array(
                 'min_size'      =>  0,
                 'max_size'      =>  nbd_get_max_upload_default(),
-                'allow_type'    =>  'png,jpg,jpeg'
+                'allow_type'    =>  'png,jpg,jpeg',
+                'map_variant_field' =>  '', // custom kitalabel
             );}
             return array(
                 'title'         => __( 'Upload file option', 'web-to-print-online-designer'),
