@@ -1357,18 +1357,7 @@ body.woocommerce-checkout table.order_details td.product-total {
     font-style: italic;
 }
 .kita-uf-nbo-option-container button[name="add-to-cart"]:disabled[disabled] {
-    display: block;
-    text-align: center;
-    margin: 0 auto;
     background: #454545 !important;
-    height: 72px;
-    font-size: 34px;
-    padding: 15px 30px;
-    border-radius: 35px;
-    margin-top: 50px;
-    margin-bottom: 120px;
-    color: #fff  !important;
-    font-style: italic;
 }
 .nb-main-container {
     background: url(../images/image142.png);
@@ -1592,6 +1581,129 @@ div.button.edit-upload-design {
 .cancel-add-upload-design {
     padding: 0.75rem!important;
     cursor: pointer;
+}
+
+/*2023*/
+.kita-page-upload-wrap .kita-options-selected .kita-col-options {
+	border-width: 1px;
+	padding: 10px 20px;
+}
+.kita-page-upload-wrap .kita-options-selected {
+	margin-top: 0;
+	margin-bottom: 30px;
+}
+.kita-page-upload-wrap .kita-options-selected .nbd-option-selected-name {
+	text-align: left;
+	width: 100px;
+}
+.kita-page-upload-wrap .kita-options-selected .nbd-option-selected-value {
+	text-align: left;
+}
+.kita-page-upload-wrap .kita-options-selected .nbd-option-selected-value .name{
+	font-size: 16px;
+    color: #333333;
+    font-weight: 400;
+    line-height: 31px;
+}
+.kita-page-upload-wrap .kita-upload-guide {
+	display: flex;
+    background: #000;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+    border-radius: 5px;
+}
+.kita-page-upload-wrap .kita-upload-file-icon {
+	line-height: 1;
+	margin-right: 4px;
+}
+.kita-page-upload-wrap .kita-upload-file-icon svg {
+	width: 30px;
+    height: 30px;
+}
+.kita-page-upload-wrap .kita-upload-file-ai {
+    color: #f59832;
+}
+.kita-page-upload-wrap .kita-upload-file-pdf {
+    color: #f00;
+}
+.kita-page-upload-wrap .kita-col-guide {
+	margin-bottom: 30px;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles{
+	list-style: none;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .kita-variant-fields .kita-variant-name{
+	max-width: 200px;
+    border-radius: 5px;
+    background: #FFFFFF;
+    border: 1px solid #747474;
+    box-shadow: unset;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .upload-zone {
+	width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    background: #ececec;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .upload-zone .result-upload {
+	margin-top: 8px;
+    margin-bottom: 4px;
+    font-size: 16px;
+    line-height: 24px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .upload-zone .result-upload svg{
+	color: #f59832;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .upload-zone .result-upload p{
+	font-weight: 600;
+	margin-bottom: 0;
+}
+.kita-page-upload-wrap .kita-add-to-cart {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.kita-page-upload-wrap .button.kita-add-variant,
+.kita-page-upload-wrap .kita-add-to-cart a.button,
+.kita-page-upload-wrap button[name="add-to-cart"] {
+	display: block;
+    text-align: center;
+    margin: 0 auto;
+    height: auto;
+    font-size: initial;
+    padding: 12px 8px;
+    border-radius: 5px;
+    font-style: unset;
+    width: 100%;
+    line-height: 1;
+    background: #fff;
+    color: #f59832;
+    border: 1px solid #f59832;
+    text-transform: capitalize;
+    font-weight: 600;
+}
+.kita-page-upload-wrap .button.kita-add-variant {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.kita-page-upload-wrap .single_add_to_cart_button::before {
+	display: none;
+}
+.kita-page-upload-wrap button[name="add-to-cart"] {
+    background: #f59832 !important;
+    color: #fff !important;
+}
+.kita-page-upload-wrap button[name="add-to-cart"]:disabled[disabled] {
+    background: #454545 !important;
+    border-color: #454545;
 }
 
 @media only screen and (max-width: 768px) {
