@@ -144,7 +144,7 @@ jQuery( function( $ ) {
               dataType : "json", 
               url : nb_custom.url,
               data : {
-                action: "nb_ajax_qty_cart",
+                action: "kitalabel_ajax_qty_cart",
                 min_qty : min_qty,
                 item_key : item_key,
                 data:     $form.serialize(),
@@ -277,6 +277,13 @@ jQuery( function( $ ) {
         e.preventDefault();
         $('.tambah-variant-options').show();
       });
+
+      $('.button.cancel-add-upload-design').on('click', function(e) {
+        e.preventDefault();
+        $('.tambah-variant-options').hide();
+      });
+
+
 
       $('.tambah-variant-options .add-upload-design').on('click', function(e) {
         e.preventDefault();

@@ -1582,10 +1582,16 @@ div.button.edit-upload-design {
 	display: none;
 }
 .tambah-variant-options .add-upload-design {
+	padding: 0.75rem;
+    line-height: 1.2;
     cursor: pointer;
 }
 .tambah-variant-options input[name="variant-qty"] {
 	width: 100px;
+}
+.cancel-add-upload-design {
+    padding: 0.75rem!important;
+    cursor: pointer;
 }
 
 @media only screen and (max-width: 768px) {
