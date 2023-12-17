@@ -2,6 +2,14 @@
 <div class="nbd-option-field nbd-field-input-wrap <?php echo $class; ?>" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="nbd-field-content">
+        <?php
+            $is_map_variant_field = false;
+            $name_attr = 'nbd-field[' . $field['id'] . ']';
+            if( $field['general']['input_type'] == 'u' && isset($field['general']['upload_option']['map_variant_field']) && $field['general']['upload_option']['map_variant_field'] ) {
+                $name_attr = 'nbd-field[' . $field['id'] . '][]';
+                $is_map_variant_field = true;
+            }
+        ?>
         <input 
             <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dpi' ): ?>
             ng-change="update_dpi()"  
@@ -11,8 +19,13 @@
             <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dimension' ): ?>
                 ng-hide="true"
             <?php endif; ?>
+            <?php
+            if($is_map_variant_field):?>
+                ng-repeat="page in map_variant_list" style="margin-bottom: 4px;"
+            <?php endif; ?>
             ng-model="nbd_fields['<?php echo $field['id']; ?>'].value" class="nbd-input-<?php echo $field['general']['input_type']; ?>"
-            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo $field['id']; ?>]" id="nbd-field-<?php echo $field['id']; ?>"
+            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="<?php echo $name_attr; ?>" id="nbd-field-<?php echo $field['id']; ?>"
+            <?php ?>
             <?php if( $field['general']['input_type'] == 't' ): ?>
             type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo $field['general']['text_option']['min']; ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo $field['general']['text_option']['max']; ?>"<?php endif; ?>
                 <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>

@@ -11,6 +11,7 @@
                         <th><?php _e('Min size', 'web-to-print-online-designer'); ?></th>
                         <th><?php _e('Max size', 'web-to-print-online-designer'); ?></th>
                         <th><?php _e('Allow type', 'web-to-print-online-designer'); ?></th>
+                        <th><?php _e('Map field', 'web-to-print-online-designer'); ?></th>
                     </tr>
                     <tr>
                         <td>
@@ -21,6 +22,12 @@
                         </td>
                         <td>
                             <input class="nbd-short-ip" type="text" ng-model="field.general.upload_option.value.allow_type" name="options[fields][{{fieldIndex}}][general][upload_option][allow_type]"/>
+                        </td>
+                        <!-- custom kitalabel -->
+                        <td>
+                            <select name="options[fields][{{fieldIndex}}][general][upload_option][map_variant_field]" ng-model="field.general.upload_option.value.map_variant_field" >
+                                 <option value="{{field.id}}" ng-repeat="field in options.fields">{{field.general.title.value}}</option>
+                            </select>
                         </td>
                     </tr>
                 </table>
