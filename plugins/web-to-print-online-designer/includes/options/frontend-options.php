@@ -875,12 +875,33 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 $nbd_upload_field = $this->upload_file( $_FILES["nbd-field"], $field_id );
                                 if( !empty($nbd_upload_field) ){
                                     if( is_array( $nbd_upload_field[$field_id]) ) {
-                                       $nbd_field[$field_id] = array(
-                                            'files' => $nbd_upload_field[$field_id],
-                                            'variants' => $nbd_field[$field_id]['variant'],
-                                            'qtys' => $nbd_field[$field_id]['qty'],
-                                            'min_qty' => $nbd_field[$field_id]['min_qty'],
-                                        ); 
+                                        $_origin_field   = $this->get_field_by_id( $option_fields, $field_id );
+                                        if( isset($_origin_field['general']['input_type']) && $_origin_field['general']['input_type'] == 'u' && isset($_origin_field['general']['upload_option']) && isset($_origin_field['general']['upload_option']['map_variant_field']) && $_origin_field['general']['upload_option']['map_variant_field'] ) {
+                                            $variant = count($nbd_upload_field[$field_id]);
+                                            $variants = [];
+                                            $qtys = [];
+                                            $min_qty = $quantity;
+                                            for($i=0; $i < $variant; $i++){
+                                                $variant_index = $i + 1;
+                                                $quantity_variant_per = intdiv($quantity, $variant);
+                                                if($variant_index == $variant ) $quantity_variant_per = $quantity_variant_per + ($quantity % $variant);
+                                                $variants[] = 'Variant ' . $variant_index;
+                                                $qtys[] = $quantity_variant_per;
+                                            }
+                                            $nbd_field[$field_id] = array(
+                                                'files' => $nbd_upload_field[$field_id],
+                                                'variants' => $variants,
+                                                'qtys' => $qtys,
+                                                'min_qty' => $min_qty,
+                                            );
+                                        } else {
+                                            $nbd_field[$field_id] = array(
+                                                'files' => $nbd_upload_field[$field_id],
+                                                'variants' => $nbd_field[$field_id]['variant'],
+                                                'qtys' => $nbd_field[$field_id]['qty'],
+                                                'min_qty' => $nbd_field[$field_id]['min_qty'],
+                                            );
+                                        }
                                     } else {
                                         $nbd_field[$field_id] = $nbd_upload_field[$field_id];
                                     }
