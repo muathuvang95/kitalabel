@@ -484,6 +484,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $arr['nbo_meta']['price'] = $this->format_price($original_price + $option_price['total_price'] - $option_price['discount_price']);
                     }
                     $arr['nbo_meta']['order_again'] = $order->get_id(); // custom kitalabel
+                    $arr['nbo_meta']['is_request_quote'] = $order->get_meta('_is_request_quote'); // custom kitalabel
                 }
             }
             return $arr;

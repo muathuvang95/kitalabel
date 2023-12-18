@@ -967,6 +967,7 @@ if(!class_exists('NBD_Request_Quote')) {
         public function add_order_meta( $order, $raq ){
             $attr                           = array();
             $order_id                       = $order->get_id();
+            $attr['_is_request_quote']      = 1;
             $attr['_raq_request']           = $raq;
             $attr['_raq_customer_name']     = $raq['user_name'];
             $attr['_raq_customer_email']    = $raq['user_email'];
