@@ -382,7 +382,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             $results = array(
                 'old_price' => 0,
                 'new_price' => 0,
-            )
+            );
 
             if(!empty($cart_item['nbo_meta']['options']['fields'])) return $price;
 
@@ -394,7 +394,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 $results = array(
                     'old_price' => $old_price,
                     'new_price' => $new_price,
-                )
+                );
             }
 
             return $results;
@@ -636,7 +636,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
                                 if( $passed ) {
                                     WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                                    WC()->cart->set_quantity( $item_key, $sum_qty );
+                                    WC()->cart->set_quantity( $item_key, $sum_qty, true );
                                     WC()->cart->set_session();
                                 }
                             }
@@ -724,12 +724,12 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                         $new_total_price = $total_price - $old_price + $new_price;
 
                                         $cart_item['nbo_meta']['option_price']['total_price']   = $new_total_price;
-                                        $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($options['fields']) );
+                                        $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($fields) );
                                         $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
                                     }
                                     $results['flag'] = 1;
                                     WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                                    WC()->cart->set_quantity( $item_key, $sum_qty );
+                                    WC()->cart->set_quantity( $item_key, $sum_qty, true );
                                     WC()->cart->set_session();
                                 }
                             }
@@ -748,6 +748,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             $results = array(
                 'flag'  => 0
             );
+
             if( isset($_POST['data']) ) {
                 $upload_fields = false;
                 parse_str($_POST['data'], $params);
@@ -759,65 +760,64 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     if( isset( $cart_items[$item_key] )) {
                         $cart_item = $cart_items[$item_key];
                         $nbd_field = $cart_item['nbo_meta']['field'] ;
-                        $nbd_fields = $cart_item['nbo_meta']['option_price']['fields'] ;
+
                         if( isset( $cart_item['nbo_meta'] ) ) {
                             if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && isset( $cart_item['nbo_meta']['is_request_quote'] ) && $cart_item['nbo_meta']['is_request_quote'] ) {
                                 $cart_item['nbo_meta']['wait_price'] = 1;
                             }
-                            $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-                            if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-                                $item_combination = $fields['combination'];
-                                $upload_fields = false;
+
+                            if( !empty( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                                foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
+                                    if(isset($field['is_custom_upload'])) {
+                                        $upload_fields = true;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
+                                        $nbd_field[$key]['qtys'] = $qty_side;
+                                    }
+                                }
                             }
-                        }
-                        if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
-                            foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
-                                if(isset($field['is_custom_upload'])) {
-                                    $upload_fields = true;
-                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
-                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
-                                    $nbd_field[$key]['qtys'] = $qty_side;
+                            $sum_qty    = 0;
+                            foreach( $qty_side as $key => $qty ) {
+                                $sum_qty += (int) $qty;
+                            }
+
+                            $option_fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) );
+                            $_min_qty = (int) $option_fields['combination']['min_qty'];
+
+                            if($sum_qty > $_min_qty) {
+                                $quantity = $cart_item['quantity'];
+                                $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
+                                $old_price = (float) $calculate_price['old_price'];
+                                $new_price = (float) $calculate_price['new_price'];
+
+                                if( $old_price != $new_price && !empty($calculate_price['combination_selected']['qty_breaks']) ) {
+                                    unset($option_fields['combination']['options']);
+                                    $option_fields['combination']['combination_selected'] = $calculate_price['combination_selected'];
+
+                                    $option_price = $cart_item['nbo_meta']['option_price'];
+                                    $original_price = (float) $cart_item_data['nbo_meta']['original_price'];
+                                    $discount_price = (float) $option_price['discount_price'];
+
+                                    $total_price = (float) $cart_item['nbo_meta']['option_price']['total_price'];
+
+                                    $new_total_price = $total_price - $old_price + $new_price;
+
+                                    $cart_item['nbo_meta']['option_price']['total_price']   = $new_total_price;
+                                    $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
+                                }
+
+                                $cart_item['nbo_meta']['field'] = $nbd_field;
+                                // set option qty side
+                                if( $option_fields['combination']['enabled'] == 'on' ) {
+                                    $results['flag'] = 1;
+                                    $option_fields['combination']['side'] = $qty_side;
+                                    $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($option_fields) );
+                                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                    WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                                    WC()->cart->set_session();
                                 }
                             }
                         }
-                    }
-                }
-
-                $sum_qty    = 0;
-                foreach( $qty_side as $key => $qty ) {
-                    $sum_qty += (int) $qty;
-                }
-                $option_fields = unserialize( base64_decode( WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields']) );
-                $_min_qty = (int) $option_fields['combination']['min_qty'];
-
-                if($sum_qty > $_min_qty) {
-                    $quantity_breaks = $option_fields['combination']['qty_breaks'];
-                    $break_options = $this->get_break_by_qty($sum_qty, $break_options);
-                    if( $upload_fields ) {
-                        if(isset($cart_item) && isset($nbd_field) ) {
-                            $results['flag'] = 1;
-
-                            WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                            WC()->cart->cart_contents[ $item_key ]['nbo_meta']['field'] = $nbd_field;
-                            WC()->cart->cart_contents[ $item_key ]['nbo_meta']['original_price'] = $break_options['price'];
-                            WC()->cart->set_quantity( $item_key, $sum_qty );
-                            WC()->cart->set_session();
-                        }
-                    } else if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
-                        WC()->cart->set_quantity( $item_key, $sum_qty, true );
-                        // set option qty side
-                        if( $option_fields['combination']['enabled'] == 'on' ) {
-                            $results['flag'] = 1;
-
-                            $option_fields['combination']['side'] = $qty_side;
-                            $options['fields'] = serialize($option_fields);
-                            $options['fields'] = base64_encode( $options['fields'] );
-
-                            WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields'] = $options['fields'];
-                            WC()->cart->cart_contents[ $item_key ]['nbo_meta']['original_price'] = $break_options['price'];
-                            WC()->cart->set_session();
-                        }
-                        
                     }
                 }
             }
