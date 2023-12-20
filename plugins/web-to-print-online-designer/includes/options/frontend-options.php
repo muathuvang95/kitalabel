@@ -1014,6 +1014,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     if( isset($side) ) {
                         $option_fields['combination']['combination_selected'] = $side;
                         $quantity = (int) $side['qty'];
+                        unset($option_fields['combination']['options']);
                     }
                     $option_fields['combination']['min_qty'] = $quantity;
                     if( isset($kita_qty_breaks)) {
