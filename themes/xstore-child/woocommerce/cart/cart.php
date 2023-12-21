@@ -45,6 +45,10 @@ do_action( 'woocommerce_before_cart' ); ?>
 						if( isset( $cart_item['nbo_meta'] ) ) {
 					        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
 
+					        echo '<pre>';
+					        var_dump($fields['combination']);
+					        echo '</pre>';
+
 					        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
 					        	$kita_hook_variant = true;
 					        }

@@ -28,6 +28,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
             add_action( 'wp_enqueue_scripts', array($this, 'kitalabel_custom_enqueue_scripts'));
 
+            add_filter( 'printcart_update_combination', array($this, 'kitalabel_update_combination'), 10 ,2);
+
              $this->kitalabel_ajax();
         }
 
@@ -296,23 +298,16 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             }
         }
 
-        public function _calculate_price($cart_item, $quantity = 1) {
-            $results = array(
-                'new_price' => 0,
-                'old_price' => 0,
-                'combination_selected' => [],
-                'flag' => false,
-            );
-
+        public function kitalabel_update_combination($arr, $cart_item) {
             $product_id = $cart_item['product_id'];
 
             $option_id  = $this->get_product_option($product_id);
 
-            if(!$option_id) return $results;
+            if(!$option_id) return $arr;
 
             $options    = $this->get_option( $option_id );
 
-            if(!$options) return $results;
+            if(!$options) return $arr;
 
             if( nbd_is_base64_string( $options['fields'] ) ){
                 $options['fields'] = base64_decode( $options['fields'] );
@@ -353,29 +348,17 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
                     if(!empty($item_combination_options[$area_name][$size_name][$material_name])) {
                         $combination_selected = $item_combination_options[$area_name][$size_name][$material_name];
-                    } else if(!empty($item_combination_options['default'])) {
-                        $combination_selected = $item_combination_options['default'];
-                    }
-
-                    if(!empty($combination_selected['qty_breaks'])) {
-                        $new_price = _get_break_by_qty($quantity, $combination_selected['qty_breaks'])['price'];
-                        $old_price = 0;
-
-                        if(!empty($fields['combination']['combination_selected'])) {
-                            $old_price = _get_break_by_qty($quantity, $fields['combination']['combination_selected']['qty_breaks'])['price'];
+                        if( isset($fields['combination'])) {
+                            $fields['combination']['qty_breaks'] = $combination_selected['qty_breaks'];
+                            $fields['combination']['combination_selected'] = $combination_selected;
+                            $_fields = base64_encode( serialize($fields) );
                         }
-
-                        $results = array(
-                            'price' => $new_price,
-                            'old_price' => $old_price,
-                            'combination_selected' => $combination_selected,
-                            'flag' => true,
-                        );
+                        $arr['nbo_meta']['options']['fields']   = $_fields;
                     }
                 }
             }
 
-            return $results;
+            return $arr;
         }
 
         public function calculate_price($cart_item, $old_qty = 1, $new_qty = 1) {
@@ -384,7 +367,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 'new_price' => 0,
             );
 
-            if(!empty($cart_item['nbo_meta']['options']['fields'])) return $price;
+            if(!empty($cart_item['nbo_meta']['options']['fields'])) return $results;
 
             $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
 
@@ -573,7 +556,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
         public function  kitalabel_add_upload_design_cart() {
             $results = array(
-                'flag'  => 0
+                'flag'  => 0,
+                'quantity'  => 1,
             );
 
             $item_key    = isset($_POST['item_key']) ? $_POST['item_key'] : '';
@@ -624,9 +608,6 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                                     }
                                                     if($sum_qty >= $min_qty) {
                                                         $passed = true;
-                                                        $results = array(
-                                                            'flag'  => 1,
-                                                        );
                                                     }
                                                 }
                                             }
@@ -635,6 +616,34 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 }
 
                                 if( $passed ) {
+                                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                    WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                                    WC()->cart->set_session();
+                                }
+                                if( $passed ) {
+                                    $quantity = (int) $cart_item['quantity'];
+                                    $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
+                                    $old_price = (float) $calculate_price['old_price'];
+                                    $new_price = (float) $calculate_price['new_price'];
+
+                                    if( $old_price != $new_price && !empty($calculate_price['combination_selected']['qty_breaks']) ) {
+                                        unset($fields['combination']['options']);
+                                        $fields['combination']['combination_selected'] = $calculate_price['combination_selected'];
+
+                                        $option_price = $cart_item['nbo_meta']['option_price'];
+                                        $original_price = (float) $cart_item_data['nbo_meta']['original_price'];
+                                        $discount_price = (float) $option_price['discount_price'];
+
+                                        $total_price = (float) $cart_item['nbo_meta']['option_price']['total_price'];
+
+                                        $new_total_price = $total_price - $old_price + $new_price;
+
+                                        $cart_item['nbo_meta']['option_price']['total_price']   = $new_total_price;
+                                        $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($fields) );
+                                        $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
+                                    }
+                                    $results['flag'] = 1;
+                                    $results['sum_qty'] = $sum_qty;
                                     WC()->cart->cart_contents[ $item_key ] = $cart_item;
                                     WC()->cart->set_quantity( $item_key, $sum_qty, true );
                                     WC()->cart->set_session();
@@ -652,7 +661,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
         public function  kitalabel_delete_upload_design_cart() {
             $results = array(
-                'flag'  => 0
+                'flag'  => 0,
+                'quantity'  => 1
             );
 
             $design_index    = isset($_POST['design_index']) ? (int) $_POST['design_index'] : 0;
@@ -706,7 +716,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 }
 
                                 if( $passed ) {
-                                    $quantity = $cart_item['quantity'];
+                                    $quantity = (int) $cart_item['quantity'];
                                     $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
                                     $old_price = (float) $calculate_price['old_price'];
                                     $new_price = (float) $calculate_price['new_price'];
@@ -728,6 +738,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                         $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
                                     }
                                     $results['flag'] = 1;
+                                    $results['sum_qty'] = $sum_qty;
                                     WC()->cart->cart_contents[ $item_key ] = $cart_item;
                                     WC()->cart->set_quantity( $item_key, $sum_qty, true );
                                     WC()->cart->set_session();
@@ -746,7 +757,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
         function kitalabel_ajax_qty_cart() {
             $params = array();
             $results = array(
-                'flag'  => 0
+                'flag'  => 0,
+                'quantity'  => 1,
             );
 
             if( isset($_POST['data']) ) {
@@ -760,7 +772,6 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     if( isset( $cart_items[$item_key] )) {
                         $cart_item = $cart_items[$item_key];
                         $nbd_field = $cart_item['nbo_meta']['field'] ;
-
                         if( isset( $cart_item['nbo_meta'] ) ) {
                             if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && isset( $cart_item['nbo_meta']['is_request_quote'] ) && $cart_item['nbo_meta']['is_request_quote'] ) {
                                 $cart_item['nbo_meta']['wait_price'] = 1;
@@ -785,7 +796,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                             $_min_qty = (int) $option_fields['combination']['min_qty'];
 
                             if($sum_qty > $_min_qty) {
-                                $quantity = $cart_item['quantity'];
+                                $quantity = (int) $cart_item['quantity'];
                                 $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
                                 $old_price = (float) $calculate_price['old_price'];
                                 $new_price = (float) $calculate_price['new_price'];
@@ -810,8 +821,9 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                                 // set option qty side
                                 if( $option_fields['combination']['enabled'] == 'on' ) {
                                     $results['flag'] = 1;
+                                    $results['sum_qty'] = $sum_qty;
                                     $option_fields['combination']['side'] = $qty_side;
-                                    $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($option_fields) );
+                                    $cart_item['nbo_meta']['options']['fields'] = base64_encode( serialize($option_fields) );
                                     WC()->cart->cart_contents[ $item_key ] = $cart_item;
                                     WC()->cart->set_quantity( $item_key, $sum_qty, true );
                                     WC()->cart->set_session();

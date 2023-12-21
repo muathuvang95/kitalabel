@@ -485,6 +485,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     }
                     $arr['nbo_meta']['order_again'] = $order->get_id(); // custom kitalabel
                     $arr['nbo_meta']['is_request_quote'] = $order->get_meta('_is_request_quote'); // custom kitalabel
+                    $arr = apply_filters('printcart_update_combination', $arr, $order_item);
                 }
             }
             return $arr;
@@ -555,7 +556,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 $hide_option_price = nbdesigner_get_option('nbdesigner_hide_option_price_in_order', 'no');
                 foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
                     if( !isset( $field['published'] ) || $field['published'] == 'y' ){
-                        $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price'], array( 'decimals' => $decimals )) : '';
+                        $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price'], array( 'decimals' => $decimals )) : '';
                         if( isset($field['is_upload']) ){
                             // kita upload file
                             if(is_array($field['val'])) {
@@ -785,7 +786,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     $decimals = nbdesigner_get_option('nbdesigner_number_of_decimals', 2);
                     foreach ($cart_item['nbo_meta']['option_price']['fields'] as $field) {
                         if( !isset( $field['published'] ) || $field['published'] == 'y' ){
-                            $price = floatval($field['price']) >= 0 ? '+' . wc_price( $field['price'], array( 'decimals' =>  $decimals ) ) : wc_price($field['price'], array( 'decimals' => $decimals ));
+                            $price = floatval($field['price']) > 0 ? '+' . wc_price( $field['price'], array( 'decimals' =>  $decimals ) ) : wc_price($field['price'], array( 'decimals' => $decimals ));
                             if( $hide_zero_price == 'yes' && round($field['price'], $num_decimals) == 0 ) $price = '';
                             if( isset($field['is_custom_upload']) ){
                                 // kita upload file
@@ -927,58 +928,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     }
                 }
                 // custom kitalabel
-                if( isset($option_fields['combination']) && isset($option_fields['combination']['options']) &&  isset($option_fields['combination']['enabled']) && $option_fields['combination']['enabled'] == 'on' ) {
-                    if(isset($option_fields['display_type']) && $option_fields['display_type'] == 4) {
-                        foreach ($option_fields['groups'] as $index => $group) {
-                            foreach($nbd_field as $key => $val) {
-                                if(is_array($val) && isset($val['value']) ) {
-                                    $val = $val['value'];
-                                }
-                                $_origin_field   = $this->get_field_by_id( $option_fields, $key );
-                                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
-                                    $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                    $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                    if( $area_name == 'Square' || $area_name == 'Circle' ) {
-                                        $_area_name = 'Square + Circle';
-                                    }
-                                    if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
-                                        $_area_name = 'Rectangle + Oval';
-                                    }
-                                }
-                                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
-                                    $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                }
-                                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
-                                    $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                }
-                            }
-                        }
-                    } else {
-                        foreach ($option_fields['fields'] as $index => $field) {
-                            foreach($nbd_field as $key => $val) {
-                                if(is_array($val) && isset($val['value']) ) {
-                                    $val = $val['value'];
-                                }
-                                $_origin_field   = $this->get_field_by_id( $option_fields, $key );
-                                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
-                                    $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                    $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                    if( $area_name == 'Square' || $area_name == 'Circle' ) {
-                                        $_area_name = 'Square + Circle';
-                                    }
-                                    if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
-                                        $_area_name = 'Rectangle + Oval';
-                                    }
-                                }
-                                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
-                                    $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                }
-                                if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
-                                    $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                }
-                            }
-                        }
-                    }
+                if( isset($option_fields['combination']['enabled']) && $option_fields['combination']['enabled'] == 'on' ) {
                     $number_side = 0;
                     $side_page = array();
                     foreach( $nbd_field as $key => $val) {
@@ -1003,14 +953,12 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $side_page[] = $quantity;
                     }
                     
-                    $option_fields['combination']['side'] = $side_page;
-                    if( isset($_area_name) && isset($size_name) && isset($material_name) ) {
-                        $side = $option_fields['combination']['options'][$_area_name][$size_name][$material_name];
-                        $kita_qty_breaks = $side['qty_breaks'];
-                        if(!isset($side) && isset($option_fields['combination']['options']['default'])) {
-                            $side = $option_fields['combination']['options']['default'];
-                        }
+                    if( !empty($option_price['option_fields']['combination']['combination_selected'])) {
+                        $side = $option_price['option_fields']['combination']['combination_selected'];
                     }
+
+                    $option_fields['combination']['side'] = $side_page;
+
                     if( isset($side) ) {
                         $option_fields['combination']['combination_selected'] = $side;
                         $quantity = (int) $side['qty'];
@@ -1571,64 +1519,73 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
             }
             
             // custom kitalabel
-            if(isset($option_fields['combination']) && isset($option_fields['combination']['options']) && isset($option_fields['combination']['enabled']) &&  $option_fields['combination']['enabled'] == 'on' ) {
-                if(isset($option_fields['display_type']) && $option_fields['display_type'] == 4) {
-                    foreach($option_fields['groups'] as $index => $group) {
-                        foreach($fields as $key => $val) {
-                            if(is_array($val) && isset($val['value']) ) {
-                                $val = $val['value'];
-                            }
-                            $_origin_field   = $this->get_field_by_id( $option_fields, $key );
-                            if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
-                                $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                if( $area_name == 'Square' || $area_name == 'Circle' ) {
-                                    $_area_name = 'Square + Circle';
+            if( isset($option_fields['combination']['enabled']) &&  $option_fields['combination']['enabled'] == 'on' ) {
+                if(empty($option_fields['combination']['combination_selected'])) {
+                    if(isset($option_fields['combination']) && isset($option_fields['combination']['options'])) {
+                        if(isset($option_fields['display_type']) && $option_fields['display_type'] == 4) {
+                            foreach($option_fields['groups'] as $index => $group) {
+                                foreach($fields as $key => $val) {
+                                    if(!empty($group['fields'])) {
+                                        if(is_array($val) && isset($val['value']) ) {
+                                            $val = $val['value'];
+                                        }
+                                        $_origin_field   = $this->get_field_by_id( $option_fields, $key );
+
+                                        if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
+                                            $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                            $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                            if( $area_name == 'Square' || $area_name == 'Circle' ) {
+                                                $_area_name = 'Square + Circle';
+                                            }
+                                            if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
+                                                $_area_name = 'Rectangle + Oval';
+                                            }
+                                        }
+                                        if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
+                                            $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                        }
+                                        if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
+                                            $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                        }
+                                    }
                                 }
-                                if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
-                                    $_area_name = 'Rectangle + Oval';
+                            }
+                        } else {
+                            foreach($option_fields['fields'] as $index => $field) {
+                                foreach($fields as $key => $val) {
+                                    if(is_array($val) && isset($val['value']) ) {
+                                        $val = $val['value'];
+                                    }
+                                    $_origin_field   = $this->get_field_by_id( $option_fields, $key );
+                                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
+                                        $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                        $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                        if( $area_name == 'Square' || $area_name == 'Circle' ) {
+                                            $_area_name = 'Square + Circle';
+                                        }
+                                        if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
+                                            $_area_name = 'Rectangle + Oval';
+                                        }
+                                    }
+                                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
+                                        $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                    }
+                                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
+                                        $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                                    }
                                 }
                             }
-                            if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
-                                $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                            }
-                            if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' && in_array( $_origin_field['id'] , $group['fields'] ) ) {
-                                $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
+                        }
+
+                        if( isset($_area_name) && isset($size_name) && isset($material_name) ) {
+                            $side = $option_fields['combination']['options'][$_area_name][$size_name][$material_name];
+                            if(!isset($side) && isset($option_fields['combination']['options']['default'])) {
+                                $side = $option_fields['combination']['options']['default'];
                             }
                         }
                     }
                 } else {
-                    foreach($option_fields['fields'] as $index => $field) {
-                        foreach($fields as $key => $val) {
-                            if(is_array($val) && isset($val['value']) ) {
-                                $val = $val['value'];
-                            }
-                            $_origin_field   = $this->get_field_by_id( $option_fields, $key );
-                            if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
-                                $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                                if( $area_name == 'Square' || $area_name == 'Circle' ) {
-                                    $_area_name = 'Square + Circle';
-                                }
-                                if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
-                                    $_area_name = 'Rectangle + Oval';
-                                }
-                            }
-                            if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
-                                $size_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                            }
-                            if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
-                                $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
-                            }
-                        }
-                    }
-                }
-
-                if( isset($_area_name) && isset($size_name) && isset($material_name) ) {
-                    $side = $option_fields['combination']['options'][$_area_name][$size_name][$material_name];
-                    if(!isset($side) && isset($option_fields['combination']['options']['default'])) {
-                        $side = $option_fields['combination']['options']['default'];
-                    }
+                    $side = $option_fields['combination']['combination_selected'];
                 }
 
                 if( isset($side) && isset($side['qty_breaks']) ) {
@@ -1648,7 +1605,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         }
                     }
                     $option_fields['combination']['combination_selected'] = $side;
-                    $original_price +=  $price_item;
+                    $total_price +=  $price_item;
                     $manual_pm =  true;
                 }
             }      
@@ -1661,7 +1618,8 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 'fields'            => $_fields,
                 'cart_image'        => $cart_image,
                 'manual_pm'         => $manual_pm,
-                'original_price'    => $original_price
+                'original_price'    => $original_price,
+                'option_fields'     => $option_fields,
             );
         }
         public function nb_sort_quantity_breaks($a, $b) {

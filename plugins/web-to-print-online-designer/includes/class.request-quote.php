@@ -906,7 +906,7 @@ if(!class_exists('NBD_Request_Quote')) {
                     //Add NBO data
                     if ( isset( $values['nbo_meta'] ) ) {
                         foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
-                            $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price']) : '';
+                            $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price']) : '';
                             if( isset($field['is_upload']) ){
                                 if(isset($field['val']['files'])) {
                                     $value_name_upload = '';
