@@ -44,8 +44,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 						$custom_upload = array();
 						if( isset( $cart_item['nbo_meta'] ) ) {
 					        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) );
-
-					        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+					        if( !empty( $fields['combination']['combination_selected']) ) {
 					        	$kita_hook_variant = true;
 					        }
 					        if(isset($cart_item['nbo_meta']['option_price']) && $cart_item['nbo_meta']['option_price']['fields'] && is_array($cart_item['nbo_meta']['option_price']['fields'])) {
