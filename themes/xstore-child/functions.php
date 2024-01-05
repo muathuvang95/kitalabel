@@ -45,7 +45,7 @@ function nb_custom_render_cart( $title = null, $cart_item = null, $cart_item_key
         $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) );
         $hiden_edit_design = false;
         $buton = '';
-        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+        if( !empty( $fields['combination']['combination_selected'] )) {
             $hiden_edit_design = true;
             // return sprintf( '<a class="nb-custom-link" href="%s">%s</a>', esc_url( $cart_item['data']->get_permalink( $cart_item ) ), $cart_item['data']->get_name() );
             if( $show_edit_link ){
@@ -83,7 +83,7 @@ function nb_custom_render_cart( $title = null, $cart_item = null, $cart_item_key
             }
             
         }
-        if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+        if(  !empty( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
             foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
                 if(isset($field['is_custom_upload'])) {
                     $hiden_edit_design = true;
