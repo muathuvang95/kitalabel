@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 							$hidden_thumbnail = false;
 							if( isset( $cart_item['nbo_meta'] ) ) {
 						        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-						        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+						        if( !empty( $fields['combination']['combination_selected'] ) ) {
 						            $hidden_thumbnail = true;
 						        }
 						    }
@@ -61,7 +61,7 @@ defined( 'ABSPATH' ) || exit;
 				// cutom kitalabel
 				if( isset( $cart_item['nbo_meta'] ) ) {
 			        $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-			        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+			        if( !empty( $fields['combination']['combination_selected'] ) ) {
 			            echo '<tr class="cart_item"><td colspan="2">';
 						echo apply_filters( 'nb_custom_after_cart_item_name', '' , $cart_item, $cart_item_key ); //cutom kitalabel
 						echo '</td></tr>';
