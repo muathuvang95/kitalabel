@@ -45,9 +45,113 @@ jQuery( function( $ ) {
           $node.removeClass( 'processing' ).unblock();
       };
 
-      var kita_refresh_fragments = function () {
-          jQuery( "body.woocommerce-cart [name='update_cart']" ).removeAttr( 'disabled' );
-          jQuery( "body.woocommerce-cart [name='update_cart']" ).trigger( 'click' );
+      var show_notice = function( html_element, $target ) {
+        if ( ! $target ) {
+          $target = $( '.woocommerce-notices-wrapper:first' ) ||
+            $( '.cart-empty' ).closest( '.woocommerce' ) ||
+            $( '.woocommerce-cart-form' );
+        }
+        $target.prepend( html_element );
+      };
+
+      var remove_duplicate_notices = function( notices ) {
+        var seen = [];
+        var new_notices = notices;
+
+        notices.each( function( index ) {
+          var text = $( this ).text();
+
+          if ( 'undefined' === typeof seen[ text ] ) {
+            seen[ text ] = true;
+          } else {
+            new_notices.splice( index, 1 );
+          }
+        } );
+
+        return new_notices;
+      };
+
+      var update_cart_totals_div = function( html_str ) {
+        $( '.cart_totals' ).replaceWith( html_str );
+        $( document.body ).trigger( 'updated_cart_totals' );
+      };
+
+      var update_wc_div = function( html_str, preserve_notices ) {
+        var $html       = $.parseHTML( html_str );
+        var $new_form   = $( '.woocommerce-cart-form', $html );
+        var $new_totals = $( '.cart_totals', $html );
+        var $notices    = remove_duplicate_notices( $( '.woocommerce-error, .woocommerce-message, .woocommerce-info', $html ) );
+
+        // No form, cannot do this.
+        if ( $( '.woocommerce-cart-form' ).length === 0 ) {
+          window.location.reload();
+          return;
+        }
+
+        // Remove errors
+        if ( ! preserve_notices ) {
+          $( '.woocommerce-error, .woocommerce-message, .woocommerce-info' ).remove();
+        }
+
+        if ( $new_form.length === 0 ) {
+          // If the checkout is also displayed on this page, trigger reload instead.
+          if ( $( '.woocommerce-checkout' ).length ) {
+            window.location.reload();
+            return;
+          }
+
+          // No items to display now! Replace all cart content.
+          var $cart_html = $( '.cart-empty', $html ).closest( '.woocommerce' );
+          $( '.woocommerce-cart-form__contents' ).closest( '.woocommerce' ).replaceWith( $cart_html );
+
+          // Display errors
+          if ( $notices.length > 0 ) {
+            show_notice( $notices );
+          }
+
+          // Notify plugins that the cart was emptied.
+          $( document.body ).trigger( 'wc_cart_emptied' );
+        } else {
+          // If the checkout is also displayed on this page, trigger update event.
+          if ( $( '.woocommerce-checkout' ).length ) {
+            $( document.body ).trigger( 'update_checkout' );
+          }
+
+          $( '.woocommerce-cart-form' ).replaceWith( $new_form );
+          $( '.woocommerce-cart-form' ).find( ':input[name="update_cart"]' ).prop( 'disabled', true ).attr( 'aria-disabled', true );
+
+          if ( $notices.length > 0 ) {
+            show_notice( $notices );
+          }
+
+          update_cart_totals_div( $new_totals );
+        }
+
+        $( document.body ).trigger( 'updated_wc_div' );
+      };
+
+      var kita_refresh_fragments = function ($form) {
+        block( $( 'div.cart_totals' ) );
+
+        // Provide the submit button value because wc-form-handler expects it.
+        $( '<input />' ).attr( 'type', 'hidden' )
+                .attr( 'name', 'update_cart' )
+                .attr( 'value', 'Update Cart' )
+                .appendTo( $form );
+
+        // Make call to actual form post URL.
+        $.ajax( {
+          type:     $form.attr( 'method' ),
+          url:      $form.attr( 'action' ),
+          data:     $form.serialize(),
+          dataType: 'html',
+          success:  function( response ) {
+            unblock( $form );
+            update_wc_div( response );
+            unblock( $( 'div.cart_totals' ) );
+            $.scroll_to_notices( $( '[role="alert"]' ) );
+          }
+        });
       }
 
       $('.nb-wrap-comment .nb-note textarea.textarea-note').change( function() {
@@ -152,12 +256,11 @@ jQuery( function( $ ) {
               context: this,
               success: function(response) {
                 if(response.success) {
-                  if(response.data.flag) {
-                    unblock($form);
-                    kita_refresh_fragments();
-                    $(sefl).parent().find('input').trigger("change");
+                  if(response.data.flag && response.data.sum_qty) {
+                    var qty_el = jQuery('input[name="cart['+ item_key +'][qty]"]').val(response.data.sum_qty);
+                    kita_refresh_fragments($form);
                   } else {
-                    alert(" Can't set quantity for each the side less than the min quantity: " + min_qty);
+                    alert("Can't set quantity for each the side less than the min quantity: " + min_qty);
                     unblock($form);
                   }
                 }
@@ -168,7 +271,7 @@ jQuery( function( $ ) {
           })
         } else {
           $(this).val(qty_old);
-          alert(" Can't set quantity for each the side less than the min quantity: " + min_qty);
+          alert("Can't set quantity for each the side less than the min quantity: " + min_qty);
         }
           
       });
@@ -209,9 +312,9 @@ jQuery( function( $ ) {
             context: this,
             success: function(response) {
               if(response.success) {
-                if(response.data.flag) {
-                  unblock($form);
-                  kita_refresh_fragments();
+                if(response.data.flag && response.data.sum_qty) {
+                  var qty_el = jQuery('input[name="cart['+ item_key +'][qty]"]').val(response.data.sum_qty);
+                  kita_refresh_fragments($form);
                 } else {
                   alert("You cannot delete this side, change the total number of remaining sides to be greater than: " + min_qty + " to continue." );
                   unblock($form);
@@ -258,8 +361,7 @@ jQuery( function( $ ) {
             success: function(response) {
               if(response.success) {
                 if(response.data.flag) {
-                  unblock($form);
-                  kita_refresh_fragments();
+                  kita_refresh_fragments($form);
                 } else {
                   alert("Something went wrong!" );
                   unblock($form);
@@ -328,9 +430,9 @@ jQuery( function( $ ) {
             context: this,
             success: function(response) {
               if(response.success) {
-                if(response.data.flag) {
-                  unblock($form);
-                  kita_refresh_fragments();
+                if(response.data.flag && response.data.sum_qty) {
+                  var qty_el = jQuery('input[name="cart['+ item_key +'][qty]"]').val(response.data.sum_qty);
+                  kita_refresh_fragments($form);
                 } else {
                   alert("Something went wrong!" );
                   unblock($form);

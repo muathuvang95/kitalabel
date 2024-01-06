@@ -28,6 +28,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
             add_action( 'wp_enqueue_scripts', array($this, 'kitalabel_custom_enqueue_scripts'));
 
+            add_filter( 'printcart_update_combination', array($this, 'kitalabel_update_combination'), 10 ,2);
+
              $this->kitalabel_ajax();
         }
 
@@ -222,6 +224,165 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             wp_enqueue_script( 'custom-kitalabel-js' );
         }
 
+        public function get_product_option( $product_id ){
+            $enable = get_post_meta( $product_id, '_nbo_enable', true );
+            if( !$enable ) return false;
+            $option_id = get_transient( 'nbo_product_'.$product_id );
+            if( false === $option_id ){
+                global $wpdb;
+                $sql = "SELECT id, priority, apply_for, product_ids, product_cats, date_from, date_to FROM {$wpdb->prefix}nbdesigner_options WHERE published = 1";
+                $options = $wpdb->get_results($sql, 'ARRAY_A');
+                if($options){
+                    $_options = array();
+                    foreach( $options as $option ){
+                        $execute_option = true;
+                        $from_date = false;
+                        if( isset($option['date_from']) ){
+                            $from_date = empty( $option['date_from'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $option['date_from'] ), false ) );
+                        }
+                        $to_date = false;
+                        if( isset($option['date_to']) ){
+                            $to_date = empty( $option['date_to'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $option['date_to'] ), false ) );
+                        }
+                        $now  = current_time( 'timestamp' );
+                        if ( $from_date && $to_date && !( $now >= $from_date && $now <= $to_date ) ) {
+                            $execute_option = false;
+                        } elseif ( $from_date && !$to_date && !( $now >= $from_date ) ) {
+                            $execute_option = false;
+                        } elseif ( $to_date && !$from_date && !( $now <= $to_date ) ) {
+                            $execute_option = false;
+                        }
+                        if( $execute_option ){
+                            if( $option['apply_for'] == 'p' ){
+                                $products = unserialize($option['product_ids']);
+                                $execute_option = in_array($product_id, $products) ? true : false;
+                            }else {
+                                $categories = $option['product_cats'] ? unserialize($option['product_cats']) : array();
+                                $product = wc_get_product($product_id);
+                                $product_categories = $product->get_category_ids();
+                                $intersect = array_intersect($product_categories, $categories);
+                                $execute_option = ( count($intersect) > 0 ) ? true : false;
+                            }
+                        }
+                        if( $execute_option ){
+                            $_options[] = $option;
+                        }
+                    }
+                    $_options = array_reverse( $_options );
+                    $option_priority = 0;
+                    foreach( $_options as $_option ){
+                        if( $_option['priority'] > $option_priority ){
+                            $option_priority = $_option['priority'];
+                            $option_id = $_option['id'];
+                        }
+                    }
+                    if( $option_id ){
+                        set_transient( 'nbo_product_'.$product_id , $option_id );
+                    }
+                }
+            }
+            return $option_id;
+        }
+
+        public function get_option( $id ){
+            global $wpdb;
+            $sql = "SELECT * FROM {$wpdb->prefix}nbdesigner_options";
+            $sql .= " WHERE id = " . esc_sql($id);
+            $result = $wpdb->get_results($sql, 'ARRAY_A');
+            return count($result[0]) ? $result[0] : false;
+        }
+
+        public function get_field_by_id( $option_fields, $field_id ){
+            foreach($option_fields['fields'] as $key => $field){
+                if( $field['id'] == $field_id ) return $field;
+            }
+        }
+
+        public function kitalabel_update_combination($arr, $cart_item) {
+            $product_id = $cart_item['product_id'];
+
+            $option_id  = $this->get_product_option($product_id);
+
+            if(!$option_id) return $arr;
+
+            $options    = $this->get_option( $option_id );
+
+            if(!$options) return $arr;
+
+            if( nbd_is_base64_string( $options['fields'] ) ){
+                $options['fields'] = base64_decode( $options['fields'] );
+            }
+
+            $option_fields  = maybe_unserialize( $options['fields'] );
+            $nbd_fields = !empty($cart_item['nbo_meta']['option_price']['fields']) ? $cart_item['nbo_meta']['option_price']['fields'] : array();
+
+            $item_combination_options = isset($option_fields['combination']) && isset($option_fields['combination']['options']) ? $option_fields['combination']['options'] : array();
+            $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
+
+            if( !empty($item_combination_options) && !empty($nbd_fields) ) {
+                foreach($nbd_fields as $key => $val) {
+                    $_origin_field   = $this->get_field_by_id( $option_fields, $key );
+                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
+                        $_area_name = $val['value_name'];
+                        $area_name = $val['value_name'];
+
+                        if( $_area_name == 'Square' || $_area_name == 'Circle' ) {
+                            $area_name = 'Square + Circle';
+                        }
+
+                        if( $_area_name == 'Rectangle' || $_area_name == 'Oval' ) {
+                            $area_name = 'Rectangle + Oval';
+                        }
+                    }
+
+                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
+                        $size_name = $val['value_name'];
+                    }
+
+                    if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
+                        $material_name = $val['value_name'];
+                    }
+                }
+
+                if( isset($area_name) && isset($size_name) && isset($material_name) ) {
+
+                    if(!empty($item_combination_options[$area_name][$size_name][$material_name])) {
+                        $combination_selected = $item_combination_options[$area_name][$size_name][$material_name];
+                        if( isset($fields['combination'])) {
+                            $fields['combination']['qty_breaks'] = $combination_selected['qty_breaks'];
+                            $fields['combination']['combination_selected'] = $combination_selected;
+                            $_fields = base64_encode( serialize($fields) );
+                        }
+                        $arr['nbo_meta']['options']['fields']   = $_fields;
+                    }
+                }
+            }
+
+            return $arr;
+        }
+
+        public function calculate_price($cart_item, $old_qty = 1, $new_qty = 1) {
+            $results = array(
+                'old_price' => 0,
+                'new_price' => 0,
+            );
+
+            if(!empty($cart_item['nbo_meta']['options']['fields'])) return $results;
+
+            $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
+
+            if(!empty($fields['combination']['combination_selected'])) {
+                $old_price = _get_break_by_qty($old_qty, $fields['combination']['combination_selected']['qty_breaks'])['price'];
+                $new_price = _get_break_by_qty($new_qty, $fields['combination']['combination_selected']['qty_breaks'])['price'];
+                $results = array(
+                    'old_price' => $old_price,
+                    'new_price' => $new_price,
+                );
+            }
+
+            return $results;
+        }
+
         public function kitalabel_download_pdf_all($order, $order_id) {
             ?>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -348,44 +509,37 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
                 if( isset( $cart_items[$item_key] )) {
                     $cart_item = $cart_items[$item_key];
-                    $nbd_field = $cart_item['nbo_meta']['field'] ;
-
+                    $product_id = $cart_item['product_id'];
                     if( isset( $cart_item['nbo_meta'] ) ) {
                         $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
 
-                        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-                            $item_combination = $fields['combination'];
-                            $upload_fields = false;
-                            if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
-                                $quantity = $cart_item['quantity'];
-                                $sum_qty = 0;
-                                foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $val)  {
-                                    if(isset($val['is_custom_upload']) && $val['is_custom_upload'] == 1) {
-                                        $files = $val['value_name']['files'];
-                                        if(isset($files[$design_index])) {
-                                            $file_data = explode('/', $files[$design_index]);
-                                            if(count($file_data) == 2) {
-                                                $folder_upload = $file_data[0];
-                                                $nbd_upload_field = $this->upload_file($_FILES['file'], $key, $folder_upload);
-                                                if($nbd_upload_field) {
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['files'][$design_index] = $nbd_upload_field;
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['files'][$design_index] = $nbd_upload_field;
-                                                    $cart_item['nbo_meta']['field'][$key]['files'][$design_index] = $nbd_upload_field;
-                                                    $passed = true;
-                                                    $results = array(
-                                                        'flag'  => 1,
-                                                        'design'  => $nbd_upload_field,
-                                                    );
-                                                }
+                        if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                            foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $val)  {
+                                if(isset($val['is_custom_upload']) && $val['is_custom_upload'] == 1) {
+                                    $files = $val['value_name']['files'];
+                                    if(isset($files[$design_index])) { 
+                                        $file_data = explode('/', $files[$design_index]);
+                                        if(count($file_data) == 2) {
+                                            $folder_upload = $file_data[0];
+                                            $nbd_upload_field = $this->upload_file($_FILES['file'], $key, $folder_upload);
+                                            if($nbd_upload_field) {
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['files'][$design_index] = $nbd_upload_field;
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['files'][$design_index] = $nbd_upload_field;
+                                                $cart_item['nbo_meta']['field'][$key]['files'][$design_index] = $nbd_upload_field;
+                                                $passed = true;
+                                                $results = array(
+                                                    'flag'  => 1,
+                                                    'design'  => $nbd_upload_field,
+                                                );
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                if( $passed ) {
-                                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                                    WC()->cart->set_session();
-                                }
+                            if( $passed ) {
+                                WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                WC()->cart->set_session();
                             }
                         }
                     }
@@ -400,7 +554,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
         public function  kitalabel_add_upload_design_cart() {
             $results = array(
-                'flag'  => 0
+                'flag'  => 0,
+                'quantity'  => 1,
             );
 
             $item_key    = isset($_POST['item_key']) ? $_POST['item_key'] : '';
@@ -414,58 +569,81 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
                 if( isset( $cart_items[$item_key] )) {
                     $cart_item = $cart_items[$item_key];
-                    $nbd_field = $cart_item['nbo_meta']['field'] ;
 
                     if( isset( $cart_item['nbo_meta'] ) ) {
+                        if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && isset( $cart_item['nbo_meta']['is_request_quote'] ) && $cart_item['nbo_meta']['is_request_quote'] ) {
+                            $cart_item['nbo_meta']['wait_price'] = 1;
+                        }
+
                         $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
 
-                        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-                            $item_combination = $fields['combination'];
-                            $upload_fields = false;
-                            if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
-                                $quantity = $cart_item['quantity'];
-                                $sum_qty = 0;
-                                foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $val)  {
-                                    if(isset($val['is_custom_upload']) && $val['is_custom_upload'] == 1) {
-                                        $files = $val['value_name']['files'];
-                                        if(isset($files[0])) {
-                                            $file_data = explode('/', $files[0]);
-                                            if(count($file_data) == 2) {
-                                                $folder_upload = $file_data[0];
-                                                $nbd_upload_field = $this->upload_file($_FILES['file'], $key, $folder_upload);
-                                                if($nbd_upload_field) {
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['files'][] = $nbd_upload_field;
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['files'][] = $nbd_upload_field;
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['variants'][] = $name;
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['variants'][] = $name;
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'][] = $new_qty;
-                                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'][] = $new_qty;
-                                                    $cart_item['nbo_meta']['field'][$key]['files'][] = $nbd_upload_field;
-                                                    $cart_item['nbo_meta']['field'][$key]['variants'][] = $name;
-                                                    $cart_item['nbo_meta']['field'][$key]['qtys'][] = $new_qty;
+                        if( !empty( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                            $sum_qty = 0;
+                            foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $val)  {
+                                if(isset($val['is_custom_upload']) && $val['is_custom_upload'] == 1) {
+                                    $files = $val['value_name']['files'];
+                                    if(isset($files[0])) {
+                                        $file_data = explode('/', $files[0]);
+                                        if(count($file_data) == 2) {
+                                            $folder_upload = $file_data[0];
+                                            $nbd_upload_field = $this->upload_file($_FILES['file'], $key, $folder_upload);
+                                            if($nbd_upload_field) {
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['files'][] = $nbd_upload_field;
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['files'][] = $nbd_upload_field;
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['variants'][] = $name;
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['variants'][] = $name;
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'][] = $new_qty;
+                                                $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'][] = $new_qty;
+                                                $cart_item['nbo_meta']['field'][$key]['files'][] = $nbd_upload_field;
+                                                $cart_item['nbo_meta']['field'][$key]['variants'][] = $name;
+                                                $cart_item['nbo_meta']['field'][$key]['qtys'][] = $new_qty;
 
-                                                    $min_qty = (int) $val['min_qty'];
-                                                    foreach($cart_item['nbo_meta']['field'][$key]['qtys'] as $k => $qty) {
-                                                        $qty = (int) $qty;
-                                                        $sum_qty += $qty;
-                                                    }
-                                                    if($sum_qty >= $min_qty) {
-                                                        $passed = true;
-                                                        $results = array(
-                                                            'flag'  => 1,
-                                                        );
-                                                    }
+                                                $min_qty = (int) $val['min_qty'];
+                                                foreach($cart_item['nbo_meta']['field'][$key]['qtys'] as $k => $qty) {
+                                                    $qty = (int) $qty;
+                                                    $sum_qty += $qty;
+                                                }
+                                                if($sum_qty >= $min_qty) {
+                                                    $passed = true;
                                                 }
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                if( $passed ) {
-                                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                                    WC()->cart->set_quantity( $item_key, $sum_qty );
-                                    WC()->cart->set_session();
+                            if( $passed ) {
+                                WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                                WC()->cart->set_session();
+                            }
+                            if( $passed ) {
+                                $quantity = (int) $cart_item['quantity'];
+                                $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
+                                $old_price = (float) $calculate_price['old_price'];
+                                $new_price = (float) $calculate_price['new_price'];
+
+                                if( $old_price != $new_price && !empty($calculate_price['combination_selected']['qty_breaks']) ) {
+                                    unset($fields['combination']['options']);
+                                    $fields['combination']['combination_selected'] = $calculate_price['combination_selected'];
+
+                                    $option_price = $cart_item['nbo_meta']['option_price'];
+                                    $original_price = (float) $cart_item_data['nbo_meta']['original_price'];
+                                    $discount_price = (float) $option_price['discount_price'];
+
+                                    $total_price = (float) $cart_item['nbo_meta']['option_price']['total_price'];
+
+                                    $new_total_price = $total_price - $old_price + $new_price;
+
+                                    $cart_item['nbo_meta']['option_price']['total_price']   = $new_total_price;
+                                    $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($fields) );
+                                    $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
                                 }
+                                $results['flag'] = 1;
+                                $results['sum_qty'] = $sum_qty;
+                                WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                                WC()->cart->set_session();
                             }
                         }
                     }
@@ -479,7 +657,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
         public function  kitalabel_delete_upload_design_cart() {
             $results = array(
-                'flag'  => 0
+                'flag'  => 0,
+                'quantity'  => 1
             );
 
             $design_index    = isset($_POST['design_index']) ? (int) $_POST['design_index'] : 0;
@@ -497,48 +676,67 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     if( isset( $cart_item['nbo_meta'] ) ) {
                         $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
 
-                        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-                            $item_combination = $fields['combination'];
-                            if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
-                                $quantity = $cart_item['quantity'];
-                                $sum_qty = 0;
-                                foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $val)  {
-                                    if(isset($val['is_custom_upload']) && $val['is_custom_upload'] == 1) {
-                                        $qty_side = $val['val']['qtys'];
-                                        $files_side = $val['val']['files'];
-                                        $name_side = $val['val']['variants'];
-                                        $min_qty = (int) $val['min_qty'];
-                                        foreach($qty_side as $k => $qty) {
-                                            $qty = (int) $qty;
-                                            if($k != $design_index) {
-                                                $sum_qty += $qty;
-                                            }
-                                        }
-
-                                        if($sum_qty >= $min_qty) {
-                                            $passed = true;
-                                            unset($qty_side[$design_index]);
-                                            unset($files_side[$design_index]);
-                                            unset($name_side[$design_index]);
-                                            $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
-                                            $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
-                                            $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['files'] = $files_side;
-                                            $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['files'][] = $files_side;
-                                            $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['variants'] = $name_side;
-                                            $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['variants'] = $name_side;
-
-                                            $cart_item['nbo_meta']['field'][$key]['files'] = $files_side;
-                                            $cart_item['nbo_meta']['field'][$key]['variants'] = $name_side;
-                                            $cart_item['nbo_meta']['field'][$key]['qtys'] = $qty_side;
+                        if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                            $sum_qty = 0;
+                            foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $val)  {
+                                if(isset($val['is_custom_upload']) && $val['is_custom_upload'] == 1) {
+                                    $qty_side = $val['val']['qtys'];
+                                    $files_side = $val['val']['files'];
+                                    $name_side = $val['val']['variants'];
+                                    $min_qty = (int) $val['min_qty'];
+                                    foreach($qty_side as $k => $qty) {
+                                        $qty = (int) $qty;
+                                        if($k != $design_index) {
+                                            $sum_qty += $qty;
                                         }
                                     }
+
+                                    if($sum_qty >= $min_qty) {
+                                        $passed = true;
+                                        unset($qty_side[$design_index]);
+                                        unset($files_side[$design_index]);
+                                        unset($name_side[$design_index]);
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['files'] = $files_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['files'][] = $files_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['variants'] = $name_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['variants'] = $name_side;
+
+                                        $cart_item['nbo_meta']['field'][$key]['files'] = $files_side;
+                                        $cart_item['nbo_meta']['field'][$key]['variants'] = $name_side;
+                                        $cart_item['nbo_meta']['field'][$key]['qtys'] = $qty_side;
+                                    }
                                 }
-                                if( $passed ) {
-                                    $results['flag'] = 1;
-                                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                                    WC()->cart->set_quantity( $item_key, $sum_qty );
-                                    WC()->cart->set_session();
+                            }
+
+                            if( $passed ) {
+                                $quantity = (int) $cart_item['quantity'];
+                                $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
+                                $old_price = (float) $calculate_price['old_price'];
+                                $new_price = (float) $calculate_price['new_price'];
+
+                                if( $old_price != $new_price && !empty($calculate_price['combination_selected']['qty_breaks']) ) {
+                                    unset($fields['combination']['options']);
+                                    $fields['combination']['combination_selected'] = $calculate_price['combination_selected'];
+
+                                    $option_price = $cart_item['nbo_meta']['option_price'];
+                                    $original_price = (float) $cart_item_data['nbo_meta']['original_price'];
+                                    $discount_price = (float) $option_price['discount_price'];
+
+                                    $total_price = (float) $cart_item['nbo_meta']['option_price']['total_price'];
+
+                                    $new_total_price = $total_price - $old_price + $new_price;
+
+                                    $cart_item['nbo_meta']['option_price']['total_price']   = $new_total_price;
+                                    $cart_item['nbo_meta']['options']['fields']             = base64_encode( serialize($fields) );
+                                    $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
                                 }
+                                $results['flag'] = 1;
+                                $results['sum_qty'] = $sum_qty;
+                                WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                                WC()->cart->set_session();
                             }
                         }
                     }
@@ -553,8 +751,10 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
         function kitalabel_ajax_qty_cart() {
             $params = array();
             $results = array(
-                'flag'  => 1
+                'flag'  => 0,
+                'quantity'  => 1,
             );
+
             if( isset($_POST['data']) ) {
                 $upload_fields = false;
                 parse_str($_POST['data'], $params);
@@ -566,87 +766,100 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     if( isset( $cart_items[$item_key] )) {
                         $cart_item = $cart_items[$item_key];
                         $nbd_field = $cart_item['nbo_meta']['field'] ;
-                        $nbd_fields = $cart_item['nbo_meta']['option_price']['fields'] ;
                         if( isset( $cart_item['nbo_meta'] ) ) {
-                            $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-                            if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-                                $item_combination = $fields['combination'];
-                                $upload_fields = false;
+                            if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && isset( $cart_item['nbo_meta']['is_request_quote'] ) && $cart_item['nbo_meta']['is_request_quote'] ) {
+                                $cart_item['nbo_meta']['wait_price'] = 1;
                             }
-                        }
-                        if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['option_price'] ) && isset( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
-                            foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
-                                if(isset($field['is_custom_upload'])) {
-                                    $upload_fields = true;
-                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
-                                    $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
-                                    $nbd_field[$key]['qtys'] = $qty_side;
+
+                            if( !empty( $cart_item['nbo_meta']['option_price']['fields'] ) ) {
+                                foreach($cart_item['nbo_meta']['option_price']['fields'] as $key => $field)  {
+                                    if(isset($field['is_custom_upload'])) {
+                                        $upload_fields = true;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['val']['qtys'] = $qty_side;
+                                        $cart_item['nbo_meta']['option_price']['fields'][$key]['value_name']['qtys'] = $qty_side;
+                                        $nbd_field[$key]['qtys'] = $qty_side;
+                                    }
+                                }
+                            }
+                            $sum_qty    = 0;
+                            foreach( $qty_side as $key => $qty ) {
+                                $sum_qty += (int) $qty;
+                            }
+
+                            $option_fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) );
+                            $_min_qty = (int) $option_fields['combination']['min_qty'];
+
+                            if($sum_qty > $_min_qty) {
+                                $quantity = (int) $cart_item['quantity'];
+                                $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
+                                $old_price = (float) $calculate_price['old_price'];
+                                $new_price = (float) $calculate_price['new_price'];
+
+                                if( $old_price != $new_price && !empty($calculate_price['combination_selected']['qty_breaks']) ) {
+                                    unset($option_fields['combination']['options']);
+                                    $option_fields['combination']['combination_selected'] = $calculate_price['combination_selected'];
+
+                                    $option_price = $cart_item['nbo_meta']['option_price'];
+                                    $original_price = (float) $cart_item_data['nbo_meta']['original_price'];
+                                    $discount_price = (float) $option_price['discount_price'];
+
+                                    $total_price = (float) $cart_item['nbo_meta']['option_price']['total_price'];
+
+                                    $new_total_price = $total_price - $old_price + $new_price;
+
+                                    $cart_item['nbo_meta']['option_price']['total_price']   = $new_total_price;
+                                    $cart_item['nbo_meta']['price']                         = $original_price + $new_total_price - $discount_price;
+                                }
+
+                                $cart_item['nbo_meta']['field'] = $nbd_field;
+                                // set option qty side
+                                if( $option_fields['combination']['enabled'] == 'on' ) {
+                                    $results['flag'] = 1;
+                                    $results['sum_qty'] = $sum_qty;
+                                    $option_fields['combination']['side'] = $qty_side;
+                                    $cart_item['nbo_meta']['options']['fields'] = base64_encode( serialize($option_fields) );
+                                    WC()->cart->cart_contents[ $item_key ] = $cart_item;
+                                    WC()->cart->set_quantity( $item_key, $sum_qty, true );
+                                    WC()->cart->set_session();
                                 }
                             }
                         }
                     }
-                }
-
-                $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
-                if( isset($item_combination) && isset($nbd_fields) ) {
-                    foreach($nbd_fields as $key => $val) {
-                        $_origin_field   = $fe_options->get_field_by_id( $fields, $key );
-                        if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
-                            $area_name = $val['value_name'];
-                            $_area_name = $val['value_name'];
-                            if( $area_name == 'Square' || $area_name == 'Circle' ) {
-                                $_area_name = 'Square + Circle';
-                            }
-                            if( $area_name == 'Rectangle' || $area_name == 'Oval' ) {
-                                $_area_name = 'Rectangle + Oval';
-                            }
-                        }
-                        if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'size' ) {
-                            $size_name = $val['value_name'];
-                        }
-                        if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'color' ) {
-                            $material_name = $val['value_name'];
-                        }
-                    }
-                    if( isset($_area_name) && isset($size_name) && isset($material_name)  && isset($item_combination['options']) ) {
-                        $side = $item_combination['options'][$_area_name][$size_name][$material_name];
-                        if(!isset($side) && isset($item_combination['options']['default'])) {
-                            $side = $item_combination['options']['default'];
-                        }
-                    }
-                }
-                $sum_qty    = 0;
-                foreach( $qty_side as $key => $qty ) {
-                    $sum_qty += (int) $qty;
-                }
-                if( $upload_fields ) {
-                    if(isset($cart_item) && isset($nbd_field) ) {
-                        WC()->cart->cart_contents[ $item_key ] = $cart_item;
-                        WC()->cart->cart_contents[ $item_key ]['nbo_meta']['field'] = $nbd_field;
-                        WC()->cart->set_quantity( $item_key, $sum_qty );
-                        WC()->cart->set_session();
-                    }
-                } else if(  isset($side) && $sum_qty >= (int)$side['qty'] ) {
-                    WC()->cart->set_quantity( $item_key, $sum_qty, true );
-                    // set option qty side
-                    $option_fields = unserialize( base64_decode( WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields']) );
-                    $qty_breaks = $option_fields['combination']['qty_breaks'];
-                    if( $option_fields['combination']['enabled'] == 'on' ) {
-                        $option_fields['combination']['side'] = $qty_side;
-                        $options['fields'] = serialize($option_fields);
-                        $options['fields'] = base64_encode( $options['fields'] );
-                        WC()->cart->cart_contents[ $item_key ]['nbo_meta']['options']['fields'] = $options['fields'];
-                        WC()->cart->set_session();
-                    }
-                    
-                } else {
-                    $results['flag'] = 0;
                 }
             }
             
             wp_send_json_success($results);
          
             die();
+        }
+        public function nb_sort_quantity_breaks($a, $b) {
+            if ($a['qty'] == $b['qty']) {
+                return 0;
+            }
+            return ($a['qty'] < $b['qty']) ? -1 : 1;
+        }
+        public function get_break_by_qty($quantity, $quantity_breaks) {
+            $price = 0;
+            $qty = 1;
+            if( !empty($quantity_breaks) && count($quantity_breaks) > 0 ) {
+                usort($quantity_breaks, array( $this , "nb_sort_quantity_breaks") );
+                for ($i = 0; $i < count($quantity_breaks); $i++) {
+                    if ($i === count($quantity_breaks) - 1 && (float)$quantity_breaks[$i]['price'] > 0 ) {
+                        $price = (float)$quantity_breaks[$i]['price'];
+                        $qty = (int)$quantity_breaks[$i]['qty'];
+                        break;
+                    }
+                    if ( $quantity >= $quantity_breaks[$i]['qty'] && $quantity < $quantity_breaks[$i + 1]['qty'] && (float)$quantity_breaks[$i]['price'] > 0 ) {
+                        $price = (float)$quantity_breaks[$i]['price'];
+                        $qty = (int)$quantity_breaks[$i]['qty'];
+                        break;
+                    }
+                }
+            }
+            return array(
+                'price' => $price,
+                'qty' => $qty,
+            );
         }
 
     }

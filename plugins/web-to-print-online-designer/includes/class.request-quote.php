@@ -906,7 +906,7 @@ if(!class_exists('NBD_Request_Quote')) {
                     //Add NBO data
                     if ( isset( $values['nbo_meta'] ) ) {
                         foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
-                            $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price']) : '';
+                            $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price']) : '';
                             if( isset($field['is_upload']) ){
                                 if(isset($field['val']['files'])) {
                                     $value_name_upload = '';
@@ -967,6 +967,7 @@ if(!class_exists('NBD_Request_Quote')) {
         public function add_order_meta( $order, $raq ){
             $attr                           = array();
             $order_id                       = $order->get_id();
+            $attr['_is_request_quote']      = 1;
             $attr['_raq_request']           = $raq;
             $attr['_raq_customer_name']     = $raq['user_name'];
             $attr['_raq_customer_email']    = $raq['user_email'];

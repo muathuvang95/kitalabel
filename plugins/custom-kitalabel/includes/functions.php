@@ -609,7 +609,7 @@ add_filter( 'nbo_show_edit_option_link_in_cart', 'nbo_show_edit_option_link_in_c
 function nbo_show_edit_option_link_in_cart( $result , $cart_item ) {
     if( isset( $cart_item['nbo_meta'] ) ) {
         $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
+        if( !empty( $fields['combination']['combination_selected']) && count($fields['combination']['combination_selected']) > 0 ) {
             return '';
         }
     }
@@ -661,7 +661,8 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                     }
                 }
                 $quantity = '';
-                $product_config = nbd_get_data_from_json( NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_session . '/config.json' )->product;
+                $config = nbd_get_data_from_json( NBDESIGNER_CUSTOMER_DIR . '/' . $nbd_session . '/config.json' );
+                $product_config = isset($config->product) ? $config->product : array();
                 if( isset($side) ) {
                     foreach ( $side as $key => $qty ) {
                         if( is_cart() && isset($side ) && isset($qty_min) ) {
@@ -1067,7 +1068,7 @@ function nb_custom_update_cart() {
         if( isset( $item['nbo_meta'] ) ) {
             $fields = unserialize( base64_decode( $item['nbo_meta']['options']['fields']) ) ;
             $options_old = $item['nbo_meta']['field'];
-            if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 && isset($fields['combination']['enabled']) && $fields['combination']['enabled'] == 'on'  ) {
+            if( !empty( $fields['combination']['combination_selected']) && count($fields['combination']['combination_selected']) > 0 && isset($fields['combination']['enabled']) && $fields['combination']['enabled'] == 'on'  ) {
                 $item_combination = $fields['combination'];
             }
         }
@@ -1172,7 +1173,7 @@ function nb_custom_input_cart_item( $product_quantity, $cart_item_key, $cart_ite
                 }
             }
         }
-        if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0  ) {
+        if( !empty( $fields['combination']['combination_selected']) && count($fields['combination']['combination_selected']) > 0  ) {
             if( isset($nbd_session) || $has_upload ) {
                 $product_quantity = str_replace('<input' , '<input disabled class="text-center" style="max-width:80px"' , $product_quantity );
                 $product_quantity = str_replace('input-text' , 'nb-input-text' , $product_quantity );
@@ -1213,17 +1214,9 @@ function nb_custom_add_options_desc_design( $args ) {
 add_filter( 'woocommerce_cart_contents_count' , 'nb_custom_qty_mini_cart' , 10 , 1);
 function nb_custom_qty_mini_cart( $data ) {
     $cart_contents = WC()->cart->cart_contents;
-    // array_sum( wp_list_pluck( $this->get_cart(), 'quantity' ) );
     $list_qty = wp_list_pluck( $cart_contents, 'quantity' );
     $have_custom_design = false;
     foreach($cart_contents as $cart_item_key => $cart_item ) {
-        // if( isset( $cart_item['nbo_meta'] ) ) {
-        //     $fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) ) ;
-        //     if( isset( $fields['combination'] ) && isset( $fields['combination']['options']) && count($fields['combination']['options']) > 0 ) {
-        //         $list_qty[$cart_item_key] = 1;
-        //         $have_custom_design = true;
-        //     } 
-        // }
         $list_qty[$cart_item_key] = 1;
         $have_custom_design = true;
     }
