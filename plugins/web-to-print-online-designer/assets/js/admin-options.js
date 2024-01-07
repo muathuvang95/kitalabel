@@ -1752,7 +1752,8 @@ angular.module('optionApp', []).controller('optionCtrl', function( $scope, $time
                 des: '',
                 benefit: '',  // custom kitalabel
                 un_benefit: '',  // custom kitalabel
-                comming_soon : 0, // custom kitalabel
+                is_custom_option: 0,  // custom kitalabel
+                coming_soon : 0, // custom kitalabel
                 guideline_ai : { name: '' , link: ''}, // custom kitalabel
                 guideline_pdf : { name: '' , link: ''}, // custom kitalabel
                 price: [],
@@ -2242,7 +2243,8 @@ angular.module('optionApp', []).controller('optionCtrl', function( $scope, $time
                         des: op.des,
                         benefit: op.benefit, // custom kitalabel
                         un_benefit: op.des_benefit, // custom kitalabel
-                        comming_soon : op.comming_soon, // custom kitalabel
+                        is_custom_option : op.is_custom_option, // custom kitalabel
+                        coming_soon : op.coming_soon, // custom kitalabel
                         guideline_ai : op.guideline_ai, // custom kitalabel
                         guideline_pdf : op.guideline_pdf, // custom kitalabel
                         price: op.price,

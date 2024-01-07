@@ -135,6 +135,27 @@ jQuery(document).ready(function ($) {
             $('#nbdq-form-popup').nbqShowPopup();
         }
     });
+    $('.kita-add-a-quote-button').on('click', function (e) {
+        e.preventDefault();
+        if( $(this).hasClass('nbdesigner_disable') || $(this).hasClass('nbo-disabled') ){
+            alert(nbds_frontend.check_invalid_fields);
+            return;
+        }else{
+            if(!nbdq_form_obj.is_login) {
+                $('.kita-add-a-quote-button span').hide();
+                $('.kita-add-a-quote-button .kita-loading').show();
+                $('.kita-add-a-quote-button').prop('disabled', true);
+                $('.kita-add-a-quote-button').addClass('kita-disabled');
+                return;
+                $('form[name="nbdq-form"]').submit();
+            } else {
+                $('#nbdq-form-popup').nbqShowPopup();
+            }
+        }
+    });
+    $('#nbdq-form-popup .kita-back').on('click', function() {
+        $('#nbdq-form-popup').find('.close-popup').trigger('click');
+    })
     var nbdq_form_init = function () {
         var select = $('.nbd-multiselect, .nbdq-popup select'),
         datepicker = $('.nbd-datepicker'),
@@ -242,6 +263,10 @@ jQuery(document).ready(function ($) {
                 },
                 success: function (response) {
                     nbdq_form.unblock();
+                    $('.kita-add-a-quote-button span').show();
+                    $('.kita-add-a-quote-button .kita-loading').hide();
+                    $('.kita-add-a-quote-button').prop('disabled', false);
+                    $('.kita-add-a-quote-button').removeClass('kita-disabled');
                     if ('success' === response.result) {
                         $('.nbdq-popup').find('.close-popup').trigger('click');
                         if( response.redirect ){

@@ -1623,7 +1623,7 @@ div.button.edit-upload-design {
     height: 30px;
 }
 .kita-page-upload-wrap .kita-upload-file-ai {
-    color: #f59832;
+    color: #FF8900;
 }
 .kita-page-upload-wrap .kita-upload-file-pdf {
     color: #f00;
@@ -1633,6 +1633,26 @@ div.button.edit-upload-design {
 }
 .kita-page-upload-wrap .kita-list-uploadfiles{
 	list-style: none;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .kita-variant-fields {
+	display: flex;
+	justify-content: space-between;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .kita-variant-fields .btn-remove-option {
+	width: 2.642rem;
+	color: #f00;
+	border-radius: 5px;
+	border: 1px #f00 solid;
+	background-color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .kita-variant-fields .btn-remove-option:hover {
+	color: #ffffff;
+	border-radius: 5px;
+	border: 1px #ffffff solid;
+	background-color: #f00;
 }
 .kita-page-upload-wrap .kita-list-uploadfiles .kita-variant-fields .kita-variant-name{
 	max-width: 200px;
@@ -1651,6 +1671,23 @@ div.button.edit-upload-design {
     border-radius: 5px;
     margin: 10px 0;
 }
+.kita-page-upload-wrap .kita-list-uploadfiles .file-name {
+	width: 100%;
+    height: 100%;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .file-name svg {
+	margin-right: 10px;
+}
+.kita-page-upload-wrap .kita-list-uploadfiles .file-name p {
+	margin: 0;
+	color: #FF8900;
+	font-size: 16px;
+	font-weight: 600;
+}
 .kita-page-upload-wrap .kita-list-uploadfiles .upload-zone .result-upload {
 	margin-top: 8px;
     margin-bottom: 4px;
@@ -1661,7 +1698,7 @@ div.button.edit-upload-design {
     flex-direction: column;
 }
 .kita-page-upload-wrap .kita-list-uploadfiles .upload-zone .result-upload svg{
-	color: #f59832;
+	color: #FF8900;
 }
 .kita-page-upload-wrap .kita-list-uploadfiles .upload-zone .result-upload p{
 	font-weight: 600;
@@ -1671,8 +1708,19 @@ div.button.edit-upload-design {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+.kita-page-upload-wrap .kita-add-to-cart .nbdq-add-a-quote {
+	position: unset;
+}
+.kita-page-upload-wrap .kita-add-to-cart .nbdq-add-a-quote .button{
+	color: #ffffff;
+}
+.kita-page-upload-wrap .kita-add-to-cart .nbdq-add-a-quote .button.kita-disabled{
+	opacity: 0.6;
+	pointer-events: none;
+	cursor: none;
+}
 .kita-page-upload-wrap .button.kita-add-variant,
-.kita-page-upload-wrap .kita-add-to-cart a.button,
+.kita-page-upload-wrap .kita-add-to-cart .button,
 .kita-page-upload-wrap button[name="add-to-cart"] {
 	display: block;
     text-align: center;
@@ -1685,8 +1733,8 @@ div.button.edit-upload-design {
     width: 100%;
     line-height: 1;
     background: #fff;
-    color: #f59832;
-    border: 1px solid #f59832;
+    color: #FF8900;
+    border: 1px solid #FF8900;
     text-transform: capitalize;
     font-weight: 600;
 }
@@ -1697,13 +1745,29 @@ div.button.edit-upload-design {
 .kita-page-upload-wrap .single_add_to_cart_button::before {
 	display: none;
 }
+.kita-add-to-cart .single_add_to_cart_button.button:hover {
+	border-style: solid;
+}
 .kita-page-upload-wrap button[name="add-to-cart"] {
-    background: #f59832 !important;
+    background: #FF8900 !important;
     color: #fff !important;
 }
 .kita-page-upload-wrap button[name="add-to-cart"]:disabled[disabled] {
     background: #454545 !important;
     border-color: #454545;
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: none;
+}
+.kita-page-upload-wrap button.kita-add-a-quote-button:disabled[disabled] {
+    background: #454545 !important;
+    border-color: #454545;
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: none;
+}
+.kita_button_custom_design {
+	margin-top: 20px;
 }
 
 @media only screen and (max-width: 768px) {

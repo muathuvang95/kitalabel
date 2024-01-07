@@ -1,6 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="nbd-option-field nbd-field-input-wrap <?php echo $class; ?>" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable">
-    <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
+<div class="nbd-option-field nbd-field-input-wrap <?php echo $class; ?>" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable" style="width: 100%; display: inline-block; margin: 0">
+    <?php include( CUSTOM_KITALABEL_PATH.'templates/options-builder/field-header.php' ); ?>
     <div class="nbd-field-content">
         <input 
             <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dpi' ): ?>

@@ -15,4 +15,5 @@ define('CUSTOM_KITALABEL_PATH', plugin_dir_path(__FILE__));
 define('CUSTOM_KITALABEL_URL', plugin_dir_url(__FILE__));
 
 require_once(CUSTOM_KITALABEL_PATH .    'includes/class-kitalabel-hooks.php');
+require_once(CUSTOM_KITALABEL_PATH .    'includes/class-order-label.php');
 require_once(CUSTOM_KITALABEL_PATH .    'includes/functions.php');
