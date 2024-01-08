@@ -7,8 +7,6 @@ if (!class_exists('Kitalabel_Order_Label')) {
 
         protected static $instance;
 
-        private $product_id;
-
         public static function instance() {
             if (is_null(self::$instance)) {
                 self::$instance = new self();
@@ -17,11 +15,12 @@ if (!class_exists('Kitalabel_Order_Label')) {
         }
 
         public function __construct() {
-        	$this->product_id = 14093;
         }
 
         public function init() {
         	add_action('nbo_after_summary', array($this, 'button_request_quote'), 10, 2 );
+        	add_filter('nbdesigner_default_settings', array($this, 'default_settings'), 10, 1 );
+        	add_filter( 'nbdesigner_general_settings' , array($this, 'general_settings') , 999 , 1);
 
             $this->kitalabel_ajax();
         }
@@ -36,6 +35,43 @@ if (!class_exists('Kitalabel_Order_Label')) {
                     add_action('wp_ajax_nopriv_' . $ajax_event, array($this, $ajax_event));
                 }
             }
+        }
+
+        public function general_settings($args) {
+        	$args['customization'][] = array(
+		        'title'         => esc_html__('Order label product id.', 'web-to-print-online-designer'),
+		        'description'   => '',
+		        'id'            => 'nbd_order_label_product_id',
+		        'default'       => 0,
+		        'type'          => 'number',
+		        'class'         => 'regular-text',
+		    );
+		    $args['customization'][] = array(
+		        'title'         => esc_html__('Order label page id.', 'web-to-print-online-designer'),
+		        'description'   => '',
+		        'id'            => 'nbd_order_label_page_id',
+		        'default'       => 0,
+		        'type'          => 'number',
+		        'class'         => 'regular-text',
+		    );
+		    $args['customization'][] = array(
+		        'title'         => esc_html__('Upload page id.', 'web-to-print-online-designer'),
+		        'description'   => '',
+		        'id'            => 'nbd_upload_page_id',
+		        'default'       => 0,
+		        'type'          => 'number',
+		        'class'         => 'regular-text',
+		    );
+
+		    return $args;
+        }
+
+        public function default_settings($setting) {
+        	$setting['nbd_order_label_product_id'] = 0;
+        	$setting['nbd_order_label_page_id'] = 0;
+        	$setting['nbd_upload_page_id'] = 0;
+
+        	return $setting;
         }
 
         public function get_template($template_name, $args = array(), $tempate_path = '', $default_path = '') {
@@ -135,7 +171,7 @@ if (!class_exists('Kitalabel_Order_Label')) {
 		}
 
         public function option_fields($product_id = 0 , $type_page = ''){
-		    $product_id = $this->product_id;
+		    $product_id = nbdesigner_get_option('nbd_order_label_product_id');
 
 		    if( !$product_id || ($product_id && !wc_get_product($product_id) ) ) {
 		        global $wp_query;

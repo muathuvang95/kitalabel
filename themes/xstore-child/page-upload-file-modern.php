@@ -38,12 +38,16 @@ if(!empty($query['quantity'])) {
 	unset($query['quantity']);
 }
 
+$order_label_page = nbdesigner_get_option('nbd_order_label_page_id');
+
+$order_label_link = $order_label_page ? get_permalink($order_label_page) : home_url() . '/order-label';
+
 $the_query = new WP_Query( $args );
 wp_reset_postdata();
 
 $appid              = "kita-app-" . time() . rand( 1, 1000 );
 $option_id 			= kitalabel_get_product_option($product_id);
-$uploadConfig 			= array();
+$uploadConfig 		= array();
 $comments 			= array();
 $variant_id 		= '';
 $variant 			= 1;
@@ -288,7 +292,7 @@ if($quantity < $min_qty) {
 															<input type="hidden" name="quantity" value="<?php echo $quantity; ?>">
 															<div class="row">
 																<div class="col-md-6">
-																	<a href="<?php echo home_url() . '/order-label'; ?>" class="button">
+																	<a href="<?php echo $order_label_link; ?>" class="button">
 																		Kembali
 																	</a>
 																</div>

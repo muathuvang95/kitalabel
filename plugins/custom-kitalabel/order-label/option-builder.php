@@ -123,6 +123,10 @@ if( nbdesigner_get_option( 'nbdesigner_enable_gallery_api', 'no' ) == 'yes' ){
     }
 }
 
+$nbd_upload_page_id = nbdesigner_get_option('nbd_upload_page_id');
+
+$order_label_link = $nbd_upload_page_id ? get_permalink($nbd_upload_page_id) : home_url() . '/upload-file-modern';
+
 // $currentDir = realpath(dirname(__FILE__));
 $currentDir = ABSPATH . 'wp-content/plugins/web-to-print-online-designer/templates/single-product';
 
@@ -1086,7 +1090,7 @@ if( $cart_item_key != ''){ ?>
                     $scope.first_load = false;
                 }
                 setTimeout( function() {
-                    var link_upload = '<?php echo get_home_url() . '/upload-file-modern'; ?>';
+                    var link_upload = '<?php echo $order_label_link; ?>';
                     if(nb_options_selected.length > 0) {
                         link_upload += '?product_id=<?php echo $product_id; ?>&' + nb_options_selected.join('&');
                     }
