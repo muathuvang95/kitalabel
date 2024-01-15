@@ -2412,6 +2412,19 @@ if( $cart_item_key != ''){ ?>
                 };
             });
         };
+        $scope.f_change_quantity = function(){
+            $timeout(function(){
+                if($scope._quantity < 0) {
+                    $scope.custom_qty.enable = true;
+                    $scope.custom_qty.value = $scope.options.quantity_breaks[0]?.val ? parseInt($scope.options.quantity_breaks[0].val) : 1;
+                    $scope.update_app();
+                } else {
+                    $scope.custom_qty.enable = false;
+                    jQuery('input[name="quantity"]').val($scope._quantity).trigger( 'change.nbo' );
+                    $scope.update_app();
+                }
+            });
+        };
         $scope.change_quantity = function(){
             $timeout(function(){
                 jQuery('input[name="quantity"]').val($scope.quantity).trigger( 'change.nbo' );
