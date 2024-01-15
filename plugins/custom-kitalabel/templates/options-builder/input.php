@@ -1,51 +1,73 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="nbd-option-field nbd-field-input-wrap <?php echo $class; ?>" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable" style="width: 100%; display: inline-block; margin: 0">
     <?php include( CUSTOM_KITALABEL_PATH.'templates/options-builder/field-header.php' ); ?>
+    <?php
+    $nbd_type = isset($field['nbd_type']) ? $field['nbd_type'] : '';
+    ?>
     <div class="nbd-field-content">
-        <input 
-            <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dpi' ): ?>
-            ng-change="update_dpi()"  
-            <?php else: ?>
-            ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>')" 
-            <?php endif; ?>
-            <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dimension' ): ?>
-                ng-hide="true"
-            <?php endif; ?>
-            ng-model="nbd_fields['<?php echo $field['id']; ?>'].value" class="nbd-input-<?php echo $field['general']['input_type']; ?>"
-            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo $field['id']; ?>]" id="nbd-field-<?php echo $field['id']; ?>"
-            <?php if( $field['general']['input_type'] == 't' ): ?>
-            type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo $field['general']['text_option']['min']; ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo $field['general']['text_option']['max']; ?>"<?php endif; ?>
-                <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
-                    placeholder="<?php echo $field['general']['placeholder']; ?>"
+        <?php if($nbd_type != 'page1'): ?>
+            <input 
+                <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dpi' ): ?>
+                ng-change="update_dpi()"  
+                <?php else: ?>
+                ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>')" 
                 <?php endif; ?>
-            <?php elseif( $field['general']['input_type'] == 'n' ): ?>
-            string-to-number type="number" min="<?php echo $field['general']['input_option']['min']; ?>" max="<?php echo $field['general']['input_option']['max']; ?>" step="<?php echo $field['general']['input_option']['step']; ?>" ng-step="<?php if( $field['general']['input_option']['step'] != '' ) echo $field['general']['input_option']['step']; else echo '0.0001'; ?>"
-            <?php elseif( $field['general']['input_type'] == 'r' ): ?>
-            string-to-number type="range" min="<?php echo $field['general']['input_option']['min']; ?>" max="<?php echo $field['general']['input_option']['max']; ?>" step="<?php echo $field['general']['input_option']['step']; ?>" ng-step="<?php if( $field['general']['input_option']['step'] != '' ) echo $field['general']['input_option']['step']; else echo '0.0001'; ?>"
-            <?php elseif( $field['general']['input_type'] == 'u' ): ?>
-            type="file" nbo-input-file="check_valid('' , '' , '<?php echo $field['id']; ?>')" data-field-id="<?php echo $field['id']; ?>" data-types="<?php echo strtolower( trim( $field['general']['upload_option']['allow_type'] ) ); ?>" 
-                data-minsize="<?php echo $field['general']['upload_option']['min_size']; ?>" data-maxsize="<?php echo $field['general']['upload_option']['max_size']; ?>"
-                <?php 
-                    $file_url = '';
-                    $filename = '';
-                    $uploaded = 0;
-                    if( isset($form_values[$field['id']]) ){
-                        $file_url = NBDESIGNER_UPLOAD_URL . '/' . $form_values[$field['id']];
-                        $filename = explode('/', $form_values[$field['id']])[1];
-                        $uploaded = 1;
+                <?php if( isset($field['nbd_type']) && $field['nbd_type'] == 'dimension' ): ?>
+                    ng-hide="true"
+                <?php endif; ?>
+                ng-model="nbd_fields['<?php echo $field['id']; ?>'].value" class="nbd-input-<?php echo $field['general']['input_type']; ?>"
+                <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo $field['id']; ?>]" id="nbd-field-<?php echo $field['id']; ?>"
+                <?php if( $field['general']['input_type'] == 't' ): ?>
+                type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo $field['general']['text_option']['min']; ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo $field['general']['text_option']['max']; ?>"<?php endif; ?>
+                    <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
+                        placeholder="<?php echo $field['general']['placeholder']; ?>"
+                    <?php endif; ?>
+                <?php elseif( $field['general']['input_type'] == 'n' ): ?>
+                string-to-number type="number" min="<?php echo $field['general']['input_option']['min']; ?>" max="<?php echo $field['general']['input_option']['max']; ?>" step="<?php echo $field['general']['input_option']['step']; ?>" ng-step="<?php if( $field['general']['input_option']['step'] != '' ) echo $field['general']['input_option']['step']; else echo '0.0001'; ?>"
+                <?php elseif( $field['general']['input_type'] == 'r' ): ?>
+                string-to-number type="range" min="<?php echo $field['general']['input_option']['min']; ?>" max="<?php echo $field['general']['input_option']['max']; ?>" step="<?php echo $field['general']['input_option']['step']; ?>" ng-step="<?php if( $field['general']['input_option']['step'] != '' ) echo $field['general']['input_option']['step']; else echo '0.0001'; ?>"
+                <?php elseif( $field['general']['input_type'] == 'u' ): ?>
+                type="file" nbo-input-file="check_valid('' , '' , '<?php echo $field['id']; ?>')" data-field-id="<?php echo $field['id']; ?>" data-types="<?php echo strtolower( trim( $field['general']['upload_option']['allow_type'] ) ); ?>" 
+                    data-minsize="<?php echo $field['general']['upload_option']['min_size']; ?>" data-maxsize="<?php echo $field['general']['upload_option']['max_size']; ?>"
+                    <?php 
+                        $file_url = '';
+                        $filename = '';
+                        $uploaded = 0;
+                        if( isset($form_values[$field['id']]) ){
+                            $file_url = NBDESIGNER_UPLOAD_URL . '/' . $form_values[$field['id']];
+                            $filename = explode('/', $form_values[$field['id']])[1];
+                            $uploaded = 1;
+                        }
+                    ?>
+                    data-file="<?php echo $file_url; ?>" data-filename="<?php echo $filename; ?>" data-uploaded="<?php echo $uploaded; ?>"
+                    <?php 
+                        if( $field['general']['upload_option']['allow_type'] != '' ):
+                            $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
+                            $allow_type_arr = explode(',', $allow_type);
+                            $delimiter = '';
+                    ?>
+                    accept="<?php foreach( $allow_type_arr as $_type ){ $_type = trim($_type); if($_type == 'jpg' || $_type == 'jpeg'){ $_type = 'jpg,.jpeg'; }; $__type = $delimiter . '.' . $_type; $delimiter = ','; echo $__type; } ?>"
+                    <?php endif; ?>
+                <?php endif; ?>
+            />
+        <?php endif; ?>
+        <?php if($nbd_type == 'page1'): ?>
+            <select class="nbd-input-<?php echo $field['general']['input_type']; ?>" name="nbd-field[<?php echo $field['id']; ?>]" id="nbd-field-<?php echo $field['id']; ?>" style="width: 100%; display: inline-block; margin: 0" ng-change="check_valid('' , '' , '<?php echo $field['id']; ?>')" ng-model="nbd_fields['<?php echo $field['id']; ?>'].value">
+                <?php
+                    $max = $field['general']['input_option']['max'];
+                    $min = $field['general']['input_option']['min'];
+                    $default = $field['general']['input_option']['default'];
+                    for ($i=$min; $i <= $max; $i++) {
+                        ?>
+                        <option
+                            value="<?php echo $i; ?>">
+                                <?php echo $i; ?> 
+                            </option>
+                        <?php
                     }
                 ?>
-                data-file="<?php echo $file_url; ?>" data-filename="<?php echo $filename; ?>" data-uploaded="<?php echo $uploaded; ?>"
-                <?php 
-                    if( $field['general']['upload_option']['allow_type'] != '' ):
-                        $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
-                        $allow_type_arr = explode(',', $allow_type);
-                        $delimiter = '';
-                ?>
-                accept="<?php foreach( $allow_type_arr as $_type ){ $_type = trim($_type); if($_type == 'jpg' || $_type == 'jpeg'){ $_type = 'jpg,.jpeg'; }; $__type = $delimiter . '.' . $_type; $delimiter = ','; echo $__type; } ?>"
-                <?php endif; ?>
-            <?php endif; ?>
-        />
+            </select>
+        <?php endif; ?>
         <?php 
             if( $field['general']['input_type'] == 'u' && isset($form_values[$field['id']]) ):
         ?>

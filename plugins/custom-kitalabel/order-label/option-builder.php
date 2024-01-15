@@ -1097,8 +1097,10 @@ if( $cart_item_key != ''){ ?>
                     var qty = jQuery('input[name="quantity"]').val();
                     link_upload += '&quantity=' + qty;
                     if(show_button_request_quote) {
+                        jQuery('#nbo-quantity-option-wrap').show();
                         jQuery('a#buttonRequestQuote').attr('href' , link_upload + '&is_quote=1' );
                     } else {
+                        jQuery('#nbo-quantity-option-wrap').hide();
                         jQuery('a.kita-link-upload').attr('href' , link_upload);
                     }
                 })
