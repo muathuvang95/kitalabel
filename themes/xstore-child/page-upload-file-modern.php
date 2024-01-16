@@ -88,7 +88,7 @@ if($option_id) {
 						'title'			=> $field['general']['title'],
 						'value' 		=> $value,
 						'show' 			=> true,
-						'value_name'	=> $option_field[$value]['name'],
+						'value_name'	=> !empty($option_field[$value]['name']) ? $option_field[$value]['name'] : '',
 					);
 				}
 
@@ -214,7 +214,7 @@ if($quantity < $min_qty) {
 														<div class="kita-col-guide">
 															<div class="kita-list kita-list-files row">
 																<div class="col-md-6">
-																	<?php if($link_ai): ?>
+																	<?php if(isset($link_ai)): ?>
 																		<a href="<?php echo $link_ai; ?>" class="kita-upload-guide" download>
 																			<i class="kita-upload-file-icon kita-upload-file-ai">
 																				<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -227,7 +227,7 @@ if($quantity < $min_qty) {
 																	<?php endif; ?>
 																</div>
 																<div class="col-md-6">
-																	<?php if($link_pdf): ?>
+																	<?php if(isset($link_pdf)): ?>
 																		<a href="<?php echo $link_pdf; ?>" class="kita-upload-guide" download>
 																			<i class="kita-upload-file-icon kita-upload-file-pdf">
 																				<svg width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">

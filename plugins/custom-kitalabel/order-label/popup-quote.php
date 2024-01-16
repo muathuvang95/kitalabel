@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         text-transform: capitalize;
         font-weight: 600;
         width: 50%;
+        cursor: pointer;
     }
     .nbdq-popup-body .raq-send-request {
         display: inline-block;
@@ -59,20 +60,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                     }
                     if ( ! is_user_logged_in() && 'yes' == $enable_registration ) :
                 ?>
-                <div class="woocommerce-account-fields">
-                    <p class="form-row form-row-wide create-account">
-                        <label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
-                            <input class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" id="createaccount" type="checkbox" name="createaccount" value="1"/>
-                            <span><?php _e( 'Create an account?', 'web-to-print-online-designer' ); ?></span>
-                        </label>
-                    </p>
-                </div>
-                <div class="create-account">
-                    <?php foreach ( $account_fields as $key => $field ) : ?>
-                        <?php woocommerce_form_field( $key, $field, '' ); ?>
-                    <?php endforeach; ?>
-                    <div class="clear"></div>
-                </div>
                 <?php 
                     endif; 
                     if( nbdesigner_get_option('nbdesigner_enable_recaptcha_quote', 'no') == 'yes' && nbdesigner_get_option('nbdesigner_recaptcha_key', '') != '' && nbdesigner_get_option('nbdesigner_recaptcha_secret_key', '') != '' ):

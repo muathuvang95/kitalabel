@@ -25,8 +25,8 @@ $show_price        = nbdesigner_get_option('nbdesigner_quote_hide_price_in_email
         foreach ( $items as $item_id => $item ):
             $product    = $item->get_product();
             $quantity   = $item->get_quantity();
-            $image      = $product->get_image( $image_size );
-            $sku        = $product->get_sku();
+            $image      = $product ? $product->get_image( $image_size ) : '';
+            $sku        = $product ? $product->get_sku() : '';
     ?>
         <tr>
             <td scope="col" class="td" style="text-align:center;border: 1px solid #eee; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
@@ -35,7 +35,7 @@ $show_price        = nbdesigner_get_option('nbdesigner_quote_hide_price_in_email
             ?>
             </td>
             <td scope="col" class="td" style="text-align:<?php echo $text_align ?>;border: 1px solid #eee; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
-                <a href="<?php echo $product->get_permalink() ?>">
+                <a href="<?php echo $product ? $product->get_permalink() : ''; ?>">
                     <?php 
                         echo wp_kses_post( apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false ) ); 
                         if( $sku ) echo wp_kses_post( ' (#' . $sku . ')' );
