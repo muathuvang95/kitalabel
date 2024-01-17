@@ -28,9 +28,28 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
             add_action( 'wp_enqueue_scripts', array($this, 'kitalabel_custom_enqueue_scripts'));
 
+            add_action( 'woocommerce_saved_order_items', array($this, 'save_order_items'), 10, 2);
+
             add_filter( 'printcart_update_combination', array($this, 'kitalabel_update_combination'), 10 ,2);
 
              $this->kitalabel_ajax();
+        }
+
+        public function save_order_items($order_id, $items) {
+            $order = wc_get_order($order_id);
+
+            $old_subtotals = [];
+            $new_subtotals = [];
+            $_items = $order->get_items();
+
+            foreach ($_items as $key => $value) {
+                $old_subtotals[$key] = (float) $value->get_subtotal();
+                $new_subtotals[$key] = !empty( $items['line_subtotal'][$key] ) ? (float) wc_clean( wp_unslash( $items['line_subtotal'][$key] ) ) : 0;
+            }
+
+            if( array_sum($old_subtotals) != array_sum($new_subtotals) ) {
+                update_post_meta($order_id, '_nb_edit_price', 1);
+            }
         }
 
         public function zip_files( $file_names, $archive_file_name, $nameZip, $output_names ){
