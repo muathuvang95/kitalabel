@@ -50,6 +50,7 @@ if(!class_exists('NBD_Request_Quote')) {
             add_action('wp_enqueue_scripts', array($this, 'frontend_enqueue_scripts'));
             add_filter('script_loader_tag', array( $this, 'add_async_attribute'), 10, 2);
             add_action('woocommerce_before_single_product', array(&$this, 'print_get_quote_component'), 1);
+            add_action('page_upload_file_modern', array(&$this, 'print_get_quote_component'), 1);
             add_filter( 'woocommerce_form_field_nbdq_multiselect', array( $this, 'multiselect_type' ), 10, 4 );
             add_filter( 'woocommerce_form_field_nbdq_datepicker', array( $this, 'datepicker_type' ), 10, 4 );
             add_filter( 'woocommerce_form_field_nbdq_heading', array( $this, 'heading_type' ), 10, 4 );
@@ -472,8 +473,16 @@ if(!class_exists('NBD_Request_Quote')) {
             foreach ($css_libs as $key => $css){
                 wp_register_style($key, $css['link'], $css['depends'], $css['version']);
             }
-            if( is_singular( 'product' ) ){
+
+            // custom kitalabel
+            $_product_id = isset( $_GET['product_id'] ) ? $_GET['product_id'] : 0;
+            $is_quote = isset( $_GET['is_quote'] ) ? $_GET['is_quote'] : 0;
+
+            if( is_singular( 'product' ) || ( $is_quote && $_product_id ) ){
                 $product_id = get_the_ID();
+                if( $is_quote && $product_id ) {
+                    $product_id = $_product_id;
+                }
                 if( $this->is_product_quote( $product_id ) ){
                     $fields = $this->get_form_fields();
                     $need_country_js = false;
@@ -535,6 +544,7 @@ if(!class_exists('NBD_Request_Quote')) {
                         'time_format'               => true,
                         'loading_img'               =>  NBDESIGNER_PLUGIN_URL . 'assets/images/loading.gif',
                         'show_popup'                => '1',
+                        'is_login'                  => is_user_logged_in() ? 1 : 0,
                     );
                     wp_enqueue_style( 'nbd-quote');
                     wp_enqueue_script('nbd-quote');
@@ -550,9 +560,16 @@ if(!class_exists('NBD_Request_Quote')) {
             return str_replace( ' src', ' async="async" defer="defer" src', $tag );
         }
         public function print_get_quote_component(){
-            if( is_singular( 'product' ) ){
+            // custom kitalabel
+            $_product_id = isset( $_GET['product_id'] ) ? $_GET['product_id'] : 0;
+            $is_quote = isset( $_GET['is_quote'] ) ? $_GET['is_quote'] : 0;
+            if( is_singular( 'product' ) || ( $is_quote && $_product_id ) ){
                 global $product;
-                if( $this->is_product_quote( $product->get_id() ) ){
+                $product_id = $product->get_id();
+                if($is_quote && $_product_id) {
+                    $product_id = $_product_id;
+                }
+                if( $this->is_product_quote( $product_id ) ){
                     if( $product->is_in_stock() && $product->get_price() !== '' ){
                         if( $product->is_type('variable')  ){
                             add_action( 'woocommerce_after_single_variation', array(  $this, 'quote_button' ),15 );
@@ -578,10 +595,24 @@ if(!class_exists('NBD_Request_Quote')) {
                 $checkout       = WC_Checkout::instance();
                 $account_fields = $checkout->get_checkout_fields( 'account' );
             }
-            include_once(NBDESIGNER_PLUGIN_DIR . 'views/quote/frontend/popup-wrap.php');
+            // custom kitalabel
+            $_product_id = isset( $_GET['product_id'] ) ? $_GET['product_id'] : 0;
+            $is_quote = isset( $_GET['is_quote'] ) ? $_GET['is_quote'] : 0;
+            if($is_quote && $_product_id) {
+                include_once(CUSTOM_KITALABEL_PATH . 'order-label/popup-quote.php');
+            } else {
+                include_once(NBDESIGNER_PLUGIN_DIR . 'views/quote/frontend/popup-wrap.php');
+            }
         }
         public function print_alert_quote(){
-            include_once(NBDESIGNER_PLUGIN_DIR . 'views/quote/frontend/alert.php');
+            // custom kitalabel
+            $_product_id = isset( $_GET['product_id'] ) ? $_GET['product_id'] : 0;
+            $is_quote = isset( $_GET['is_quote'] ) ? $_GET['is_quote'] : 0;
+            if($is_quote && $_product_id) {
+                include_once(CUSTOM_KITALABEL_PATH . 'order-label/alert.php');
+            } else {
+                include_once(NBDESIGNER_PLUGIN_DIR . 'views/quote/frontend/alert.php');
+            }
         }
         public function hide_add_to_cart_loop( $link , $product ) {
             if ( nbdesigner_get_option( 'nbdesigner_quote_hide_add_to_cart', 'no' ) == 'yes'){

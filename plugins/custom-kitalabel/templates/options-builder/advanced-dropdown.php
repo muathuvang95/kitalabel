@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div nbo-adv-dropdown class="nbd-option-field nbd-field-dropdown-wrap <?php echo $class; ?>" data-id="<?php echo $field['id']; ?>" style="width: 100%; display: inline-block; padding: 10px 10px; margin: 0" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable">
+<div nbo-adv-dropdown class="nbd-option-field nbd-field-dropdown-wrap <?php echo $class; ?>" data-id="<?php echo $field['id']; ?>" style="width: 100%; display: inline-block; margin: 0" ng-if="nbd_fields['<?php echo $field['id']; ?>'].enable">
     <?php include( CUSTOM_KITALABEL_PATH.'templates/options-builder/field-header.php' ); ?>
     <div class="nbd-field-content">
         <div class="__nbd-dropdown-wrap">

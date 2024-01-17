@@ -619,7 +619,6 @@ function nbo_show_edit_option_link_in_cart( $result , $cart_item ) {
 // change custom edit design in the cart
 add_filter( 'nb_custom_after_cart_item_name', 'nb_custom_render_cart_1' , 1, 4 );
 function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_key = null, $custom_upload = array() ) {
-    $product_custom_design = 9550;
     if (  $cart_item_key && ( is_cart() || is_checkout() )) {
         $nbd_session = WC()->session->get($cart_item_key . '_nbd');
         $nbu_session = WC()->session->get($cart_item_key . '_nbu');
@@ -639,10 +638,6 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
         $_enable_upload_without_design  = get_post_meta($product_id, '_nbdesigner_enable_upload_without_design', true);
         $_product                       = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
         $product_permalink              = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
-        $option_type = 'normal';
-        if( $product_custom_design == $product_id ) {
-            $option_type = 'custom_design_page';
-        }         
         if ( $is_nbdesign && $_show_design == 'yes' ) {
             $html = '';
             // $html .= '<div class="custom-side-quantity">';
@@ -743,7 +738,9 @@ function nb_custom_render_cart_1( $title = null, $cart_item = null, $cart_item_k
                 $html .= $upload_html;
                 $html .= '</div>';
             }
-            return $html;
+            if($nbd_session || $nbu_session) {
+                return $html;
+            }
         } 
     }
     if(count($custom_upload) > 0) {

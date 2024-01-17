@@ -933,7 +933,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     $side_page = array();
                     foreach( $nbd_field as $key => $val) {
                         $origin_field   = $this->get_field_by_id( $option_fields, $key );
-                        if( isset($origin_field['nbd_type']) && $origin_field['nbd_type'] == 'page' ) {
+                        if( isset($origin_field['nbd_type']) && ($origin_field['nbd_type'] == 'page' || $origin_field['nbd_type'] == 'page1') ) {
                             if($key == $origin_field['id']) {
                                 $number_side = (int) ($val);
                             }

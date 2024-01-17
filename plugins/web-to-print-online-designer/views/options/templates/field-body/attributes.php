@@ -56,8 +56,14 @@
                         <div class="nbd-attribute-name">
                             <textarea placeholder="<?php _e('Unbenefit', 'web-to-print-online-designer'); ?>" value="{{op.un_benefit}}" ng-model="op.un_benefit" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][un_benefit]"></textarea>
                         </div>
+                        <!-- Custom kitalabel -->
+                        <div ng-if="field.nbd_type == 'size' || field.nbd_type == 'area'">
+                            <div class="nbd-margin-10"></div>
+                            <div class="nbd-attribute-name">
+                                <label><input type="checkbox" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][is_custom_option]" ng-checked="op.is_custom_option"/> <?php _e('Is Custom Option', 'web-to-print-online-designer'); ?></label>
+                            </div>
+                        </div>
                         <div class="nbd-margin-10"></div>
-                        <div><?php _e('Coming Soon', 'web-to-print-online-designer'); ?></div>
                         <div class="nbd-attribute-name">
                             <label><input type="checkbox" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][coming_soon]" ng-checked="op.coming_soon"/> <?php _e('Coming Soon', 'web-to-print-online-designer'); ?></label>
                         </div>  
