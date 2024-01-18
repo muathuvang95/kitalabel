@@ -483,6 +483,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $arr['nbo_meta']['original_price'] = $original_price;
                         $arr['nbo_meta']['price'] = $this->format_price($original_price + $option_price['total_price'] - $option_price['discount_price']);
                     }
+                    if( $edit_price = wc_get_order_item_meta($order_item_id, '_nb_edit_price') ){
+                        $arr['nbo_meta']['_nb_edit_price'] = $edit_price;
+                    }
                     $arr['nbo_meta']['order_again'] = $order->get_id(); // custom kitalabel
                     $arr['nbo_meta']['is_request_quote'] = $order->get_meta('_is_request_quote'); // custom kitalabel
                     $arr = apply_filters('printcart_update_combination', $arr, $order_item);
@@ -618,7 +621,8 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
         }
         public function re_calculate_price( $cart ){
             foreach ( $cart->cart_contents as $cart_item_key => $cart_item ) {
-                if( isset( $cart_item['nbo_meta'] ) ){
+                $nb_edit_price = !empty($cart_item['nbo_meta']['_nb_edit_price']) && $cart_item['nbo_meta']['_nb_edit_price']  ? true : false;
+                if( isset( $cart_item['nbo_meta'] ) && !$nb_edit_price){
                     //$product = $cart_item['data'];
                     $variation_id   = $cart_item['variation_id'];
                     $product_id     = $cart_item['product_id'];
@@ -648,6 +652,10 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     WC()->cart->cart_contents[ $cart_item_key ]['nbo_meta']['price'] = $adjusted_price;
                     $needed_change  = apply_filters( 'nbo_need_change_cart_item_price', true, WC()->cart->cart_contents[ $cart_item_key ] );
                     if( $needed_change ) WC()->cart->cart_contents[ $cart_item_key ]['data']->set_price( $adjusted_price ); 
+                }
+                if($nb_edit_price) {
+                    $original_price = !empty($cart_item['nbo_meta']['original_price']) ? $cart_item['nbo_meta']['original_price'] : 0;
+                     WC()->cart->cart_contents[ $cart_item_key ]['data']->set_price( $original_price );
                 }
             }
         }
