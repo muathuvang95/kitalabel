@@ -169,6 +169,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 'kitalabel_delete_upload_design_cart' => true,
                 'kitalabel_add_upload_design_cart' => true,
                 'kitalabel_ajax_qty_cart' => true,
+                'kitalabel_upload_file_field' => true,
             );
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -199,6 +200,17 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             }
             $result = array(
                 'created' => $has_file ? true : false,
+            );
+            
+            wp_send_json_success($result);
+            die();
+        }
+
+        public function kitalabel_upload_file_field() {
+            logg($_FILES);
+
+            $result = array(
+                'created' => false,
             );
             
             wp_send_json_success($result);

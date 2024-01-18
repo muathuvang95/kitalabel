@@ -1098,7 +1098,8 @@ if( $cart_item_key != ''){ ?>
                     link_upload += '&quantity=' + qty;
                     if(show_button_request_quote) {
                         jQuery('#nbo-quantity-option-wrap').show();
-                        jQuery('a#buttonRequestQuote').attr('href' , link_upload + '&is_quote=1' );
+                        console.log(link_upload + '&is_quote=1');
+                        jQuery('#buttonRequestQuote').attr('data-src' , link_upload + '&is_quote=1' );
                     } else {
                         jQuery('#nbo-quantity-option-wrap').hide();
                         jQuery('a.kita-link-upload').attr('href' , link_upload);
@@ -1174,6 +1175,33 @@ if( $cart_item_key != ''){ ?>
             upload : false,
         };
         // custom kitalabel
+        $scope.requestQuoteHandle = function() {
+            var src = jQuery('#buttonRequestQuote').data('src');
+            let $this                   = $(this);
+            let fileElement     = $('#nbd-custom-design input.nbd-input-u[type="file"]');
+            var formData = new FormData();
+            formData.append('action', 'kitalabel_upload_file_field');
+            formData.append('file', fileElement[0].files[0]);
+
+            jQuery.ajax({
+                type: "POST",
+                url: nbds_frontend.url,
+                data: formData,
+                dataType: "json",
+                processData: false
+            }).done(function(response) {
+                // $this.attr('data-current-page', nextPage);
+                // templateTagsWrapper.append(response.data);
+                // hoverTemplateTag();
+                // if(totalPage == nextPage) {
+                //     $this.hide();
+                // }
+                // $this.removeClass('loading');
+                // $this.prop('disabled', false);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log( 'Could not get posts, server response: ' + textStatus + ': ' + errorThrown );
+            });
+        }
         $scope.showDescDesign =  function(type){
             if( type == 'design' ) {
                 $scope.showDescDesign.design = !$scope.showDescDesign.design;

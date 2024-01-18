@@ -160,9 +160,9 @@ if (!class_exists('Kitalabel_Order_Label')) {
 		            </div>
 		            <div class="row" ng-if="!enable_design">
 		            	<div class="col-md-12">
-		            		<a href="<?php echo home_url().'/upload-file-modern'; ?>" class="button alt nbdesign-button" id="buttonRequestQuote">
+		            		<button ng-click="requestQuoteHandle()" data-src="<?php echo home_url().'/upload-file-modern'; ?>" class="button alt nbdesign-button" id="buttonRequestQuote">
 			            		<?php esc_html_e('Request Quote', 'web-to-print-online-designer'); ?>
-			            	</a>
+			            	</button>
 		            	</div>
 		            </div>
 		        </div>
