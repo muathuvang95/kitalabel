@@ -206,11 +206,31 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             die();
         }
 
+        public function _upload_file( $files ){
+            $nbd_upload = '';
+            global $woocommerce;
+            $user_folder = md5( $woocommerce->session->get_customer_id() );
+            if( isset($files['file']['name']) && $files['file']['error'] == 0 ){
+                $file = $files['file']['name'];
+                $ext = pathinfo( $file, PATHINFO_EXTENSION );
+                $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+                $new_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
+                $mkpath = wp_mkdir_p( NBDESIGNER_UPLOAD_DIR . '/' .$user_folder);
+                if( $mkpath ){
+                    if (move_uploaded_file($files['file']['tmp_name'], $new_path)) {
+                        $nbd_upload = $user_folder . '/' .$new_name;
+                    }
+                }
+            }
+            return $nbd_upload;
+        }
+
         public function kitalabel_upload_file_field() {
-            logg($_FILES);
+            $file_url = $this->_upload_file($_FILES);
 
             $result = array(
-                'created' => false,
+                'file' => $file_url,
+                'flag' => $file_url ? 1 : 0
             );
             
             wp_send_json_success($result);
