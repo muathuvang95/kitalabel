@@ -582,6 +582,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 }
                                 $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                             }
+
                         }
                         $post_fix = '';
                         if( isset($field['ind_qty']) ){
@@ -903,6 +904,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                                 'variants' => $variants,
                                                 'qtys' => $qtys,
                                                 'min_qty' => $min_qty,
+                                                'upload_file' => !empty($nbd_field[$field_id]['upload_file']) ? $nbd_field[$field_id]['upload_file'] : '',
                                             );
                                         } else {
                                             $nbd_field[$field_id] = array(
@@ -910,6 +912,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                                 'variants' => $nbd_field[$field_id]['variant'],
                                                 'qtys' => $nbd_field[$field_id]['qty'],
                                                 'min_qty' => $nbd_field[$field_id]['min_qty'],
+                                                'upload_file' => !empty($nbd_field[$field_id]['upload_file']) ? $nbd_field[$field_id]['upload_file'] : '',
                                             );
                                         }
                                     } else {

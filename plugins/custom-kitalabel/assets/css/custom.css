@@ -1614,6 +1614,10 @@ div.button.edit-upload-design {
     padding: 10px 0;
     border-radius: 5px;
 }
+.kita-page-upload-wrap .kita-link-design {
+	color: #FF8900;
+	text-decoration: underline;
+}
 .kita-page-upload-wrap .kita-upload-file-icon {
 	line-height: 1;
 	margin-right: 4px;
