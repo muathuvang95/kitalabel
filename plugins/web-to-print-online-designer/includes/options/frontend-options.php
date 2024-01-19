@@ -562,7 +562,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price'], array( 'decimals' => $decimals )) : '';
                         if( isset($field['is_upload']) ){
                             // kita upload file
-                            if(is_array($field['val'])) {
+                            if(!empty($field['val']['files'])) {
                                 // $filename = '';
                                 // foreach($field['val'] as $k => $file) {
                                     
@@ -574,6 +574,15 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 //     $filename .= '<a href="' . $file_url . '">' . $field['value_name'][$k] . '</a><br>';
                                 // }
                                 // $field['value_name'] = $filename;
+                                $value_name_upload = '';
+                                if(!empty($field['val']['upload_file'])) {
+                                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val']['upload_file'] );
+                                    $file_name = basename($file_url);
+                                    $value_name_upload = '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                }
+                                if($value_name_upload) {
+                                    $field['value_name'] = $value_name_upload;
+                                }
                             } else {
                                 if (strpos($field['val'], 'http') !== false) {
                                     $file_url = $field['val'];
