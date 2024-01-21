@@ -258,9 +258,10 @@
         NBDPopup.calcWidth();
     });
     var isNBDLoading = false;
-    jQuery(window).on('scroll', function () {
-        !isNBDLoading && (nbd_page.current_page < nbd_page.last_page) && isScrolledIntoView('#nbd-pagination') && loadMoreGallery( nbd_page );
-    });  
+    // custom kitalabel disable loadmore scroll
+    // jQuery(window).on('scroll', function () {
+    //     !isNBDLoading && (nbd_page.current_page < nbd_page.last_page) && isScrolledIntoView('#nbd-pagination') && loadMoreGallery( nbd_page );
+    // });  
     var renderNBDGallery = function( init, callback ){
         imagesLoaded( jQuery('#nbdesigner-gallery'), function() {
             if( !init ) jQuery('#nbdesigner-gallery').masonry('reloadItems');
