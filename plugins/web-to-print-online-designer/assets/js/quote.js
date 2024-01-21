@@ -141,12 +141,11 @@ jQuery(document).ready(function ($) {
             alert(nbds_frontend.check_invalid_fields);
             return;
         }else{
-            if(!nbdq_form_obj.is_login) {
+            if(nbdq_form_obj.is_login) {
                 $('.kita-add-a-quote-button span').hide();
                 $('.kita-add-a-quote-button .kita-loading').show();
                 $('.kita-add-a-quote-button').prop('disabled', true);
                 $('.kita-add-a-quote-button').addClass('kita-disabled');
-                return;
                 $('form[name="nbdq-form"]').submit();
             } else {
                 $('#nbdq-form-popup').nbqShowPopup();
