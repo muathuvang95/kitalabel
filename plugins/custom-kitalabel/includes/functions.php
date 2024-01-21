@@ -1059,30 +1059,33 @@ add_action( 'before_nbd_save_customer_design' , 'nb_custom_update_cart' , 1 , 1)
 function nb_custom_update_cart() {
     $item_combination = array();
     $cart_item_key = isset($_POST['cart_item_key']) ? $_POST['cart_item_key'] : 0;
+    $product_id = isset($_POST['product_id']) ? $_POST['product_id'] : 0;
+    $task = isset($_POST['task'])? $_POST['task']: '';
+    $options_old = array();
     $cart_items = WC()->cart->get_cart();
+
     if( isset( $cart_items[$cart_item_key] )) {
         $item =  $cart_items[$cart_item_key];
         if( isset( $item['nbo_meta'] ) ) {
-            $fields = unserialize( base64_decode( $item['nbo_meta']['options']['fields']) ) ;
             $options_old = $item['nbo_meta']['field'];
-            if( !empty( $fields['combination']['combination_selected']) && count($fields['combination']['combination_selected']) > 0 && isset($fields['combination']['enabled']) && $fields['combination']['enabled'] == 'on'  ) {
-                $item_combination = $fields['combination'];
-            }
         }
     }
-    $task = isset($_POST['task'])? $_POST['task']: '';
     $data = array();
     if( isset( $_POST['options-update'] ) && $task == 'edit' ) {
-        if(isset($item_combination)) {
-            parse_str($_POST['options-update'], $data);
-            $options_new = $data['nbd-field'];
-            if(count(nb_array_diff($options_new, $options_old)) > 0) {
-                $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
+        parse_str($_POST['options-update'], $data);
+        $options_new = $data['nbd-field'];
+        if(count(nb_array_diff($options_new, $options_old)) > 0) {
+            $fe_options = new NBD_FRONTEND_PRINTING_OPTIONS;
+            $option_id = $fe_options->get_product_option($product_id);
+            $options        = $fe_options->get_option( $option_id );
+            $option_fields  = unserialize( $options['fields'] );
+            if( !empty($option_fields['combination']['enabled']) && $option_fields['combination']['enabled'] == 'on' && !empty($option_fields['combination']['options']) ) {
+                $combination_options = $option_fields['combination']['options'];
                 foreach($options_new as $key => $val) {
                     if(is_array($val) && isset($val['value']) ) {
                         $val = $val['value'];
                     }
-                    $_origin_field   = $fe_options->get_field_by_id( $fields, $key );
+                    $_origin_field   = $fe_options->get_field_by_id( $option_fields, $key );
                     if( isset($_origin_field['nbd_type']) && $_origin_field['nbd_type'] == 'area' ) {
                         $area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
                         $_area_name = $_origin_field['general']['attributes']['options'][$val]['name'];
@@ -1100,21 +1103,23 @@ function nb_custom_update_cart() {
                         $material_name = $_origin_field['general']['attributes']['options'][$val]['name'];
                     }
                 }
-                if( isset($_area_name) && isset($size_name) && isset($material_name) && isset($item_combination['options']) ) {
-                    $side = $item_combination['options'][$_area_name][$size_name][$material_name];
-                    if(!isset($side) && isset($item_combination['options']['default'])) {
-                        $side = $item_combination['options']['default'];
+                if( isset($_area_name) && isset($size_name) && isset($material_name) && !empty($combination_options[$_area_name][$size_name][$material_name]) ) {
+                    $side = $combination_options[$_area_name][$size_name][$material_name];
+                    if(!$side && isset($combination_options['default'])) {
+                        $side = $combination_options['default'];
                     }
                 }
-                if( isset($item) && isset($side) ) {
-                    $nbd_field = $fe_options->validate_before_processing( $fields, $options_new );
+            }
+            if( isset($item) ) {
+                $nbd_field = $fe_options->validate_before_processing( $option_fields, $options_new );
+                if(isset($side)) {
                     $quantity =(int) $side['qty'];
                     //custom kitalabel
                     $number_side = 0;
                     $side_page = array();
                     foreach( $nbd_field as $key => $val) {
-                        $origin_field   = $fe_options->get_field_by_id( $fields, $key );
-                        if( isset($origin_field['nbd_type']) && $origin_field['nbd_type'] == 'page' ) {
+                        $origin_field   = $fe_options->get_field_by_id( $option_fields, $key );
+                        if( isset($origin_field['nbd_type']) && ( $origin_field['nbd_type'] == 'page' || $origin_field['nbd_type'] == 'page1' ) ) {
                             if($key == $origin_field['id']) {
                                 $number_side = (int) ($val);
                             }
@@ -1133,23 +1138,23 @@ function nb_custom_update_cart() {
                     } else {
                         $side_page[] = $quantity;
                     }
-                    if( isset($fields['combination'])) {
-                        $fields['combination']['side'] = $side_page;
-                        $fields['combination']['qty_breaks'] = $side['qty_breaks'];
-                        $fields['combination']['combination_selected'] = $side;
-                        $fields['combination']['min_qty'] = $quantity;
-                        $_fields = serialize($fields);
+                    if( isset($option_fields['combination'])) {
+                        $option_fields['combination']['side'] = $side_page;
+                        $option_fields['combination']['qty_breaks'] = $side['qty_breaks'];
+                        $option_fields['combination']['combination_selected'] = $side;
+                        $option_fields['combination']['min_qty'] = $quantity;
                     }
                     $item['nbo_meta']['original_price'] = $side['price'];
-                    $item['nbo_meta']['field'] = $nbd_field;
-                    $_fields        = base64_encode( $_fields );
-                    $item['nbo_meta']['options']['fields']   = $_fields;
-                    WC()->cart->cart_contents[$cart_item_key] = $item;
-                    WC()->cart->set_quantity( $cart_item_key, $quantity, true );
-                    WC()->cart->set_session();
                 }
+                $_fields = serialize($option_fields);
+                $item['nbo_meta']['field'] = $nbd_field;
+                $_fields = base64_encode( $_fields );
+                $item['nbo_meta']['options']['fields']   = $_fields;
+                WC()->cart->cart_contents[$cart_item_key] = $item;
+                WC()->cart->set_quantity( $cart_item_key, $quantity, true );
+                WC()->cart->set_session();
             }
-        }  
+        }
     }
    
 }
