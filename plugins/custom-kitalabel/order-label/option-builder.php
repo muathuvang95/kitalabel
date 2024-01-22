@@ -1208,6 +1208,8 @@ if( $cart_item_key != ''){ ?>
                         button.html(btnHtml);
                     }
                 });
+            } else {
+                window.location.href = baseSrc;
             }
         }
         $scope.showDescDesign =  function(type){
