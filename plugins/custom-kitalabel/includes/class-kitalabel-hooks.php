@@ -28,9 +28,30 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
 
             add_action( 'wp_enqueue_scripts', array($this, 'kitalabel_custom_enqueue_scripts'));
 
+            add_action( 'woocommerce_saved_order_items', array($this, 'save_order_items'), 10, 2);
+
             add_filter( 'printcart_update_combination', array($this, 'kitalabel_update_combination'), 10 ,2);
 
              $this->kitalabel_ajax();
+        }
+
+        public function save_order_items($order_id, $items) {
+            $order = wc_get_order($order_id);
+
+            $old_subtotals = [];
+            $new_subtotals = [];
+            $_items = $order->get_items();
+
+            foreach ($_items as $key => $value) {
+                $old_subtotal = (float) $value->get_subtotal();
+                $new_subtotal = !empty( $items['line_subtotal'][$key] ) ? (float) wc_clean( wp_unslash( $items['line_subtotal'][$key] ) ) : 0;
+                if( $old_subtotal != $new_subtotal ) {
+                    $quantity = !empty( $items['quantity'][$key] ) ? $items['quantity'][$key] :  $value->get_quantity();
+                    $price = $new_subtotal / $quantity;
+                    wc_update_order_item_meta($key , '_nbo_original_price' , $price);
+                    wc_update_order_item_meta($key , '_nb_edit_price' , 1);
+                }
+            }
         }
 
         public function zip_files( $file_names, $archive_file_name, $nameZip, $output_names ){
@@ -148,6 +169,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 'kitalabel_delete_upload_design_cart' => true,
                 'kitalabel_add_upload_design_cart' => true,
                 'kitalabel_ajax_qty_cart' => true,
+                'kitalabel_upload_file_field' => true,
             );
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -178,6 +200,37 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             }
             $result = array(
                 'created' => $has_file ? true : false,
+            );
+            
+            wp_send_json_success($result);
+            die();
+        }
+
+        public function _upload_file( $files ){
+            $nbd_upload = '';
+            global $woocommerce;
+            $user_folder = md5( $woocommerce->session->get_customer_id() );
+            if( isset($files['file']['name']) && $files['file']['error'] == 0 ){
+                $file = $files['file']['name'];
+                $ext = pathinfo( $file, PATHINFO_EXTENSION );
+                $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+                $new_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
+                $mkpath = wp_mkdir_p( NBDESIGNER_UPLOAD_DIR . '/' .$user_folder);
+                if( $mkpath ){
+                    if (move_uploaded_file($files['file']['tmp_name'], $new_path)) {
+                        $nbd_upload = $user_folder . '/' .$new_name;
+                    }
+                }
+            }
+            return $nbd_upload;
+        }
+
+        public function kitalabel_upload_file_field() {
+            $file_url = $this->_upload_file($_FILES);
+
+            $result = array(
+                'file' => $file_url,
+                'flag' => $file_url ? 1 : 0
             );
             
             wp_send_json_success($result);

@@ -939,7 +939,7 @@ if(!class_exists('NBD_Request_Quote')) {
                         foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
                             $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price']) : '';
                             if( isset($field['is_upload']) ){
-                                if(isset($field['val']['files'])) {
+                                if(!empty($field['val']['files'])) {
                                     $value_name_upload = '';
                                     foreach($field['val']['files'] as $k => $file) {
                                         
@@ -951,7 +951,16 @@ if(!class_exists('NBD_Request_Quote')) {
                                         $file_name = basename($file_url);
                                         $value_name_upload .= '<a href="' . $file_url . '">' . $file_name . '</a><br>';
                                     }
-                                    $field['value_name'] = $value_name_upload;
+
+                                    if(!empty($field['val']['upload_file'])) {
+                                        $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val']['upload_file'] );
+                                        $file_name = basename($file_url);
+                                        $value_name_upload = '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                    }
+
+                                    if($value_name_upload) {
+                                        $field['value_name'] = $value_name_upload;
+                                    }
                                 } else {
                                     if (strpos($field['val'], 'http') !== false) {
                                         $file_url = $field['val'];

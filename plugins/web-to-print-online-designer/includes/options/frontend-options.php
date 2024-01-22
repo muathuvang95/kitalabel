@@ -483,6 +483,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $arr['nbo_meta']['original_price'] = $original_price;
                         $arr['nbo_meta']['price'] = $this->format_price($original_price + $option_price['total_price'] - $option_price['discount_price']);
                     }
+                    if( $edit_price = wc_get_order_item_meta($order_item_id, '_nb_edit_price') ){
+                        $arr['nbo_meta']['_nb_edit_price'] = $edit_price;
+                    }
                     $arr['nbo_meta']['order_again'] = $order->get_id(); // custom kitalabel
                     $arr['nbo_meta']['is_request_quote'] = $order->get_meta('_is_request_quote'); // custom kitalabel
                     $arr = apply_filters('printcart_update_combination', $arr, $order_item);
@@ -559,7 +562,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price'], array( 'decimals' => $decimals )) : '';
                         if( isset($field['is_upload']) ){
                             // kita upload file
-                            if(is_array($field['val'])) {
+                            if(!empty($field['val']['files'])) {
                                 // $filename = '';
                                 // foreach($field['val'] as $k => $file) {
                                     
@@ -571,6 +574,15 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 //     $filename .= '<a href="' . $file_url . '">' . $field['value_name'][$k] . '</a><br>';
                                 // }
                                 // $field['value_name'] = $filename;
+                                $value_name_upload = '';
+                                if(!empty($field['val']['upload_file'])) {
+                                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val']['upload_file'] );
+                                    $file_name = basename($file_url);
+                                    $value_name_upload = '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                }
+                                if($value_name_upload) {
+                                    $field['value_name'] = $value_name_upload;
+                                }
                             } else {
                                 if (strpos($field['val'], 'http') !== false) {
                                     $file_url = $field['val'];
@@ -579,6 +591,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 }
                                 $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                             }
+
                         }
                         $post_fix = '';
                         if( isset($field['ind_qty']) ){
@@ -618,7 +631,8 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
         }
         public function re_calculate_price( $cart ){
             foreach ( $cart->cart_contents as $cart_item_key => $cart_item ) {
-                if( isset( $cart_item['nbo_meta'] ) ){
+                $nb_edit_price = !empty($cart_item['nbo_meta']['_nb_edit_price']) && $cart_item['nbo_meta']['_nb_edit_price']  ? true : false;
+                if( isset( $cart_item['nbo_meta'] ) && !$nb_edit_price){
                     //$product = $cart_item['data'];
                     $variation_id   = $cart_item['variation_id'];
                     $product_id     = $cart_item['product_id'];
@@ -648,6 +662,10 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     WC()->cart->cart_contents[ $cart_item_key ]['nbo_meta']['price'] = $adjusted_price;
                     $needed_change  = apply_filters( 'nbo_need_change_cart_item_price', true, WC()->cart->cart_contents[ $cart_item_key ] );
                     if( $needed_change ) WC()->cart->cart_contents[ $cart_item_key ]['data']->set_price( $adjusted_price ); 
+                }
+                if($nb_edit_price) {
+                    $original_price = !empty($cart_item['nbo_meta']['original_price']) ? $cart_item['nbo_meta']['original_price'] : 0;
+                     WC()->cart->cart_contents[ $cart_item_key ]['data']->set_price( $original_price );
                 }
             }
         }
@@ -895,6 +913,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                                 'variants' => $variants,
                                                 'qtys' => $qtys,
                                                 'min_qty' => $min_qty,
+                                                'upload_file' => !empty($nbd_field[$field_id]['upload_file']) ? $nbd_field[$field_id]['upload_file'] : '',
                                             );
                                         } else {
                                             $nbd_field[$field_id] = array(
@@ -902,6 +921,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                                 'variants' => $nbd_field[$field_id]['variant'],
                                                 'qtys' => $nbd_field[$field_id]['qty'],
                                                 'min_qty' => $nbd_field[$field_id]['min_qty'],
+                                                'upload_file' => !empty($nbd_field[$field_id]['upload_file']) ? $nbd_field[$field_id]['upload_file'] : '',
                                             );
                                         }
                                     } else {
@@ -1578,7 +1598,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         }
 
                         if( isset($_area_name) && isset($size_name) && isset($material_name) ) {
-                            $side = $option_fields['combination']['options'][$_area_name][$size_name][$material_name];
+                            if(!empty($option_fields['combination']['options'][$_area_name][$size_name][$material_name])) {
+                                $side = $option_fields['combination']['options'][$_area_name][$size_name][$material_name];
+                            }
                             if(!isset($side) && isset($option_fields['combination']['options']['default'])) {
                                 $side = $option_fields['combination']['options']['default'];
                             }
@@ -1862,9 +1884,11 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
         }
         public function set_product_prices( $cart_item ){
             if ( isset( $cart_item['nbo_meta'] )){
-                $new_price = (float) $cart_item['nbo_meta']['price'];
-                $needed_change = apply_filters('nbo_need_change_cart_item_price', true, $cart_item);
-                if( $needed_change ) $cart_item['data']->set_price( $new_price );
+                if(!empty($cart_item['nbo_meta']['price'])) {
+                    $new_price = (float) $cart_item['nbo_meta']['price'];
+                    $needed_change = apply_filters('nbo_need_change_cart_item_price', true, $cart_item);
+                    if( $needed_change ) $cart_item['data']->set_price( $new_price );
+                }
             }
             return $cart_item;
         }

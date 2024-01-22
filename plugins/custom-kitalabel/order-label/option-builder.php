@@ -1098,7 +1098,7 @@ if( $cart_item_key != ''){ ?>
                     link_upload += '&quantity=' + qty;
                     if(show_button_request_quote) {
                         jQuery('#nbo-quantity-option-wrap').show();
-                        jQuery('a#buttonRequestQuote').attr('href' , link_upload + '&is_quote=1' );
+                        jQuery('#buttonRequestQuote').attr('data-src' , link_upload + '&is_quote=1' );
                     } else {
                         jQuery('#nbo-quantity-option-wrap').hide();
                         jQuery('a.kita-link-upload').attr('href' , link_upload);
@@ -1174,6 +1174,42 @@ if( $cart_item_key != ''){ ?>
             upload : false,
         };
         // custom kitalabel
+        $scope.requestQuoteHandle = function() {
+            var button = jQuery('#buttonRequestQuote');
+            var src = button.data('src');
+            var baseSrc = button.data('base-src');
+            var fileElement = $('#nbd-custom-design input.nbd-input-u[type="file"]');
+            var fieldId = fileElement.data('field-id');
+
+            if(fileElement[0]?.files[0]) {
+                var formData = new FormData();
+                formData.append('action', 'kitalabel_upload_file_field');
+                formData.append('file', fileElement[0].files[0]);
+
+                var btnHtml = button.html();
+                button.prop('disabled', true);
+                button.html('Loading...');
+                jQuery.ajax({
+                    type: "POST",
+                    url: nbds_frontend.url,
+                    dataType: "json",
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        if(response?.data?.flag) {
+                            const _url = new URL(src);
+                            var params = _url.searchParams;
+                            params.set(fieldId, response.data.file);
+                            window.location.href = baseSrc + '?' + params.toString();
+                        }
+
+                        button.prop('disabled', false);
+                        button.html(btnHtml);
+                    }
+                });
+            }
+        }
         $scope.showDescDesign =  function(type){
             if( type == 'design' ) {
                 $scope.showDescDesign.design = !$scope.showDescDesign.design;

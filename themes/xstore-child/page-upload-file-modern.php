@@ -84,12 +84,25 @@ if($option_id) {
 						);
 					}
 				} else {
-					$option_selected[$field_id] = array(
-						'title'			=> $field['general']['title'],
-						'value' 		=> $value,
-						'show' 			=> true,
-						'value_name'	=> !empty($option_field[$value]['name']) ? $option_field[$value]['name'] : '',
-					);
+					if(!isset($field['nbd_type']) && $field['general']['data_type'] == 'i' && $field['general']['input_type'] == 'u' && $value ) {
+						$file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$value );
+						$basename = basename($value);
+
+						$option_selected[$field_id] = array(
+							'title'			=> $field['general']['title'],
+							'value' 		=> $value,
+							'show' 			=> true,
+							'is_upload' 	=> true,
+							'value_name'	=> '<a class="kita-link-design" href="' . $file_url . '">' . $basename . '</a>',
+						);
+					} else {
+						$option_selected[$field_id] = array(
+							'title'			=> $field['general']['title'],
+							'value' 		=> $value,
+							'show' 			=> true,
+							'value_name'	=> !empty($option_field[$value]['name']) ? $option_field[$value]['name'] : '',
+						);
+					}
 				}
 
 				if( isset($field['nbd_type']) && $field['nbd_type'] == 'area' ) {
@@ -199,7 +212,7 @@ if($quantity < $min_qty) {
 																							<td class="nbd-option-selected-name"><label for="" class="nbd-label"><?php echo $field_option['title']; ?></label></td>
 																							<td class="nbd-option-selected-value">
 																								: <span class="name"><?php echo $field_option['value_name']; ?></span>
-																								<input value="<?php echo $field_option['value']; ?>" name="nbd-field[<?php echo $field_id; ?>]" type="hidden" >
+																								<input value="<?php echo $field_option['value']; ?>" name="nbd-field[<?php echo $field_id; ?>]<?php echo !empty($field_option['is_upload']) && $field_option['is_upload'] ? '[upload_file]' : ''; ?>" type="hidden" >
 																							</td>
 																						</tr>
 																					<?php
