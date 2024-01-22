@@ -1209,7 +1209,7 @@ if( $cart_item_key != ''){ ?>
                     }
                 });
             } else {
-                window.location.href = baseSrc;
+                window.location.href = src;
             }
         }
         $scope.showDescDesign =  function(type){
