@@ -2534,6 +2534,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
         public function quick_view(){
             global $woocommerce, $post;
             $product_custom_design = 9550;
+            $product_order_label = nbdesigner_get_option('nbd_order_label_product_id');
             $product_id = absint( $_GET['product'] );
             $mode       = isset( $_GET['mode'] ) ? $_GET['mode'] : 'editor';
             if ( $product_id ) {
@@ -2558,7 +2559,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 if( $product_custom_design == $product_id ) {
                     $check_custom_design = true;
                 }
-                if($check_custom_design) {
+                if($product_order_label == $product_id) {
+                    custom_kita_get_template('nb-quick-view-order-label.php' , array());
+                } else if($check_custom_design) {
                     custom_kita_get_template('nb-quick-view.php' , array());
                 } else {
                      // END

@@ -108,6 +108,7 @@ function nbdq_get_connect_fields() {
     $fields_billing     = is_array($fields_billing) ? $fields_billing : array();
     $fields_shipping    = is_array($fields_shipping) ? $fields_shipping : array();
     $fields             = array_merge($fields, $fields_billing, $fields_shipping);
+    $fields['email']    = 'email';
     return array_keys($fields);
 }
 function nbdq_get_array_positions_form_field() {

@@ -1114,6 +1114,9 @@ function nb_custom_update_cart() {
                 $nbd_field = $fe_options->validate_before_processing( $option_fields, $options_new );
                 if(isset($side)) {
                     $quantity =(int) $side['qty'];
+                    if(!$quantity) {
+                        $quantity = (int) $item['quantity'];
+                    }
                     //custom kitalabel
                     $number_side = 0;
                     $side_page = array();
@@ -1146,6 +1149,7 @@ function nb_custom_update_cart() {
                     }
                     $item['nbo_meta']['original_price'] = $side['price'];
                 }
+                unset($option_fields['combination']['options']);
                 $_fields = serialize($option_fields);
                 $item['nbo_meta']['field'] = $nbd_field;
                 $_fields = base64_encode( $_fields );
@@ -1156,7 +1160,6 @@ function nb_custom_update_cart() {
             }
         }
     }
-   
 }
 
 add_filter( 'woocommerce_cart_item_quantity' , 'nb_custom_input_cart_item' , 1 , 3);
