@@ -62,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 ?>
                 <?php 
                     endif; 
-                    if( nbdesigner_get_option('nbdesigner_enable_recaptcha_quote', 'no') == 'yes' && nbdesigner_get_option('nbdesigner_recaptcha_key', '') != '' && nbdesigner_get_option('nbdesigner_recaptcha_secret_key', '') != '' ):
+                    if( !is_user_logged_in() && nbdesigner_get_option('nbdesigner_enable_recaptcha_quote', 'no') == 'yes' && nbdesigner_get_option('nbdesigner_recaptcha_key', '') != '' && nbdesigner_get_option('nbdesigner_recaptcha_secret_key', '') != '' ):
                 ?>
                 <p class="form-row form-row form-row-wide">
                     <div class="g-recaptcha" id="recaptcha_quote" data-callback="nbdqRecaptchaCallback" data-sitekey="<?php echo nbdesigner_get_option('nbdesigner_recaptcha_key'); ?>"></div>

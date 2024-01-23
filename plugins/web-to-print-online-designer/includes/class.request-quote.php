@@ -810,7 +810,7 @@ if(!class_exists('NBD_Request_Quote')) {
                 }
             }
             /* Validate recaptcha */
-            if( nbdesigner_get_option('nbdesigner_enable_recaptcha_quote', 'no') == 'yes' && nbdesigner_get_option('nbdesigner_recaptcha_key', '') != '' && nbdesigner_get_option('nbdesigner_recaptcha_secret_key', '') != '' ){
+            if( !is_user_logged_in() && nbdesigner_get_option('nbdesigner_enable_recaptcha_quote', 'no') == 'yes' && nbdesigner_get_option('nbdesigner_recaptcha_key', '') != '' && nbdesigner_get_option('nbdesigner_recaptcha_secret_key', '') != '' ){
                 $captcha_error_string = sprintf( '<p>%s</p>', __( 'Please check the the captcha form.', 'web-to-print-online-designer' ) );
                 if ( isset( $posted['g-recaptcha-response'] ) ) {
                     $captcha = $posted['g-recaptcha-response'];

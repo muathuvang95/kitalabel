@@ -107,7 +107,12 @@ if (!class_exists('Kitalabel_Order_Label')) {
 		}
 
 		public function button_request_quote( $pid ) {
-		    $is_nbdesign    = get_post_meta( $pid, '_nbdesigner_enable', true ); 
+			if( isset($_REQUEST['wc-api']) && $_REQUEST['wc-api'] == 'NBO_Quick_View'){
+			    return;
+			}
+
+		    $is_nbdesign    = get_post_meta( $pid, '_nbdesigner_enable', true );
+
 		    if ( $is_nbdesign ) {
 		        $product    = wc_get_product( $pid );
 		        $type       = $product->get_type();
