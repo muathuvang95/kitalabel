@@ -485,6 +485,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                     }
                     if( $edit_price = wc_get_order_item_meta($order_item_id, '_nb_edit_price') ){
                         $arr['nbo_meta']['_nb_edit_price'] = $edit_price;
+                        $arr['nbo_meta']['original_price'] = $edit_price;
                     }
                     $arr['nbo_meta']['order_again'] = $order->get_id(); // custom kitalabel
                     $arr['nbo_meta']['is_request_quote'] = $order->get_meta('_is_request_quote'); // custom kitalabel
@@ -609,9 +610,18 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 }
                 $item->add_meta_data('_nbo_option_price', $values['nbo_meta']['option_price']);
                 $item->add_meta_data('_nbo_field', $values['nbo_meta']['field']);
-                $item->add_meta_data('_order_again', $values['nbo_meta']['order_again']); // custom kitalabel
                 $item->add_meta_data('_nbo_options', wp_slash( $values['nbo_meta']['options'] ));
-                $item->add_meta_data('_nbo_original_price', $values['nbo_meta']['original_price']);
+
+                 // custom kitalabel
+                if(!empty($values['nbo_meta']['order_again'])) {
+                    $item->add_meta_data('_order_again', $values['nbo_meta']['order_again']);
+                }
+                if(!empty($values['nbo_meta']['original_price'])) {
+                    $item->add_meta_data('_nbo_original_price', $values['nbo_meta']['original_price']);
+                }
+                if(!empty($values['nbo_meta']['_nb_edit_price'])) {
+                    $item->add_meta_data('_nb_edit_price', $values['nbo_meta']['_nb_edit_price']);
+                }
                 if( isset($values['nb_custom_note']) && count($values['nb_custom_note']) > 0 ) {
                     $item->add_meta_data('nb_custom_note', $values['nb_custom_note']);
                 }
@@ -910,9 +920,9 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                             }
                                             $nbd_field[$field_id] = array(
                                                 'files' => $nbd_upload_field[$field_id],
-                                                'variants' => $variants,
-                                                'qtys' => $qtys,
-                                                'min_qty' => $min_qty,
+                                                'variants' => !empty($nbd_field[$field_id]['variant']) ? $nbd_field[$field_id]['variant'] : $variants,
+                                                'qtys' => !empty($nbd_field[$field_id]['qty']) ? $nbd_field[$field_id]['qty'] : $qtys,
+                                                'min_qty' => !empty($nbd_field[$field_id]['min_qty']) ? $nbd_field[$field_id]['min_qty'] : $min_qty,
                                                 'upload_file' => !empty($nbd_field[$field_id]['upload_file']) ? $nbd_field[$field_id]['upload_file'] : '',
                                             );
                                         } else {

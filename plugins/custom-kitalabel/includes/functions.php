@@ -1724,3 +1724,11 @@ function nb_custom_login_ajax(){
 //     die;
 //     return $value;
 // }
+
+if(!function_exists('logg')) {
+    function logg($var) {
+        echo '<pre>';
+        var_dump($var);
+        echo '</pre>';
+    }
+}

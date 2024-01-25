@@ -43,14 +43,10 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             $_items = $order->get_items();
 
             foreach ($_items as $key => $value) {
-                $old_subtotal = (float) $value->get_subtotal();
-                $new_subtotal = !empty( $items['line_subtotal'][$key] ) ? (float) wc_clean( wp_unslash( $items['line_subtotal'][$key] ) ) : 0;
-                if( $old_subtotal != $new_subtotal ) {
-                    $quantity = !empty( $items['quantity'][$key] ) ? $items['quantity'][$key] :  $value->get_quantity();
-                    $price = $new_subtotal / $quantity;
-                    wc_update_order_item_meta($key , '_nbo_original_price' , $price);
-                    wc_update_order_item_meta($key , '_nb_edit_price' , 1);
-                }
+                $old_subtotal = (float) $value->get_total();
+                $quantity = !empty( $items['quantity'][$key] ) ? $items['quantity'][$key] :  $value->get_quantity();
+                $price = $old_subtotal / $quantity;
+                wc_update_order_item_meta($key , '_nb_edit_price' , $price);
             }
         }
 
