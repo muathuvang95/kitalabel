@@ -16,7 +16,7 @@ if( $total > $limit ):
     <div class="tablenav-pages">
         <div>
             <span class="displaying-num"><?php printf( _n( '%s Template', '%s Templates', $total, 'web-to-print-online-designer'), number_format_i18n( $total ) ); ?></span>
-            <?php echo $paging->html();  ?>
+            <!-- <?php echo $paging->html();  ?> -->
         </div>
         <div class="spacer"></div>
     </div>

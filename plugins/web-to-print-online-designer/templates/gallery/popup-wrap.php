@@ -258,10 +258,9 @@
         NBDPopup.calcWidth();
     });
     var isNBDLoading = false;
-    // custom kitalabel disable loadmore scroll
-    // jQuery(window).on('scroll', function () {
-    //     !isNBDLoading && (nbd_page.current_page < nbd_page.last_page) && isScrolledIntoView('#nbd-pagination') && loadMoreGallery( nbd_page );
-    // });  
+    jQuery(window).on('scroll', function () {
+        !isNBDLoading && (nbd_page.current_page < nbd_page.last_page) && isScrolledIntoView('#nbd-pagination') && loadMoreGallery( nbd_page );
+    });  
     var renderNBDGallery = function( init, callback ){
         imagesLoaded( jQuery('#nbdesigner-gallery'), function() {
             if( !init ) jQuery('#nbdesigner-gallery').masonry('reloadItems');
@@ -298,8 +297,8 @@
             data: data
         }).done(function(data){
             jQuery('#nbd-pagination').removeClass('nbdesigner-disable');
-            var new_url = addParameter(nbd_page.url, 'paged', nbd_page.current_page, false);
-            history.pushState(null, null, new_url );
+            // var new_url = addParameter(nbd_page.url, 'paged', nbd_page.current_page, false);
+            // history.pushState(null, null, new_url );
             isNBDLoading = false;
             if( data.flag ){
                 jQuery('#nbdesigner-gallery').append(data.items);
