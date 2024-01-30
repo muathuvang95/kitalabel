@@ -620,7 +620,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                     $cart_item = $cart_items[$item_key];
 
                     if( isset( $cart_item['nbo_meta'] ) ) {
-                        if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && isset( $cart_item['nbo_meta']['is_request_quote'] ) && $cart_item['nbo_meta']['is_request_quote'] ) {
+                        if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && (!empty( $cart_item['nbo_meta']['is_request_quote']) || !empty( $cart_item['nbo_meta']['_nb_edit_price'])) ) {
                             $cart_item['nbo_meta']['wait_price'] = 1;
                         }
 
@@ -816,7 +816,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                         $cart_item = $cart_items[$item_key];
                         $nbd_field = $cart_item['nbo_meta']['field'] ;
                         if( isset( $cart_item['nbo_meta'] ) ) {
-                            if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && isset( $cart_item['nbo_meta']['is_request_quote'] ) && $cart_item['nbo_meta']['is_request_quote'] ) {
+                            if( isset( $cart_item['nbo_meta']['order_again'] ) && $cart_item['nbo_meta']['order_again'] && (!empty( $cart_item['nbo_meta']['is_request_quote']) || !empty( $cart_item['nbo_meta']['_nb_edit_price'])) ) {
                                 $cart_item['nbo_meta']['wait_price'] = 1;
                             }
 
