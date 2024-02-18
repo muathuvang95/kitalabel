@@ -144,13 +144,20 @@ do_action( 'woocommerce_before_cart' ); ?>
 									echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
 								?>
 							</td>
-
 							<td class="product-subtotal" data-title="<?php esc_attr_e( 'Subtotal', 'xstore' ); ?>">
 								<?php
 									echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
 
 									if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['wait_price'] ) && $cart_item['nbo_meta']['wait_price']  ) {
-										echo '<div><span>Harga Total:</span><b>"Menunggu Harga"</b></div>';
+										$order_again = !empty( $cart_item['nbo_meta']['order_again'] ) ? $cart_item['nbo_meta']['order_again'] : '';
+										echo '<div><span>Harga Total:</span><b>"Menunggu Harga"</b></div><div style="cursor: pointer;" class="button nb-create-new-quote" data-item-key="'.$cart_item_key.'" data-order-again="'.$order_again.'"><div>Request quote</div></div>';
+										?>
+										<script type="text/javascript">
+						                    jQuery(document).ready(function($) {
+												$('.checkout-button').css({'cursor': 'not-allowed','pointer-events': 'none','opacity': 0.6});
+											})
+						                </script>
+										<?php
 									}
 								?>
 							</td>

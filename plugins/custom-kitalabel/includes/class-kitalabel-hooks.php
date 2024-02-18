@@ -166,6 +166,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 'kitalabel_add_upload_design_cart' => true,
                 'kitalabel_ajax_qty_cart' => true,
                 'kitalabel_upload_file_field' => true,
+                'kitalabel_create_order_quote' => true,
             );
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -910,7 +911,181 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                 'qty' => $qty,
             );
         }
+        public function add_order_meta( $order, $raq ){
+            $attr                           = array();
+            $order_id                       = $order->get_id();
+            $attr['_is_request_quote']      = 1;
+            $attr['_raq_request']           = $raq;
+            $attr['_raq_customer_name']     = $raq['user_name'];
+            $attr['_raq_customer_email']    = $raq['user_email'];
+            $attr['_raq_customer_message']  = $raq['user_message'];
+            $attr['_raq_status']            = 'new';
+            foreach ( $attr as $key => $item ) {
+                $order->update_meta_data( $key, $item );
+            }
+            $order->save();
+        }
+        public function kitalabel_create_order_quote() {
+            $results = array(
+                'result'   => 'failure',
+                'messages' => '',
+                'redirect' => '',
+            );
 
+            $item_key    = isset($_POST['item_key']) ? $_POST['item_key'] : '';
+            $order_id_again    = isset($_POST['order_again']) ? $_POST['order_again'] : '';
+
+            if($order_id_again) {
+                $order_again = wc_get_order($order_id_again);
+                $order_items = $order_again->get_items();
+                foreach( $order_items as $order_item_id => $order_item ){
+                    $_order_again_id = wc_get_order_item_meta($order_item_id, '_order_again');
+                    if($_order_again_id) {
+                        $raq = get_post_meta( $_order_again_id , '_raq_request' , true);
+
+                        if( $item_key ) {
+                            $cart_items = WC()->cart->get_cart();
+
+                            if( isset( $cart_items[$item_key] )) {
+                                $cart_item = $cart_items[$item_key];
+                                $order_id = $this->create_raq_order($raq, $cart_item, $item_key);
+                                if( $order_id != 0 ){
+                                    $results = array(
+                                        'result'   => 'success',
+                                        'messages' => __( 'Successfully!', 'web-to-print-online-designer' ),
+                                    );
+                                    if( is_user_logged_in() ){
+                                        $results['redirect'] = wc_get_endpoint_url( 'view-quote', $order_id, wc_get_page_permalink( 'myaccount' ) );
+                                    }
+                                }else{
+                                    $results = array(
+                                        'result'   => 'failure',
+                                        'messages' => __( 'Unable to create the quote. Please try again.', 'web-to-print-online-designer' ),
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            wp_send_json( $results );
+
+            exit();
+
+        }
+        public function create_raq_order( $raq, $values, $cart_item_key ){
+            if ( class_exists( 'WC_Subscriptions_Coupon' ) ) {
+                remove_filter( 'woocommerce_get_discounted_price', 'WC_Subscriptions_Coupon::apply_subscription_discount_before_tax', 10 );
+                remove_filter( 'woocommerce_get_discounted_price', 'WC_Subscriptions_Coupon::apply_subscription_discount', 10 );
+            }
+            WC()->shipping();
+            if ( ! defined( 'WOOCOMMERCE_CHECKOUT' ) ) {
+                define( 'WOOCOMMERCE_CHECKOUT', true );
+            }
+            $order = wc_create_order( $args = array(
+                'status'      => 'wc-nbdq-new',
+                'customer_id' => $raq['customer_id']
+            ));
+            $order_id = 0;
+            if( ! is_wp_error( $order ) ){
+                $order_id = $order->get_id();
+                $this->add_order_meta( $order, $raq );
+
+                wc_clear_notices();
+
+                remove_filter( 'woocommerce_is_purchasable', array( $this, 'is_purchasable' ), 99 );
+
+                $args['variation'] = ( ! empty( $values['variation'] ) ) ? $values['variation'] : array();
+                if ( isset( $values['line_subtotal'] ) ) {
+                    $args['totals']['subtotal'] = $values['line_subtotal'];
+                }
+                if ( isset( $values['line_total'] ) ) {
+                    $args['totals']['total'] = $values['line_total'];
+                }
+                if ( isset( $values['line_subtotal_tax'] ) ) {
+                    $args['totals']['subtotal_tax'] = $values['line_subtotal_tax'];
+                }
+                if ( isset( $values['line_tax'] ) ) {
+                    $args['totals']['tax'] = $values['line_tax'];
+                }
+                if ( isset( $values['line_tax_data'] ) ) {
+                    $args['totals']['tax_data'] = $values['line_tax_data'];
+                }
+                $values['quantity'] = ( $values['quantity'] <= 0 ) ? 1 : $values['quantity'];
+                $order_item_id = $order->add_product(
+                    $values['data'],
+                    $values['quantity'],
+                    $args
+                );
+                //Add NBO data
+                if ( isset( $values['nbo_meta'] ) ) {
+                    foreach ($values['nbo_meta']['option_price']['fields'] as $field) {
+                        $price = floatval($field['price']) > 0 ? '+' . wc_price($field['price']) : '';
+                        if( isset($field['is_upload']) ){
+                            if(!empty($field['val']['files'])) {
+                                $value_name_upload = '';
+                                foreach($field['val']['files'] as $k => $file) {
+                                    
+                                    if (strpos($file, 'http') !== false) {
+                                        $file_url = $file;
+                                    }else{
+                                        $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$file );
+                                    }
+                                    $file_name = basename($file_url);
+                                    $value_name_upload .= '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                }
+
+                                if(!empty($field['val']['upload_file'])) {
+                                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val']['upload_file'] );
+                                    $file_name = basename($file_url);
+                                    $value_name_upload = '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                }
+
+                                if($value_name_upload) {
+                                    $field['value_name'] = $value_name_upload;
+                                }
+                            } else {
+                                if (strpos($field['val'], 'http') !== false) {
+                                    $file_url = $field['val'];
+                                }else{
+                                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val'] );
+                                }
+                                $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
+                            }
+                        }
+                        wc_add_order_item_meta($order_item_id, $field['name'], $field['value_name']. '&nbsp;&nbsp;' .$price);
+                    }
+                    if( floatval( $values['nbo_meta']['option_price']['discount_price'] ) > 0 ){
+                        wc_add_order_item_meta($order_item_id, __('Quantity Discount', 'web-to-print-online-designer'), '-' . wc_price($values['nbo_meta']['option_price']['discount_price']));
+                    }
+                    wc_add_order_item_meta($order_item_id, __('Quantity Discount', 'web-to-print-online-designer'), '-' . wc_price($values['nbo_meta']['option_price']['discount_price']));
+                    wc_add_order_item_meta($order_item_id, "_nbo_option_price", $values['nbo_meta']['option_price']);
+                    wc_add_order_item_meta($order_item_id, "_nbo_field", $values['nbo_meta']['field']);
+                    wc_add_order_item_meta($order_item_id, "_nbo_options", wp_slash( $values['nbo_meta']['options'] ));
+                    wc_add_order_item_meta($order_item_id, "_nbo_original_price", $values['nbo_meta']['original_price']);
+                }
+
+                //Add NBD data
+                $item = apply_filters( 'woocommerce_checkout_create_order_line_item_object', new WC_Order_Item_Product(), $cart_item_key, $values, $order );
+                $item->legacy_values        = $values;
+                $item->legacy_cart_item_key = $cart_item_key;
+                do_action( 'woocommerce_new_order_item', $order_item_id, $item, $order_id );
+                // Trigger to add NBD data and unset NBD session
+                do_action( 'nbd_checkout_order_processed', $order_id );
+
+                $order->save();
+                $order->calculate_taxes();
+                $order->calculate_totals();
+                WC()->cart->remove_cart_item( $cart_item_key );
+                WC()->cart->calculate_totals(); 
+                WC()->cart->set_session();
+                WC()->cart->get_cart_from_session();
+                WC()->cart->set_session();
+                WC()->session->set( 'raq_new_order', $order_id );
+            }
+            return $order_id;
+        }
     }
 }
 

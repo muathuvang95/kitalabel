@@ -446,6 +446,41 @@ jQuery( function( $ ) {
 
       })
 
+      $('.button.nb-create-new-quote').on('click', function(e) {
+        var item_key = $(this).data('item-key');
+        var order_again = $(this).data('order-again');
+
+        var $a = $( e.currentTarget );
+        var $form = $a.parents( 'form' );
+        block($form);
+
+        var formData = new FormData();
+
+        formData.append("action", "kitalabel_create_order_quote");
+        formData.append("item_key", item_key);
+        formData.append("order_again", order_again);
+
+        $.ajax({
+            type : "post", 
+            processData: false,
+            contentType: false,
+            url : nb_custom.url,
+            data : formData,
+            context: this,
+            success: function(response) {
+              unblock($form);
+              if('success' === response.result && response.redirect) {
+                window.location.href = response.redirect;
+                return
+              }
+              alert(response.messages);
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+              console.log( 'The following error occured: ' + textStatus, errorThrown );
+            }
+        })
+      })
+
       $(document).off('click', '.nb-plus, .nb-minus').on('click', '.nb-plus, .nb-minus', function (event) {
         event.preventDefault();
         var qty = jQuery(this).closest('.nbu-quantity').find('.qty'),
