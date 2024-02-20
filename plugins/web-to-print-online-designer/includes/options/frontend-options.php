@@ -323,7 +323,7 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                         $valid_fields = $this->get_default_option($options);
                         $required_option = false;
                         foreach($valid_fields as $field){
-                            if( $field['enable'] && $field['required'] ){
+                            if( $field['enable'] && $field['required'] && ( empty($field['value']) || $field['value'] === '' ) ){
                                 $required_option = true;
                                 wc_add_notice( sprintf( __( '"%s" is a required field.', 'web-to-print-online-designer' ), $field['title'] ), 'error' );
                             }

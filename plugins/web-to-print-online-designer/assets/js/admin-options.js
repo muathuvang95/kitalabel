@@ -205,6 +205,9 @@ angular.module('optionApp', []).controller('optionCtrl', function( $scope, $time
         return actual == expected;
     };
     $scope.add_price_break = function(){
+    	if(!$scope.options.quantity_breaks?.length) {
+    		$scope.options.quantity_breaks = [];
+    	}
         var last =  $scope.options.quantity_breaks.length > 0 ? $scope.options.quantity_breaks[$scope.options.quantity_breaks.length - 1].val : 0; 
         $scope.options.quantity_breaks.push({ val: parseInt( last ) + 1 });
     };
