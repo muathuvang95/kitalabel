@@ -781,7 +781,7 @@ angular.module('optionApp', []).controller('optionCtrl', function( $scope, $time
         }
     }; 
     $scope.initfieldValue = function(){
-    	$scope.update_options_combination($scope.options); // Custom kitalabel
+    	// $scope.update_options_combination($scope.options); // Custom kitalabel
         angular.forEach($scope.options.fields, function(field, key){
             $scope.option_values[key] = angular.isDefined($scope.option_values[key]) ? $scope.option_values[key] : '';
             if(field.general.data_type.value == 'i'){
