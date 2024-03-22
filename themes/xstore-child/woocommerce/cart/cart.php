@@ -151,13 +151,6 @@ do_action( 'woocommerce_before_cart' ); ?>
 									if( isset( $cart_item['nbo_meta'] ) && isset( $cart_item['nbo_meta']['wait_price'] ) && $cart_item['nbo_meta']['wait_price']  ) {
 										$order_again = !empty( $cart_item['nbo_meta']['order_again'] ) ? $cart_item['nbo_meta']['order_again'] : '';
 										echo '<div><span>Harga Total:</span><b>"Menunggu Harga"</b></div><div style="cursor: pointer;" class="button nb-create-new-quote" data-item-key="'.$cart_item_key.'" data-order-again="'.$order_again.'"><div>Request quote</div></div>';
-										?>
-										<script type="text/javascript">
-						                    jQuery(document).ready(function($) {
-												$('.checkout-button').css({'cursor': 'not-allowed','pointer-events': 'none','opacity': 0.6});
-											})
-						                </script>
-										<?php
 									}
 								?>
 							</td>
