@@ -575,15 +575,16 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                                 //     $filename .= '<a href="' . $file_url . '">' . $field['value_name'][$k] . '</a><br>';
                                 // }
                                 // $field['value_name'] = $filename;
-                                $value_name_upload = '';
-                                if(!empty($field['val']['upload_file'])) {
-                                    $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val']['upload_file'] );
-                                    $file_name = basename($file_url);
-                                    $value_name_upload = '<a href="' . $file_url . '">' . $file_name . '</a><br>';
-                                }
-                                if($value_name_upload) {
-                                    $field['value_name'] = $value_name_upload;
-                                }
+                                // $value_name_upload = '';
+                                // if(!empty($field['val']['upload_file'])) {
+                                //     $file_url = Nbdesigner_IO::wp_convert_path_to_url( NBDESIGNER_UPLOAD_DIR . '/' .$field['val']['upload_file'] );
+                                //     $file_name = basename($file_url);
+                                //     $value_name_upload = '<a href="' . $file_url . '">' . $file_name . '</a><br>';
+                                // }
+                                // if($value_name_upload) {
+                                //     $field['value_name'] = $value_name_upload;
+                                // }
+                                $field['value_name'] = '';
                             } else {
                                 if (strpos($field['val'], 'http') !== false) {
                                     $file_url = $field['val'];
@@ -1020,8 +1021,8 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 $nbd_upload_fields[$field_id] = array();
                 foreach($file as $key => $f) {
                     if( isset($files['error'][$field_id][$key]) && $files['error'][$field_id][$key] == 0 ){
-                        $ext = pathinfo( $f, PATHINFO_EXTENSION );
-                        $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+                        $filename = sanitize_file_name($f);
+                        $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'_'.$filename;
                         $new_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
                         $mkpath = wp_mkdir_p( NBDESIGNER_UPLOAD_DIR . '/' .$user_folder);
                         if( $mkpath && isset($files['tmp_name'][$field_id][$key]) ){
@@ -1035,8 +1036,8 @@ if( !class_exists( 'NBD_FRONTEND_PRINTING_OPTIONS' ) ){
                 }
             } else {
                 if( $files['error'][$field_id] == 0 ){
-                    $ext = pathinfo( $file, PATHINFO_EXTENSION );
-                    $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+                    $filename = sanitize_file_name($file);
+                    $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'_'.$filename;
                     $new_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
                     $mkpath = wp_mkdir_p( NBDESIGNER_UPLOAD_DIR . '/' .$user_folder);
                     if( $mkpath ){

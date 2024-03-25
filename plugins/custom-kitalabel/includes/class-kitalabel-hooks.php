@@ -209,8 +209,8 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
             $user_folder = md5( $woocommerce->session->get_customer_id() );
             if( isset($files['file']['name']) && $files['file']['error'] == 0 ){
                 $file = $files['file']['name'];
-                $ext = pathinfo( $file, PATHINFO_EXTENSION );
-                $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+                $filename = sanitize_file_name($file);
+                $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$filename;
                 $new_path = NBDESIGNER_UPLOAD_DIR . '/' .$user_folder . '/' .$new_name;
                 $mkpath = wp_mkdir_p( NBDESIGNER_UPLOAD_DIR . '/' .$user_folder);
                 if( $mkpath ){
