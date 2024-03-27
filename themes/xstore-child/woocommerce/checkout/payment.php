@@ -20,13 +20,18 @@ defined( 'ABSPATH' ) || exit;
 if ( ! is_ajax() ) {
 	do_action( 'woocommerce_review_order_before_payment' );
 }
+
 $can_checkout = true;
+
 foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 	if( !empty( $cart_item['nbo_meta']['wait_price'] ) && $cart_item['nbo_meta']['wait_price']  ) {
 		$can_checkout = false;
 	}
 }
-$extend_style = !$can_checkout ? '' : 'style="cursor: not-allowed; pointer-events: none; opacity: 0.6;"';
+
+$extend_style = $can_checkout ? '' : 'style="cursor: not-allowed; pointer-events: none; opacity: 0.6;"';
+
+
 ?>
 <div id="payment" class="woocommerce-checkout-payment">
 	<?php if ( WC()->cart->needs_payment() ) : ?>
