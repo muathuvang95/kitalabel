@@ -1116,6 +1116,7 @@ function nb_custom_update_cart() {
                 $nbd_field = $fe_options->validate_before_processing( $option_fields, $options_new );
                 if(isset($side)) {
                     $quantity =(int) $side['qty'];
+                    $min_quantity =(int) $side['qty'];
                     if(!$quantity) {
                         $quantity = (int) $item['quantity'];
                     }
@@ -1147,7 +1148,7 @@ function nb_custom_update_cart() {
                         $option_fields['combination']['side'] = $side_page;
                         $option_fields['combination']['qty_breaks'] = $side['qty_breaks'];
                         $option_fields['combination']['combination_selected'] = $side;
-                        $option_fields['combination']['min_qty'] = $quantity;
+                        $option_fields['combination']['min_qty'] = $min_quantity;
                     }
                     $item['nbo_meta']['original_price'] = $side['price'];
                 }

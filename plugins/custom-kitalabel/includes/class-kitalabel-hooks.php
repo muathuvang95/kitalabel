@@ -839,7 +839,7 @@ if (!class_exists('Kitalabel_Custom_Hooks')) {
                             $option_fields = unserialize( base64_decode( $cart_item['nbo_meta']['options']['fields']) );
                             $_min_qty = (int) $option_fields['combination']['min_qty'];
 
-                            if($sum_qty > $_min_qty) {
+                            if($sum_qty >= $_min_qty) {
                                 $quantity = (int) $cart_item['quantity'];
                                 $calculate_price = $this->calculate_price($cart_item, $quantity, $sum_qty);
                                 $old_price = (float) $calculate_price['old_price'];
